@@ -15,9 +15,7 @@ import com.entity.FeaturedProductEntity;
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.service.FeaturedProductService;
-import com.service.ProductsService;
 import com.service.UserService;
-import com.validators.AddOfferValidator;
 
 @RestController
 @RequestMapping("/featured")
