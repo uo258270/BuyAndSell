@@ -1,6 +1,8 @@
 package com.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -152,6 +154,22 @@ public class UserServiceImpl implements UserService {
 		} else {
 			throw new Exception("email can not be null");
 		}
+	}
+	
+	public List<UserEntity> getStandardUsers(){
+		List<UserEntity> users = new ArrayList<UserEntity>();
+		users = userRepository.findByRole("ROLE_USER");
+		return users;
+	}
+	
+	public boolean updateMoney(Long id, Double money) {
+		UserEntity user = userRepository.findById(id).get();
+		if (money > user.getMoney()) {
+			return false;
+		}
+		user.setMoney(user.getMoney() - money);
+		userRepository.save(user);
+		return true;
 	}
 
 

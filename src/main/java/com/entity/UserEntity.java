@@ -4,9 +4,7 @@ package com.entity;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
-import org.springframework.security.core.GrantedAuthority;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,8 +12,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -44,17 +40,46 @@ public class UserEntity implements Serializable{
 	
 	private String password;
 	
+	private String passwordConfirm;
+	
 	private String address;
 	
 	private String role;
 	
 	private Date registerDate;
 	
+	private Double money;
+	
 	
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<ShoppingCartEntity> carts;
 	
 
+	
+
+	public Double getMoney() {
+		return money;
+	}
+
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+
+	public String getPasswordConfirm() {
+		return passwordConfirm;
+	}
+
+	public void setPasswordConfirm(String passwordConfirm) {
+		this.passwordConfirm = passwordConfirm;
+	}
+
+	public List<ShoppingCartEntity> getCarts() {
+		return carts;
+	}
+
+	public void setCarts(List<ShoppingCartEntity> carts) {
+		this.carts = carts;
+	}
 
 	public String getAddress() {
 		return address;

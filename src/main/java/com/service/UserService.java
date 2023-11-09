@@ -24,5 +24,7 @@ public interface UserService {
 	//update
 	void updateUser(UserEntity user) throws Exception;
 
+	boolean updateMoney(Long userId, Double price);
+
 
 }

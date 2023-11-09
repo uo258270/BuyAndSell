@@ -12,6 +12,8 @@ import com.repository.ProductRepository;
 
 import com.service.ProductsService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class ProductsServiceImpl implements ProductsService{
 	
@@ -97,6 +99,7 @@ public class ProductsServiceImpl implements ProductsService{
 	}
 
 
+	@Transactional
 	@Override
 	public boolean updateProduct(ProductEntity product) {
 		// TODO Auto-generated method stub

@@ -39,12 +39,15 @@ public class FeaturedProductServiceImpl implements FeaturedProductService{
 
 	@Override
 	public void addFeatured(ProductEntity product) throws Exception {
-		FeaturedProductEntity fav = new FeaturedProductEntity();
-		fav.setDate(new Date());
-		//pregunta Random o que
-		fav.setFeaturedId(null);
-		fav.setProduct(product);
-		fav.setUser(product.getUser());
+		if(product!=null && product.getUser()!=null) {
+			FeaturedProductEntity fav = new FeaturedProductEntity();
+			fav.setDate(new Date());
+			fav.setProduct(product);
+			fav.setUser(product.getUser());
+		}else {
+			throw new Exception("Product was null");
+		}
+		
 	}
 
 	@Override

@@ -62,6 +62,16 @@ public class ProductEntity implements Serializable{
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	private List<ShoppingCartEntity> carts;
+	
+	
+
+	public List<ShoppingCartEntity> getCarts() {
+		return carts;
+	}
+
+	public void setCarts(List<ShoppingCartEntity> carts) {
+		this.carts = carts;
+	}
 
 	public Long getProductId() {
 		return productId;
