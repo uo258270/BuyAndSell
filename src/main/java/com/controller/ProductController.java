@@ -2,7 +2,7 @@ package com.controller;
 
 import java.security.Principal;
 import java.util.Date;
-
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -10,13 +10,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.service.ProductsService;
+import com.service.RecommendationSystemService;
 import com.service.UserService;
 import com.validators.AddOfferValidator;
 
@@ -33,6 +34,9 @@ public class ProductController {
 
 	@Autowired
 	private AddOfferValidator addOfferValidator;
+	
+	@Autowired
+	private RecommendationSystemService recommendedService;
 	
 
 	
@@ -74,6 +78,11 @@ public class ProductController {
 	}
 	
 
-	
+	@GetMapping("/product/recommended/{userId}")
+    public String listRecommendedProducts(Model model, @PathVariable Long userId) {
+        List<ProductEntity> recommended = recommendedService.getCollaborativeFilteringRecommendations(userId);
+        model.addAttribute("recommended", recommended);
+        return "redirect:/product/list-recommended"; 
+    }
 
 }

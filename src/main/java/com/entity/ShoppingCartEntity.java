@@ -36,12 +36,6 @@ public class ShoppingCartEntity implements Serializable {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "Price")
-	private double price;
-
-	@Column(name = "Amount")
-	private double amount;
-
 	//buyer
 	@ManyToOne
 	private UserEntity user;
@@ -60,22 +54,6 @@ public class ShoppingCartEntity implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public double getPrice() {
-		return price;
-	}
-
-	public void setPrice(double price) {
-		this.price = price;
-	}
-
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
 	}
 
 	public static long getSerialversionuid() {

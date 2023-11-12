@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>{
 	
 	@Transactional
 	@Query("Delete from UserEntity where userId = :id")
-	Integer deleteUser(Long id);
+	int deleteUser(Long id);
 
 	List<UserEntity> findByRole(String string);
 	

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -13,57 +12,60 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-
 @Entity
-@Table(name="PRODUCT")
-public class ProductEntity implements Serializable{
-	
+@Table(name = "PRODUCT")
+public class ProductEntity implements Serializable {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long productId;
 
-	
 	private String name;
-	
-	
+
 	private String detail;
-	
-	
+
 	private Date productDate;
-	
-	
+
 	private Date updateDate;
-	
-	
+
 	private Double price;
-	
-	
-	private Integer stock;
-	
-	
+
+	private int stock;
+
 	private String category;
 
-	private Integer numOfViews;
-	
+	private int numOfViews;
+
 	private List<String> images;
-	
-	//relacion con user
+
+	// relacion con user
 	@ManyToOne
-	@JoinColumn(name="userId")
+	@JoinColumn(name = "userId")
 	private UserEntity user;
-	
-	
+
 	@ManyToMany(fetch = FetchType.LAZY)
 	private List<ShoppingCartEntity> carts;
+
+	@OneToMany(mappedBy = "product")
+	private List<ReviewEntity> ratings;
+
 	
 	
+	public List<ReviewEntity> getRatings() {
+		return ratings;
+	}
+
+	public void setRatings(List<ReviewEntity> ratings) {
+		this.ratings = ratings;
+	}
 
 	public List<ShoppingCartEntity> getCarts() {
 		return carts;
@@ -121,12 +123,23 @@ public class ProductEntity implements Serializable{
 		this.price = price;
 	}
 
-	public Integer getStock() {
+
+	
+
+	public int getStock() {
 		return stock;
 	}
 
-	public void setStock(Integer stock) {
+	public void setStock(int stock) {
 		this.stock = stock;
+	}
+
+	public int getNumOfViews() {
+		return numOfViews;
+	}
+
+	public void setNumOfViews(int numOfViews) {
+		this.numOfViews = numOfViews;
 	}
 
 	public String getCategory() {
@@ -137,13 +150,7 @@ public class ProductEntity implements Serializable{
 		this.category = category;
 	}
 
-	public Integer getNumOfViews() {
-		return numOfViews;
-	}
 
-	public void setNumOfViews(Integer numOfViews) {
-		this.numOfViews = numOfViews;
-	}
 
 	public List<String> getImages() {
 		return images;
@@ -161,7 +168,4 @@ public class ProductEntity implements Serializable{
 		this.user = user;
 	}
 
-	
-
-	
 }

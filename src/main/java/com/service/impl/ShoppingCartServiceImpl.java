@@ -24,7 +24,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 	private ShoppingCartEntity cart = new ShoppingCartEntity();
 
-	
 
 	@Override
 	public void clear(ShoppingCartEntity cart) {
@@ -77,9 +76,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 			List<ShoppingCartEntity> cartsList = cart.getUser().getCarts();
 			cartsList.add(cart);
 			cart.getUser().setCarts(cartsList);
+			for(ProductEntity pro : cart.getProducts()) {
+				pro.setStock(pro.getStock()-1);
+			}
 		}
 		
 	}
+	
+
 	
 	@Transient
 	@Override
@@ -92,6 +96,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 		return sum;
 	}
 
+	
 
 
 }

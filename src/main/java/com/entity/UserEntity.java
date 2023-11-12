@@ -55,7 +55,23 @@ public class UserEntity implements Serializable{
 	private List<ShoppingCartEntity> carts;
 	
 
-	
+	 @OneToMany(mappedBy = "user")
+	 private List<ReviewEntity> ratings;
+	 
+	 
+	 
+
+	public List<ReviewEntity> getRatings() {
+		return ratings;
+	}
+
+	public void setRatings(List<ReviewEntity> ratings) {
+		this.ratings = ratings;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 
 	public Double getMoney() {
 		return money;
