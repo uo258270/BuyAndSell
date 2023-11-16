@@ -1,11 +1,13 @@
 package com.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.entity.ProductEntity;
+import com.entity.ReviewEntity;
+import com.exception.NotFoundException;
 import com.repository.ProductRepository;
 
 import com.service.ProductsService;
@@ -26,10 +28,27 @@ public class ProductsServiceImpl implements ProductsService{
 
 
 	@Override
-	public Page<ProductEntity> getProducts(Pageable pageable) {
-		Page<ProductEntity> product = productRepository.findAll(pageable);
-		return product;
+	public List<ProductEntity> getProducts(Long userId) {
+		List<ProductEntity> product = productRepository.findByUserUserId(userId);
+		if(product!=null) {
+			return product;
+		}
+		else {
+			throw new NotFoundException("This user does not have any published products");
+		}
 	}
+	
+	@Override
+	public List<ProductEntity> getProductsExceptOwn(Long userId) {
+		List<ProductEntity> product = productRepository.findAllByUserUserIdIsNot(userId);
+		 if(product!=null) {
+				return product;
+			}
+			else {
+				throw new NotFoundException("There are no products published yet");
+			}
+	}
+	
 	
 
 	@Override
@@ -95,6 +114,22 @@ public class ProductsServiceImpl implements ProductsService{
 		}
 		
 	}
+	
+	@Override
+	public double calculateAverageRating(Long productId) {
+        List<ReviewEntity> reviews = productRepository.findReviewsByProductId(productId);
+
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0; 
+        }
+
+        int totalRatings = 0;
+        for (ReviewEntity review : reviews) {
+            totalRatings += review.getRating();
+        }
+
+        return (double) totalRatings / reviews.size();
+    }
 
 
 	@Transactional

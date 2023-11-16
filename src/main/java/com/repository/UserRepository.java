@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
 
 
@@ -24,6 +25,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>{
 	int deleteUser(Long id);
 
 	List<UserEntity> findByRole(String string);
+	
+	List<ShoppingCartEntity> findShoppingCartEntityListByUserId(Long userId);
 	
 	
 	

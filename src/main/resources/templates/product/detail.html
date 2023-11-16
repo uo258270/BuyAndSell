@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/head" />
+</head>
+
+<body>
+	<nav th:replace="fragments/nav"></nav>
+
+	<div class="container">
+		<h2 th:text="${product.name}">Nombre del producto</h2>
+
+
+		<div>
+			<p th:text="${product.detail}">Detalle del producto</p>
+		</div>
+
+		<div>
+			<p th:text="${'Precio: $' + product.price}"></p>
+		</div>
+
+		<div>
+			<p th:text="${'Stock: ' + product.stock}"></p>
+		</div>
+
+		<div>
+			<p th:text="${'Categoria: ' + product.category}"></p>
+		</div>
+
+		<div>
+			<h3>Images</h3>
+			<ul>
+				<li th:each="image : ${product.images}">
+					<img th:src="${image}" alt="Imagen del producto" onerror="this.style.display='none'" />
+				</li>
+			</ul>
+		</div>
+
+		<div>
+			<h3>Valoracion media del producto</h3>
+			<div th:if="${reviews != null}">
+				<p>
+					<span class="star-rating" th:utext="${'&#9733;'.repeat(averageRating)}"></span>
+					<span th:text="${'Valoracion media: ' + averageRating}"></span>
+				</p>
+			</div>
+		</div>
+
+
+		<div>
+			<h3>Reseñas de los productos</h3>
+			<ul th:if="${reviews != null}">
+				<li th:each="review : ${reviews}">
+					<p>
+						<span class="star-rating" th:utext="${'&#9733;'.repeat(review.rating)}"></span>
+						<span th:text="${'Valoracion: ' + review.rating}"></span>
+					</p>
+					<p th:text="${'Commentario: ' + review.comment}"></p>
+					<a th:if="${#authorization.expression('isAuthenticated() and ' + 'principal.username == ' + review.user.email)}"
+						th:href="@{/reviews/delete/{id}(id=${review.id})}" class="delete-review">Eliminar</a>
+				</li>
+			</ul>
+		</div>
+
+
+		<a th:href="@{/product/listProducts}" class="back-button">Volver a la lista de productos</a>
+	</div>
+
+	<!-- Pie de Página -->
+	<footer th:replace="fragments/footer" />
+</body>
+
+</html>

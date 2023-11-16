@@ -10,7 +10,6 @@ import com.entity.ShoppingCartEntity;
 public interface ShoppingCartRepository extends JpaRepository<ShoppingCartEntity, Long>{
 
 	
-	//preguntar
 	@Query("Select f from ShoppingCartEntity f where f.user.userId= :userId")
 	List<ShoppingCartEntity> getByUserId(Long userId);
 	

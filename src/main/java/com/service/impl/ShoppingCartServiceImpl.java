@@ -5,25 +5,37 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.entity.ProductEntity;
 import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
+import com.exception.NotEnoughMoney;
 import com.repository.ShoppingCartRepository;
+import com.repository.UserRepository;
 import com.service.ShoppingCartService;
 
-import jakarta.persistence.Transient;
 
 @Service
-@Scope("session")
+@Scope(scopeName = "session", proxyMode = ScopedProxyMode.INTERFACES)
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 	@Autowired
 	private ShoppingCartRepository shoppingCartRepo;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	private ShoppingCartEntity cart = new ShoppingCartEntity();
 
+
+	public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepo, ShoppingCartEntity cart) {
+		super();
+		this.shoppingCartRepo = shoppingCartRepo;
+		this.cart = cart;
+	}
 
 	@Override
 	public void clear(ShoppingCartEntity cart) {
@@ -65,38 +77,21 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	}
 
 	@Override
-	public void buyShoppingCart() {
-		Double total = getTotalOrderPrice();
-		if(cart.getUser().getMoney()>=total) {
-			//restar dinero
-			Double initialMoney = cart.getUser().getMoney();
-			Double reductedMoney = initialMoney-total;
-			cart.getUser().setMoney(reductedMoney);
-			//añadir compra al usuario
-			List<ShoppingCartEntity> cartsList = cart.getUser().getCarts();
-			cartsList.add(cart);
-			cart.getUser().setCarts(cartsList);
-			for(ProductEntity pro : cart.getProducts()) {
-				pro.setStock(pro.getStock()-1);
-			}
+	@Transactional
+	public void buyShoppingCart(String userName) throws NotEnoughMoney {
+		UserEntity user = userRepository.findByUsername(userName);
+		if(user.getMoney()>=cart.getTotalOrderPrice()) {
+			cart.buy(user);
+			shoppingCartRepo.save(cart);
 		}
-		
-	}
-	
-
-	
-	@Transient
-	@Override
-	public Double getTotalOrderPrice() {
-		double sum = 0D;
-		List<ProductEntity> products = cart.getProducts();
-		for (ProductEntity op : products) {
-			sum += op.getPrice();
-		}
-		return sum;
+		else {
+			throw new NotEnoughMoney("User doesn't have enough money");
+		}		
 	}
 
 	
+	
 
+	
 
 }

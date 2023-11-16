@@ -129,10 +129,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void deleteUser(Long userId) throws Exception {
 		if (userId != null) {
-			Integer response = userRepository.deleteUser(userId);
-			if (response == null) {
-				throw new Exception("this user can not be deleted");
-			}
+			userRepository.deleteUser(userId);
 		} else {
 			throw new Exception("userId can not be null");
 		}

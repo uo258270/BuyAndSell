@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.entity.ProductEntity;
 import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
+import com.exception.NotEnoughMoney;
 
 public interface ShoppingCartService {
 
@@ -25,10 +26,8 @@ public interface ShoppingCartService {
 
 	void deleteProductFromShoppingCart(ProductEntity product);
 
-	Double getTotalOrderPrice();
-
-	void buyShoppingCart();
-
+	
+	 void buyShoppingCart(String name) throws NotEnoughMoney;
 
 	
 	

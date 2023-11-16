@@ -60,7 +60,7 @@ public class UserController {
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	public String home(Model model, Principal principal) throws Exception {
 		UserEntity user = usersService.findByEmail(principal.getName());
-	//	httpSession.setAttribute("money", user.getMoney());
+		httpSession.setAttribute("money", user.getMoney());
 		httpSession.setAttribute("email", user.getEmail());
 		
 		return "home";

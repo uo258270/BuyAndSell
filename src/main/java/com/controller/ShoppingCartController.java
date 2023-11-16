@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.entity.ProductEntity;
 import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
+import com.exception.NotEnoughMoney;
 import com.exception.NotFoundException;
 import com.service.ProductsService;
 import com.service.ShoppingCartService;
@@ -35,6 +36,16 @@ public class ShoppingCartController {
 	
 	@Autowired
 	ProductsService productService;
+	
+	
+
+	public ShoppingCartController(ShoppingCartService shoppingCartService, UserService userService,
+			ProductsService productService) {
+		super();
+		this.shoppingCartService = shoppingCartService;
+		this.userService = userService;
+		this.productService = productService;
+	}
 
 	@PostMapping("/addProduct")
 	public String addItem(@RequestBody ProductEntity product) throws Exception {
@@ -89,13 +100,13 @@ public class ShoppingCartController {
 	
 	@RequestMapping("/buy")
 	public String buyProduct(@PathVariable Long id, Principal principal) throws Exception {
-		String email = principal.getName();
-		UserEntity user = userService.findByEmail(email);
-		if(userService.updateMoney(user.getUserId(), shoppingCartService.getTotalOrderPrice())) {
-			shoppingCartService.buyShoppingCart();
+		try {
+			shoppingCartService.buyShoppingCart(principal.getName());
 			return "redirect:/home";
-		}	
-		return "/noMoney";	
+		}
+		catch (NotEnoughMoney e) { 
+			return "/noMoney";
+		}
 	}
 
 }

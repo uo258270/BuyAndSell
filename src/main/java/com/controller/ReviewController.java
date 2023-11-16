@@ -25,20 +25,19 @@ public class ReviewController {
 
 		List<ReviewEntity> reviews = reviewService.getReviewsByProductId(productId);
 		model.addAttribute("reviews", reviews);
-		return "reviews/verReviews";
+		return "reviews/listReview";
 	}
 	
 	@PostMapping("/reviews/add")
     public String addReview(Model model, ReviewEntity review) throws UnauthorizedException {
         reviewService.addReview(review);
-        return "reviews/formulario-review";
+        return "redirect:/product/detail/" + review.getProduct().getProductId();
     }
 	
 	
 	@PostMapping("/reviews/delete/{id}")
 	public String deleteReview(@PathVariable Long id) {
-	    // Aquí puedes realizar validaciones y eliminar la reseña de la base de datos
 	    reviewService.deleteReview(id);
-	    return "redirect:/productos"; // Redirige a la página de productos u otra página
+	    return "redirect:/productos"; 
 	}
 }

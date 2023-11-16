@@ -10,6 +10,6 @@ import com.entity.ReviewEntity;
 @Repository
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long>{
 
-	List<ReviewEntity> findByProductId(Long productId);
+	List<ReviewEntity> findByProductProductId(Long productId);
 
 }

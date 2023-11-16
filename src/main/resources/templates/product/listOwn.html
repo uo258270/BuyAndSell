@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head" />
+<style>
+    .product-list {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .product-info {
+        max-width: 80%; /* Ajusta según sea necesario */
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 10px;
+    }
+</style>
+</head>
+<body>
+    <!-- Barra de Navegación superior-->
+    <nav th:replace="fragments/nav"></nav>
+
+    <div class="container">
+        <h2>Your Own Products</h2>
+
+        <!-- Tus productos -->
+        <ul th:if="${not #lists.isEmpty(products)}" th:each="product : ${products}" class="product-list">
+            <li class="product-info">
+                <p th:text="${product.name}"></p>
+                <p th:text="${product.detail}"></p>
+                <p th:text="${product.productDate}"></p>
+                <p th:text="${product.price}"></p>
+            </li>
+
+            <li class="product-actions">
+                <!-- Botón de Editar -->
+                <a th:href="@{/product/edit/{id}(id=${product.productId})}" class="edit-product">Editar</a>
+
+                <!-- Botón de Eliminar -->
+                <a th:href="@{/product/delete/{id}(id=${product.productId})}" class="delete-product">Borrar</a>
+            </li>
+        </ul>
+
+        <p th:if="${#lists.isEmpty(products)}">Aun no tienes productos publicados.</p>
+    </div>
+
+    <footer th:replace="fragments/footer" /></footer>
+</body>
+</html>

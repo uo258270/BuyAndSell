@@ -1,0 +1,54 @@
+<!-- nav.html -->
+<nav class="navbar navbar-inverse">
+	<div class="container-fluid">
+		<ul class="nav navbar-nav">
+			<li><a href="/home">Home</a></li>
+			<li id="offers-menu" class="dropdown" sec:authorize="isAuthenticated()"><a class="dropdown-toggle"
+					data-toggle="dropdown" href="#" th:text="#{nav.manageOffers}"> <span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="/product/add" th:text="#{product.add}">Añadir un producto</a></li>
+					<li><a href="/product/listOwn" th:text="#{nav.seeYourProducts}">Ver mis productos</a></li>
+					<li><a href="/product/listProducts" th:text="#{nav.seeAllProducts}">Ver productos</a></li>
+					<li><a href="/product/search" th:text="#{lookProduct}">Buscar producto</a></li>
+					<li><a href="/featured/list" th:text="#{nav.seeYourFavorites}">Mis productos favoritos</a></li>
+				</ul>
+
+			<li id="users-menu" class="dropdown" sec:authorize="hasRole('ROLE_ADMIN')"><a class="dropdown-toggle"
+					data-toggle="dropdown" href="#"> <span th:text="#{users.menu}"></span> <span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+					<li><a href="/user/list"><span th:text="#{users.list}"></span></a></li>
+				</ul>
+			</li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+			<li sec:authorize="isAuthenticated()"><a><span class="glyphicon glyphicon-euro"
+						th:text="${session.money}"></span></a></li>
+			<li sec:authorize="isAuthenticated()"><a><span th:text="${session.email}"></span></a></li>
+
+			<li class="dropdown"><a id="btnLanguage" href="#" class="dropdown-toggle" data-toggle="dropdown"
+					role="button" aria-haspopup="true" aria-expanded="false"> <span th:text="#{language.change}"></span>
+					<span class="caret"></span>
+				</a>
+				<ul id="languageDropdownMenuButton" class="dropdown-menu">
+					<li><a id="btnEnglish" value="EN"> <img th:src="@{/img/if_uk_flag.png}"
+								style="border: 0; float: left; margin-right: 15px" /> <span
+								th:text="#{language.en}">Inglés</span>
+						</a></li>
+					<li><a id="btnSpanish" value="ES"> <img th:src="@{/img/if_spain_flag.png}"
+								style="border: 0; float: left; margin-right: 15px" /> <span
+								th:text="#{language.es}">Español</span>
+						</a></li>
+				</ul>
+			</li>
+			<li sec:authorize="!isAuthenticated()"><a href="/signup"> <span class="glyphicon glyphicon-user"></span>
+					<span th:text="#{signup.message}"></a></li>
+			<li sec:authorize="!isAuthenticated()"><a href="/login"> <span class="glyphicon glyphicon-log-in"></span>
+					<span th:text="#{login.message}"></a></li>
+			<li sec:authorize="isAuthenticated()"><a href="/logout"> <span class="glyphicon glyphicon-log-out"
+						th:text="#{logout.message}"></span>
+				</a></li>
+
+		</ul>
+	</div>
+</nav>

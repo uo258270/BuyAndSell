@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head" />
+</head>
+<body>
+    <nav th:replace="fragments/nav"></nav>
+
+    <div class="container">
+        <h2>Añadir nuevo producto</h2>
+
+         <form th:action="@{/product/add}" method="post" th:object="${newProduct}" enctype="multipart/form-data">
+            <!-- Campos del formulario -->
+            <div>
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" name="name" th:field="*{name}" />
+            </div>
+
+            <div>
+                <label for="detail">Detalle:</label>
+                <textarea id="detail" name="detail" th:field="*{detail}"></textarea>
+            </div>
+
+            <div>
+                <label for="price">Precio:</label>
+                <input type="text" id="price" name="price" th:field="*{price}" />
+            </div>
+
+            <div>
+                <label for="stock">Stock:</label>
+                <input type="text" id="stock" name="stock" th:field="*{stock}" />
+            </div>
+
+            <div>
+                <label for="category">Categoria:</label>
+                <input type="text" id="category" name="category" th:field="*{category}" />
+            </div>
+
+           ¡ <div>
+                <label for="images">Imagenes:</label>
+                <input type="file" id="images" name="images" accept="image/*" multiple />
+            </div>
+
+            <button type="submit">Añadir producto</button>
+        </form>
+    </div>
+
+    <footer th:replace="fragments/footer" /></footer>
+</body>
+</html>

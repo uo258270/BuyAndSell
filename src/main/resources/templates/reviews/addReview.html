@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head" />
+</head>
+<body>
+    <nav th:replace="fragments/nav"></nav>
+
+    <div class="container">
+        <h2>Añadir una reseña</h2>
+
+        <form th:action="@{/reviews/add}" method="post" th:object="${review}">
+            <input type="hidden" th:field="*{productId}" th:value="${productId}" />
+            
+            <div>
+                <label for="rating">Valoracion:</label>
+                <input type="number" id="rating" name="rating" min="1" max="5" th:field="*{rating}" required />
+            </div>
+
+            <div>
+                <label for="comment">Comentario:</label>
+                <textarea id="comment" name="comment" th:field="*{comment}" required></textarea>
+            </div>
+
+            <button type="submit">Enviar reseña</button>
+        </form>
+
+         <a th:href="@{/product/detail/{productId}(productId=${productId})}" class="back-button">Volver al Producto</a>
+    </div>
+
+    <!-- Pie de Página -->
+    <footer th:replace="fragments/footer" />
+</body>
+</html>

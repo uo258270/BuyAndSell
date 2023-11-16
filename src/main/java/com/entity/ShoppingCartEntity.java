@@ -83,5 +83,22 @@ public class ShoppingCartEntity implements Serializable {
 	public void setDateCreated(LocalDate dateCreated) {
 		this.dateCreated = dateCreated;
 	}
+	
+	public Double getTotalOrderPrice() {
+		double sum = 0D;
+		for (ProductEntity op : products) {
+			sum += op.getPrice();
+		}
+		return sum;
+	}
+
+	public void buy(UserEntity user) {
+		user.decMoney(getTotalOrderPrice());
+		this.user = user;
+		this.user._getCarts().add(this);
+		for (ProductEntity p: this.products) {
+			p.decStock();
+		}
+	}
 
 }

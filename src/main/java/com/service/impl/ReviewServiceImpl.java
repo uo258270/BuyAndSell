@@ -22,7 +22,7 @@ public class ReviewServiceImpl implements ReviewService{
 	
 	@Override
 	public List<ReviewEntity> getReviewsByProductId(Long productId) {
-        return reviewRepository.findByProductId(productId);
+        return reviewRepository.findByProductProductId(productId);
     }
 
 	@Override

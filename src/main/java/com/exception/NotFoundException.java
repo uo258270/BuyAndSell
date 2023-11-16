@@ -2,7 +2,12 @@ package com.exception;
 
 public class NotFoundException extends RuntimeException{
 	
-	 public NotFoundException(String message) {
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8970459855932992873L;
+
+	public NotFoundException(String message) {
 	        super(message);
 	    }
 

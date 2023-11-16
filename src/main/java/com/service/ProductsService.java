@@ -1,7 +1,6 @@
 package com.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 import com.entity.ProductEntity;
 
@@ -20,5 +19,8 @@ public interface ProductsService {
 	boolean updateProduct(ProductEntity product);
 	
 	//listar productos
-	Page<ProductEntity> getProducts(Pageable pageable);
+	List<ProductEntity> getProducts(Long userId);
+	
+	List<ProductEntity> getProductsExceptOwn(Long userId);
+	double calculateAverageRating(Long productId);
 }

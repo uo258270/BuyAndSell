@@ -8,8 +8,10 @@ public interface RecommendationSystemService {
 
 	List<ProductEntity> getMostPopularProducts() throws Exception;
 
-	List<ProductEntity> getCollaborativeFilteringRecommendations(Long userId);
-
 	List<ProductEntity> getTopRatedProducts() throws Exception;
+
+	List<ProductEntity> getProductsBySimilarReviewUsers(Long userId);
+
+	List<ProductEntity> getProductsBySimilarUserCarts(Long userId);
 
 }

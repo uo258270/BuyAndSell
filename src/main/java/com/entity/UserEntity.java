@@ -2,9 +2,9 @@ package com.entity;
 
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,17 +56,19 @@ public class UserEntity implements Serializable{
 	
 
 	 @OneToMany(mappedBy = "user")
-	 private List<ReviewEntity> ratings;
+	 private List<ReviewEntity> reviews;
 	 
 	 
 	 
 
-	public List<ReviewEntity> getRatings() {
-		return ratings;
+	
+
+	public List<ReviewEntity> getReviews() {
+		return reviews;
 	}
 
-	public void setRatings(List<ReviewEntity> ratings) {
-		this.ratings = ratings;
+	public void setReviews(List<ReviewEntity> reviews) {
+		this.reviews = reviews;
 	}
 
 	public static long getSerialversionuid() {
@@ -80,6 +82,11 @@ public class UserEntity implements Serializable{
 	public void setMoney(Double money) {
 		this.money = money;
 	}
+	
+	public void decMoney(double qty) {
+		if (this.money < qty) throw new IllegalArgumentException();
+		this.money -= qty;
+	}
 
 	public String getPasswordConfirm() {
 		return passwordConfirm;
@@ -90,11 +97,11 @@ public class UserEntity implements Serializable{
 	}
 
 	public List<ShoppingCartEntity> getCarts() {
-		return carts;
+		return Collections.unmodifiableList(carts);
 	}
-
-	public void setCarts(List<ShoppingCartEntity> carts) {
-		this.carts = carts;
+	
+	/* package private */ List<ShoppingCartEntity> _getCarts() {
+		return this.carts;
 	}
 
 	public String getAddress() {

@@ -1,0 +1,43 @@
+/* Sticky footer styles-------------------------------------------------- */
+html {
+	position: relative;
+	min-height: 100%;
+}
+
+body {
+	/* Margin bottom by footer height */
+	margin-bottom: 60px;
+}
+
+footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 60px;
+	background-color: #101010;
+	text-align: center;
+	line-height: 60px
+}
+/* Sticky footer styles-------------------------------------------------- */
+.my-custom-scrollbar {
+	position: relative;
+	height: 200px;
+	overflow: auto;
+}
+
+.table-wrapper-scroll-y {
+	display: block;
+}
+.all-products {
+    display: flex; /* Establece un contenedor flexible */
+    overflow-x: auto; /* Agrega una barra de desplazamiento horizontal cuando sea necesario */
+    white-space: nowrap; /* Evita el retorno de línea de los elementos hijos */
+}
+
+.product-list {
+    list-style-type: none; /* Quita los puntos de lista */
+    margin: 0;
+    padding: 0;
+    display: inline-block; /* Muestra los elementos de la lista en línea */
+    margin-right: 10px; /* Espacio entre elementos */
+}

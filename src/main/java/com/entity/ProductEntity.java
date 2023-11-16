@@ -55,16 +55,16 @@ public class ProductEntity implements Serializable {
 	private List<ShoppingCartEntity> carts;
 
 	@OneToMany(mappedBy = "product")
-	private List<ReviewEntity> ratings;
+	private List<ReviewEntity> reviews;
 
 	
 	
-	public List<ReviewEntity> getRatings() {
-		return ratings;
+	public List<ReviewEntity> getReviews() {
+		return reviews;
 	}
 
-	public void setRatings(List<ReviewEntity> ratings) {
-		this.ratings = ratings;
+	public void setReviews(List<ReviewEntity> reviews) {
+		this.reviews = reviews;
 	}
 
 	public List<ShoppingCartEntity> getCarts() {
@@ -166,6 +166,12 @@ public class ProductEntity implements Serializable {
 
 	public void setUser(UserEntity user) {
 		this.user = user;
+	}
+
+	public void decStock() {
+		if (stock == 0) throw new IllegalArgumentException();
+		stock--;
+		
 	}
 
 }
