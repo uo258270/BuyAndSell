@@ -20,7 +20,6 @@ public interface ShoppingCartService {
 
 	Optional<ShoppingCartEntity> getCart();
 
-	void addProduct(ProductEntity product);
 
 	List<ShoppingCartEntity> findShoppingsByUser(UserEntity user);
 
@@ -28,6 +27,12 @@ public interface ShoppingCartService {
 
 	
 	 void buyShoppingCart(String name) throws NotEnoughMoney;
+
+	void incrementProductQuantity(Long productId);
+
+	void decrementProductQuantity(Long productId);
+
+	void addProduct(ProductEntity product, int quantity);
 
 	
 	

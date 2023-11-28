@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,7 +52,7 @@ public class UserEntity implements Serializable{
 	private Double money;
 	
 	
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<ShoppingCartEntity> carts;
 	
 
@@ -176,6 +177,30 @@ public class UserEntity implements Serializable{
 
 	public void setRole(String role) {
 		this.role = role;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(address, carts, email, lastName, money, name, password, passwordConfirm, registerDate,
+				reviews, role, userId, username);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserEntity other = (UserEntity) obj;
+		return Objects.equals(address, other.address) && Objects.equals(carts, other.carts)
+				&& Objects.equals(email, other.email) && Objects.equals(lastName, other.lastName)
+				&& Objects.equals(money, other.money) && Objects.equals(name, other.name)
+				&& Objects.equals(password, other.password) && Objects.equals(passwordConfirm, other.passwordConfirm)
+				&& Objects.equals(registerDate, other.registerDate) && Objects.equals(reviews, other.reviews)
+				&& Objects.equals(role, other.role) && Objects.equals(userId, other.userId)
+				&& Objects.equals(username, other.username);
 	}
 
 	

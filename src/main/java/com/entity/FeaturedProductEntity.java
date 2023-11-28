@@ -2,6 +2,7 @@ package com.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -66,6 +67,24 @@ public class FeaturedProductEntity implements Serializable{
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(date, featuredId, product, user);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FeaturedProductEntity other = (FeaturedProductEntity) obj;
+		return Objects.equals(date, other.date) && Objects.equals(featuredId, other.featuredId)
+				&& Objects.equals(product, other.product) && Objects.equals(user, other.user);
 	}
 	
 	

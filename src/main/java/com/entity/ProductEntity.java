@@ -3,6 +3,7 @@ package com.entity;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -45,6 +46,7 @@ public class ProductEntity implements Serializable {
 	private int numOfViews;
 
 	private List<String> images;
+	
 
 	// relacion con user
 	@ManyToOne
@@ -57,8 +59,6 @@ public class ProductEntity implements Serializable {
 	@OneToMany(mappedBy = "product")
 	private List<ReviewEntity> reviews;
 
-	
-	
 	public List<ReviewEntity> getReviews() {
 		return reviews;
 	}
@@ -173,5 +173,28 @@ public class ProductEntity implements Serializable {
 		stock--;
 		
 	}
+
+
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(productId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProductEntity other = (ProductEntity) obj;
+		return Objects.equals(productId, other.productId);
+	}
+
+	
+	
+	
 
 }

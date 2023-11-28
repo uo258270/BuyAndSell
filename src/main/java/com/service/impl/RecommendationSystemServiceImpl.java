@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.entity.ProductCartEntity;
 import com.entity.ProductEntity;
 import com.entity.ReviewEntity;
 import com.entity.ShoppingCartEntity;
@@ -19,6 +20,8 @@ import com.service.RecommendationSystemService;
 
 @Service
 public class RecommendationSystemServiceImpl implements RecommendationSystemService {
+
+	private static final int maxProductos = 5;
 
 	@Autowired
 	private ProductRepository productRepository;
@@ -54,18 +57,22 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 			}
 		}
 
-		// Filtrar usuarios similares y obtener productos recomendados
-		List<ProductEntity> recommendedProducts = new ArrayList<>();
+		Set<ProductEntity> recommendedProducts = new HashSet<>();
 		userSimilarities.sort(Comparator.comparingDouble(UserSimilarity::getSimilarity).reversed());
 		for (UserSimilarity similarity : userSimilarities) {
-			for (ReviewEntity rating : similarity.getUser().getReviews()) {
-				recommendedProducts.add(rating.getProduct());
+			for (ReviewEntity review : similarity.getUser().getReviews()) {
+
+				if (review.getRating() >= 4) {
+					recommendedProducts.add(review.getProduct());
+				}
+
+				if (recommendedProducts.size() >= maxProductos) {
+					return new ArrayList<>(recommendedProducts);
+				}
 			}
 		}
 
-		// Eliminar duplicados y devolver la lista de productos recomendados
-		Set<ProductEntity> uniqueProducts = new HashSet<>(recommendedProducts);
-		return new ArrayList<>(uniqueProducts);
+		return new ArrayList<>(recommendedProducts);
 	}
 
 	// Correlacion de Pearson
@@ -149,7 +156,7 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 		if (prods != null) {
 			return prods;
 		} else {
-			throw new Exception("there are no best rated products");
+			throw new Exception("there are the best rated products");
 		}
 
 	}
@@ -180,8 +187,8 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 		List<Long> similarUserPurchases = new ArrayList<>();
 		for (UserEntity user : similarUsersList) {
 			for (ShoppingCartEntity cart : user.getCarts()) {
-				for (ProductEntity product : cart.getProducts()) {
-					similarUserPurchases.add(product.getProductId());
+				for (ProductCartEntity product : cart.getProductCartEntities()) {
+					similarUserPurchases.add(product.getProduct().getProductId());
 				}
 			}
 		}
@@ -191,8 +198,8 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 		for (Long productId : similarUserPurchases) {
 			boolean alreadyPurchased = false;
 			for (ShoppingCartEntity userPurchase : userPurchases) {
-				for (ProductEntity userProduct : userPurchase.getProducts()) {
-					if (userProduct.getProductId().equals(productId)) {
+				for (ProductCartEntity userProduct : userPurchase.getProductCartEntities()) {
+					if (userProduct.getProduct().getProductId().equals(productId)) {
 						alreadyPurchased = true;
 						break;
 					}
@@ -213,14 +220,14 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 			List<ShoppingCartEntity> otherUserPurchases) {
 		List<Long> userProductIds = new ArrayList<>();
 		for (ShoppingCartEntity purchase : userPurchases) {
-			for (ProductEntity product : purchase.getProducts()) {
-				userProductIds.add(product.getProductId());
+			for (ProductCartEntity product : purchase.getProductCartEntities()) {
+				userProductIds.add(product.getProduct().getProductId());
 			}
 		}
 		List<Long> otherUserProductIds = new ArrayList<>();
 		for (ShoppingCartEntity purchase : otherUserPurchases) {
-			for (ProductEntity product : purchase.getProducts()) {
-				otherUserProductIds.add(product.getProductId());
+			for (ProductCartEntity product : purchase.getProductCartEntities()) {
+				otherUserProductIds.add(product.getProduct().getProductId());
 			}
 		}
 

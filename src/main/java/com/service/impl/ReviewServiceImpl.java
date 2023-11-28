@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.entity.ProductCartEntity;
 import com.entity.ProductEntity;
 import com.entity.ReviewEntity;
 import com.entity.ShoppingCartEntity;
@@ -51,8 +52,8 @@ public class ReviewServiceImpl implements ReviewService{
 	    List<ShoppingCartEntity> carts = user.getCarts();
 	    
 	    for (ShoppingCartEntity cart : carts) {
-	        for (ProductEntity cartProduct : cart.getProducts()) {
-	            if (cartProduct.equals(product)) {
+	        for (ProductCartEntity cartProduct : cart.getProductCartEntities()) {
+	            if (cartProduct.getProduct().equals(product)) {
 	                return true; 
 	            }
 	        }

@@ -2,23 +2,22 @@ package com.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="CART")
+@Table(name = "CART")
 public class ShoppingCartEntity implements Serializable {
 
 	/**
@@ -26,27 +25,28 @@ public class ShoppingCartEntity implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	
-
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate dateCreated;
 
 	@Id
 	@Column(name = "ID", length = 50, nullable = false)
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	//buyer
+	// buyer
 	@ManyToOne
 	private UserEntity user;
-	
-	@ManyToMany(fetch = FetchType.LAZY)
-	private List<ProductEntity> products = new ArrayList<>();
-	
-	
 
+	@OneToMany(mappedBy = "cart")
+	private List<ProductCartEntity> productCartEntities;
 
-	
+	public List<ProductCartEntity> getProductCartEntities() {
+		return productCartEntities;
+	}
+
+	public void setProductCartEntities(List<ProductCartEntity> productCartEntities) {
+		this.productCartEntities = productCartEntities;
+	}
 
 	public Long getId() {
 		return id;
@@ -58,14 +58,6 @@ public class ShoppingCartEntity implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	}
-
-	public List<ProductEntity> getProducts() {
-		return products;
-	}
-
-	public void setProducts(List<ProductEntity> products) {
-		this.products = products;
 	}
 
 	public UserEntity getUser() {
@@ -83,22 +75,49 @@ public class ShoppingCartEntity implements Serializable {
 	public void setDateCreated(LocalDate dateCreated) {
 		this.dateCreated = dateCreated;
 	}
-	
+
+	// preguntar el añadir cantidad
 	public Double getTotalOrderPrice() {
 		double sum = 0D;
-		for (ProductEntity op : products) {
-			sum += op.getPrice();
+		for (ProductCartEntity productCartEntity : productCartEntities) {
+			ProductEntity product = productCartEntity.getProduct();
+
+			if (productCartEntity.getQuantityInCart() == 1) {
+				sum += product.getPrice();
+			} else if (productCartEntity.getQuantityInCart() > 1) {
+				sum += product.getPrice() * productCartEntity.getQuantityInCart();
+			}
 		}
 		return sum;
 	}
 
 	public void buy(UserEntity user) {
-		user.decMoney(getTotalOrderPrice());
+		double totalOrderPrice = getTotalOrderPrice();
+		user.decMoney(totalOrderPrice);
 		this.user = user;
 		this.user._getCarts().add(this);
-		for (ProductEntity p: this.products) {
-			p.decStock();
+
+		for (ProductCartEntity productCartEntity : productCartEntities) {
+			ProductEntity product = productCartEntity.getProduct();
+			product.decStock();
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ShoppingCartEntity other = (ShoppingCartEntity) obj;
+		return  Objects.equals(id, other.id);
 	}
 
 }

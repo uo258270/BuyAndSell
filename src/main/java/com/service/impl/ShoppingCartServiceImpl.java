@@ -9,14 +9,16 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.entity.ProductCartEntity;
 import com.entity.ProductEntity;
 import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
 import com.exception.NotEnoughMoney;
+import com.repository.ProductCartRepository;
+import com.repository.ProductRepository;
 import com.repository.ShoppingCartRepository;
 import com.repository.UserRepository;
 import com.service.ShoppingCartService;
-
 
 @Service
 @Scope(scopeName = "session", proxyMode = ScopedProxyMode.INTERFACES)
@@ -24,12 +26,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 	@Autowired
 	private ShoppingCartRepository shoppingCartRepo;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
-	private ShoppingCartEntity cart = new ShoppingCartEntity();
+	@Autowired
+	private ProductRepository productRepository;
+	
+	private ProductCartRepository productCartRepository;
 
+	private ShoppingCartEntity cart = new ShoppingCartEntity();
 
 	public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepo, ShoppingCartEntity cart) {
 		super();
@@ -39,7 +45,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 	@Override
 	public void clear(ShoppingCartEntity cart) {
-		cart.getProducts().clear();
+		cart.getProductCartEntities().clear();
 	}
 
 	@Override
@@ -54,21 +60,53 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 	@Override
 	public void deleteProductFromShoppingCart(ProductEntity product) {
-		if (cart != null && cart.getProducts() != null) {
-			List<ProductEntity> productos = cart.getProducts();
-			if (productos != null && !productos.isEmpty()) {
-				productos.remove(product);
-			} else {
-				throw new RuntimeException("There are no products in this cart");
-			}
-		}
+		if (cart != null && cart.getProductCartEntities() != null) {
+	        List<ProductCartEntity> productCartEntities = cart.getProductCartEntities();
+
+	        for (ProductCartEntity pc : productCartEntities) {
+	            if (pc.getProduct().equals(product)) {
+	                productCartEntities.remove(pc);
+	                return; 
+	            }
+	        }
+
+	        throw new RuntimeException("Product not found in this cart");
+	    } else {
+	        throw new RuntimeException("There are no products in this cart");
+	    }
 
 	}
 
+	//preguntar esto
 	@Override
-	public void addProduct(ProductEntity product) {
-		List<ProductEntity> productos = cart.getProducts();
-		productos.add(product);
+	public void addProduct(ProductEntity product, int quantity) {
+		 ProductCartEntity existingProductCart = findProductInCart(cart, product);
+
+        if (existingProductCart != null) {
+            existingProductCart.incQuantity(product);
+            productCartRepository.save(existingProductCart);
+        } else {
+            ProductCartEntity newProductCart = new ProductCartEntity();
+            newProductCart.setCart(cart);
+            newProductCart.setProduct(product);
+            newProductCart.setQuantityInCart(quantity);
+            productCartRepository.save(newProductCart);
+            
+            cart.getProductCartEntities().add(newProductCart);
+            shoppingCartRepo.save(cart);
+        }
+	}
+	
+	private ProductCartEntity findProductInCart(ShoppingCartEntity cart, ProductEntity product) {
+	    List<ProductCartEntity> productCartEntities = cart.getProductCartEntities();
+
+	    for (ProductCartEntity pc : productCartEntities) {
+	        if (pc.getProduct().equals(product)) {
+	            return pc;
+	        }
+	    }
+
+	    return null;
 	}
 
 	@Override
@@ -80,18 +118,44 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	@Transactional
 	public void buyShoppingCart(String userName) throws NotEnoughMoney {
 		UserEntity user = userRepository.findByUsername(userName);
-		if(user.getMoney()>=cart.getTotalOrderPrice()) {
+		if (user.getMoney() >= cart.getTotalOrderPrice()) {
 			cart.buy(user);
 			shoppingCartRepo.save(cart);
-		}
-		else {
+			for (ProductCartEntity product : cart.getProductCartEntities()) {
+				product.setQuantityInCart(0);
+			}
+		} else {
 			throw new NotEnoughMoney("User doesn't have enough money");
-		}		
+		}
+	}
+	
+	
+	@Override
+	public void incrementProductQuantity(Long productId) {
+		ProductEntity prod = productRepository.findByProductId(productId);
+		 for (ProductCartEntity productInCart : cart.getProductCartEntities()) {
+		        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+		            productInCart.incQuantity(prod);
+		            productRepository.save(prod);
+		            break;
+		        }
+		    }
+
 	}
 
-	
-	
+	@Override
+	public void decrementProductQuantity(Long productId) {
+		ProductEntity prod = productRepository.findByProductId(productId);
+	    for (ProductCartEntity productInCart : cart.getProductCartEntities()) {
+	        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+	            if (productInCart.getQuantityInCart() > 0) {
+	            	productInCart.decQuantity(); 
+	                productRepository.save(prod);  
+	                break;
+	            }
+	        }
+	    }
 
-	
+	}
 
 }

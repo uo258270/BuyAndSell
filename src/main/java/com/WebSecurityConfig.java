@@ -31,11 +31,13 @@ public class WebSecurityConfig {
 			
 			.authorizeHttpRequests(request -> {
 				request
+					.requestMatchers(mvc.pattern("/home")).permitAll()
+					.requestMatchers(mvc.pattern("/error")).permitAll()
 					.requestMatchers(mvc.pattern("/css/**"), mvc.pattern("/img/**"), mvc.pattern("/script/**"), mvc.pattern("/"), mvc.pattern("/signup"), mvc.pattern("/login/**")).permitAll()
 					.requestMatchers(mvc.pattern("/user/list")).hasAuthority("ROLE_ADMIN")
-					.requestMatchers(mvc.pattern("/message/**")).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-					.requestMatchers(mvc.pattern("/conversation/**")).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-					.requestMatchers(mvc.pattern("/offer/**")).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+//					.requestMatchers(mvc.pattern("/message/**")).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+//					.requestMatchers(mvc.pattern("/conversation/**")).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+//					.requestMatchers(mvc.pattern("/offer/**")).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 					.anyRequest().authenticated();
 			})
 			

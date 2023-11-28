@@ -30,14 +30,12 @@ public class ShoppingCartController {
 
 	@Autowired
 	ShoppingCartService shoppingCartService;
-	
-	@Autowired 
+
+	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	ProductsService productService;
-	
-	
 
 	public ShoppingCartController(ShoppingCartService shoppingCartService, UserService userService,
 			ProductsService productService) {
@@ -48,9 +46,9 @@ public class ShoppingCartController {
 	}
 
 	@PostMapping("/addProduct")
-	public String addItem(@RequestBody ProductEntity product) throws Exception {
+	public String addItem(@RequestBody ProductEntity product, @RequestParam int quantity) throws Exception {
 		try {
-			shoppingCartService.addProduct(product);
+			shoppingCartService.addProduct(product, quantity);
 			return "redirect:/cart";
 		} catch (Exception e) {
 			throw new Exception("Failed to add product to cart.");
@@ -97,15 +95,28 @@ public class ShoppingCartController {
 			throw new Exception();
 		}
 	}
-	
+
 	@RequestMapping("/buy")
 	public String buyProduct(@PathVariable Long id, Principal principal) throws Exception {
 		try {
 			shoppingCartService.buyShoppingCart(principal.getName());
 			return "redirect:/home";
-		}
-		catch (NotEnoughMoney e) { 
+		} catch (NotEnoughMoney e) {
 			return "/noMoney";
+		}
+	}
+
+	@PostMapping("/updateQuantity")
+	public String updateQuantity(@RequestParam Long productId, @RequestParam int quantity, @RequestParam String action) throws Exception {
+		try {
+			if ("increment".equals(action)) {
+				shoppingCartService.incrementProductQuantity(productId);
+			} else if ("decrement".equals(action)) {
+				shoppingCartService.decrementProductQuantity(productId);
+			}
+			return "redirect:/cart";
+		} catch (Exception e) {
+			throw new Exception();
 		}
 	}
 

@@ -6,9 +6,9 @@
     <nav th:replace="fragments/nav"></nav>
 
     <div class="container">
-        <h2>Añadir nuevo producto</h2>
+        <h2>Añadir nuevo producto al carrito</h2>
 
-         <form th:action="@{/product/add}" method="post" th:object="${newProduct}" enctype="multipart/form-data">
+        <form th:action="@{/cart/addProduct}" method="post" th:object="${newProduct}" enctype="multipart/form-data">
             <!-- Campos del formulario -->
             <div>
                 <label for="name">Nombre:</label>
@@ -31,16 +31,16 @@
             </div>
 
             <div>
-                <label for="category">Categoria:</label>
+                <label for="category">Categoría:</label>
                 <input type="text" id="category" name="category" th:field="*{category}" />
             </div>
 
-           ¡ <div>
-                <label for="images">Imagenes:</label>
-                <input type="file" id="images" name="images" accept="image/*" multiple />
+            <div>
+                <label for="quantity">Cantidad:</label>
+                <input type="text" id="quantity" name="quantity" />
             </div>
 
-            <button type="submit">Añadir producto</button>
+            <button type="submit">Añadir al carrito</button>
         </form>
     </div>
 
