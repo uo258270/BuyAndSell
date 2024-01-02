@@ -1,67 +1,58 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head>
-	<meta charset="UTF-8">
-	<title>Carrito de la compra</title>
-	<link rel="stylesheet" type="text/css" href="custom.css" />
-</head>
+<head th:replace="fragments/head" />
 
 <body>
 
-	<!-- Productos en el carrito -->
-	<div th:if="${not #lists.isEmpty(cart.products)}">
-		<div th:each="product : ${cart.products}" class="cart-item">
+	<nav th:replace="fragments/nav"></nav>
+	<div style="display: inline-block;">
+	<div th:if="${not #lists.isEmpty(cart.productCartEntities)}">
+		<div th:each="productCartEntity : ${cart.productCartEntities}" class="cart-item">
 			<!-- Imagen del producto -->
-			<div th:if="${not #lists.isEmpty(product.images)}">
-				<!-- Mostrar solo la primera imagen de la lista -->
-				<img th:src="${product.images[0]}" alt="Product Image" class="product-image-small" />
+			<div th:if="${not #lists.isEmpty(productCartEntity.product.images)}">
+				<img th:src="${productCartEntity.product.images[0]}" alt="Product Image" class="product-image-small" />
 			</div>
 
-			<!-- Detalles del producto -->
 			<div class="product-details">
-				<h3 th:text="${product.name}">Nombre del producto</h3>
-				<p th:text="${product.price}"></p>
+				<h3 th:text="${productCartEntity.product.name}">Nombre del producto</h3>
+				<p th:text="${productCartEntity.product.price}"></p>
 
-
-//preguntar esto
-				<!-- Formulario para seleccionar la cantidad y botón para eliminar -->
 				<form th:action="@{/cart/updateQuantity}" method="post">
-					<input type="hidden" name="productId" th:value="${product.id}" />
+					<input type="hidden" name="productId" th:value="${productCartEntity.id}" />
+					<span th:text="${productCartEntity.id}"></span>
 					<div class="quantity-container">
 						<button type="submit" name="action" value="decrement">-</button>
-						<input type="number" name="quantity" th:value="${product.quantity}" />
+						<input type="number" name="quantity" th:value="${productCartEntity.quantityInCart}" />
 						<button type="submit" name="action" value="increment">+</button>
 					</div>
 				</form>
 
-				<form th:action="@{/cart/removeProduct}" method="post">
-					<input type="hidden" name="productId" th:value="${product.id}" />
-					<button type="submit">Eliminar</button>
+
+				<form th:action="@{/cart/clearCart}" method="post">
+					<input type="hidden" name="cart" th:value="${productCartEntity.cart}" />
+					<button type="submit">Vaciar carrito</button>
 				</form>
-			</div>
-
-
-			<!-- Resumen del carrito y botones de pago -->
-			<div class="cart-summary">
-				<h3>Total del Carrito: <span th:text="${cart.getTotalOrderPrice()}"></span></h3>
-				<form th:action="@{/buy}" method="post">
-					<button type="submit">Pagar</button>
-				</form>
-
-				<!-- Mensaje de error en caso de falta de dinero -->
-				<div th:if="${param.error}">
-					<p>No tienes suficiente dinero para realizar la compra.</p>
-				</div>
 			</div>
 		</div>
 
-		<!-- Mensaje si el carrito está vacío -->
-		<div th:if="${#lists.isEmpty(cart.products)}">
+		<div class="cart-summary">
+			<h3>Total del Carrito: <span th:text="${cart.getTotalOrderPrice()}"></span></h3>
+			<form th:action="@{/cart/buy}" method="post">
+				<button type="submit">Pagar</button>
+			</form>
+
+			<div th:if="${param.error}">
+				<p>No tienes suficiente dinero para realizar la compra.</p>
+			</div>
+		</div>
+
+
+
+		<div th:if="${#lists.isEmpty(cart.productCartEntities)}">
 			<p>Su carrito está vacío.</p>
 		</div>
 
-		<!-- Productos favoritos -->
 		<div th:if="${not #lists.isEmpty(favoriteProducts)}">
 			<h2>Tus Productos Favoritos</h2>
 			<div class="favorite-products">
@@ -74,7 +65,7 @@
 			</div>
 		</div>
 
-
+</div>
 
 </body>
 

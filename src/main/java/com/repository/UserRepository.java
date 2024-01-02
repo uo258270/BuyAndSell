@@ -26,8 +26,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>{
 
 	List<UserEntity> findByRole(String string);
 	
-	List<ShoppingCartEntity> findShoppingCartEntityListByUserId(Long userId);
-	
+	@Query("SELECT user.carts FROM UserEntity user WHERE user.userId = :userId")
+    List<ShoppingCartEntity> getShoppingCartsByUserId(Long userId);
+
 	
 	
 }

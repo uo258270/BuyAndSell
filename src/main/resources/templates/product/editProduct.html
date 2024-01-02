@@ -45,7 +45,7 @@
                 <label>Imagenes actuales:</label>
                 <ul>
                     <li th:each="image : ${product.images}">
-                        <span th:text="${image}"></span>
+                        <img th:src="'data:image/png;base64,' + ${image}" alt="Product Image" />
                         <input type="checkbox" name="imagesToRemove" th:value="${image}" /> Eliminar
                     </li>
                 </ul>

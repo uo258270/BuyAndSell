@@ -106,25 +106,12 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void addUser(UserEntity user) throws Exception {
-		validateUser(user);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		userRepository.save(user);
 
 	}
 
-	private void validateUser(UserEntity user) throws Exception {
-		if (user != null) {
-			if (user.getUserId() != null) {
-				UserEntity response = userRepository.findByUserId(user.getUserId());
-				if (response != null) {
-					throw new Exception("This user already exists in the data base");
-				}
-				throw new Exception("userId can not be null");
-			}
-			throw new Exception("user can not be null");
-		}
-
-	}
+	
 
 	@Override
 	public void deleteUser(Long userId) throws Exception {
@@ -167,6 +154,21 @@ public class UserServiceImpl implements UserService {
 		user.setMoney(user.getMoney() - money);
 		userRepository.save(user);
 		return true;
+	}
+
+
+	public void addMoney(String email, Double amount) throws Exception {
+		UserEntity user = userRepository.findByEmail(email);
+		if (amount != null && amount > 0) {
+			if(user.getMoney()==null) {
+				user.setMoney(0.0);
+			}
+            user.setMoney(user.getMoney()+amount);
+            userRepository.save(user);
+        }else {
+        	throw new Exception("amount is not valid");
+        }
+		
 	}
 
 

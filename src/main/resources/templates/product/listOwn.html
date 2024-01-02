@@ -24,15 +24,15 @@
     <nav th:replace="fragments/nav"></nav>
 
     <div class="container">
-        <h2>Your Own Products</h2>
+        <h2>Mis productos</h2>
 
-        <!-- Tus productos -->
+         <h3>Productos publicados</h3>
         <ul th:if="${not #lists.isEmpty(products)}" th:each="product : ${products}" class="product-list">
             <li class="product-info">
-                <p th:text="${product.name}"></p>
-                <p th:text="${product.detail}"></p>
-                <p th:text="${product.productDate}"></p>
-                <p th:text="${product.price}"></p>
+                <p th:text="${product.name}">Producto:</p>
+                <p th:text="${product.detail}">Detalle:</p>
+                <p th:text="${product.productDate}">Fecha de publicación:</p>
+                <p th:text="${product.price}">Precio:</p>
             </li>
 
             <li class="product-actions">
@@ -41,6 +41,16 @@
 
                 <!-- Botón de Eliminar -->
                 <a th:href="@{/product/delete/{id}(id=${product.productId})}" class="delete-product">Borrar</a>
+            </li>
+        </ul>
+        
+        <h3>Productos Vendidos</h3>
+        <ul th:if="${not #lists.isEmpty(soldProducts)}" th:each="soldProduct : ${soldProducts}" class="product-list">
+            <li class="product-info">
+                <p th:text="${soldProduct.name}">Producto:</p>
+                <p th:text="${soldProduct.detail}">Detalle:</p>
+                <p th:text="${soldProduct.productDate}">Fecha de venta:</p>
+                <p th:text="${soldProduct.price}">Precio de venta:</p>
             </li>
         </ul>
 

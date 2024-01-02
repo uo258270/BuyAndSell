@@ -85,4 +85,16 @@ footer {
     margin-right: 20px;
 }
 
-/* Asegúrate de agregar cualquier otro estilo adicional según tus necesidades */
+#addProductButtonContainer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#addProductButton {
+    background-color: blue;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}

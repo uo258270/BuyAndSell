@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
-import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 
 
 
@@ -32,6 +31,7 @@ public class WebSecurityConfig {
 			.authorizeHttpRequests(request -> {
 				request
 					.requestMatchers(mvc.pattern("/home")).permitAll()
+					.requestMatchers(mvc.pattern("/signup")).permitAll()
 					.requestMatchers(mvc.pattern("/error")).permitAll()
 					.requestMatchers(mvc.pattern("/css/**"), mvc.pattern("/img/**"), mvc.pattern("/script/**"), mvc.pattern("/"), mvc.pattern("/signup"), mvc.pattern("/login/**")).permitAll()
 					.requestMatchers(mvc.pattern("/user/list")).hasAuthority("ROLE_ADMIN")
@@ -58,9 +58,10 @@ public class WebSecurityConfig {
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration conf) throws Exception {
 		return conf.getAuthenticationManager();
 	}
-	
+	/*
 	@Bean
 	public SpringSecurityDialect securityDialect() {
 		return new SpringSecurityDialect();
 	}
+	*/
 }

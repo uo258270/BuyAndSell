@@ -1,16 +1,24 @@
 <!-- nav.html -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <nav class="navbar navbar-inverse">
 	<div class="container-fluid">
 		<ul class="nav navbar-nav">
 			<li><a href="/home">Home</a></li>
 			<li id="offers-menu" class="dropdown" sec:authorize="isAuthenticated()"><a class="dropdown-toggle"
-					data-toggle="dropdown" href="#" th:text="#{nav.manageOffers}"> <span class="caret"></span></a>
+					data-toggle="dropdown" href="#" th:text="#{nav.manageProducts}"> <span class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li><a href="/product/add" th:text="#{product.add}">Añadir un producto</a></li>
-					<li><a href="/product/listOwn" th:text="#{nav.seeYourProducts}">Ver mis productos</a></li>
-					<li><a href="/product/listProducts" th:text="#{nav.seeAllProducts}">Ver productos</a></li>
+					<li><a href="/product/add" th:text="#{product.add}">Agregar un producto</a></li>
+					<li><a href="/product/own" th:text="#{nav.seeYourProducts}">Ver mis productos</a></li>
+					<li th:if="${#authorization.expression('isAuthenticated()')}">
+						<a th:href="@{/product/allRecommendedProducts}"
+							th:text="#{nav.seeAllProducts}">Ver productos</a>
+					</li>
+					<li th:if="${not #authorization.expression('isAuthenticated()')}">
+						<a th:href="@{/product/exceptOwn}" th:text="#{nav.seeAllProducts}">Ver productos</a>
+					</li>
+
 					<li><a href="/product/search" th:text="#{lookProduct}">Buscar producto</a></li>
-					<li><a href="/featured/list" th:text="#{nav.seeYourFavorites}">Mis productos favoritos</a></li>
+					<li><a href="/featured/listByUser" th:text="#{nav.seeYourFavorites}">Mis productos favoritos</a></li>
 				</ul>
 
 			<li id="users-menu" class="dropdown" sec:authorize="hasRole('ROLE_ADMIN')"><a class="dropdown-toggle"
@@ -22,10 +30,22 @@
 			</li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
-			<li sec:authorize="isAuthenticated()"><a><span class="glyphicon glyphicon-euro"
-						th:text="${session.money}"></span></a></li>
-			<li sec:authorize="isAuthenticated()"><a><span th:text="${session.email}"></span></a></li>
 
+			<li>
+				<form class="navbar-form" action="/product/search/results" method="get">
+					<div class="form-group">
+						<input type="text" class="form-control" name="searchTerm" placeholder="Buscar productos">
+					</div>
+					<button type="submit" class="btn btn-default">
+						<span class="glyphicon glyphicon-search"></span>
+					</button>
+				</form>
+			</li>
+			<li>
+				<a href="/cart" style="font-size: 20px;">
+					<span class="glyphicon glyphicon-shopping-cart"></span>
+				</a>
+			</li>
 			<li class="dropdown"><a id="btnLanguage" href="#" class="dropdown-toggle" data-toggle="dropdown"
 					role="button" aria-haspopup="true" aria-expanded="false"> <span th:text="#{language.change}"></span>
 					<span class="caret"></span>
@@ -41,14 +61,33 @@
 						</a></li>
 				</ul>
 			</li>
-			<li sec:authorize="!isAuthenticated()"><a href="/signup"> <span class="glyphicon glyphicon-user"></span>
-					<span th:text="#{signup.message}"></a></li>
-			<li sec:authorize="!isAuthenticated()"><a href="/login"> <span class="glyphicon glyphicon-log-in"></span>
-					<span th:text="#{login.message}"></a></li>
-			<li sec:authorize="isAuthenticated()"><a href="/logout"> <span class="glyphicon glyphicon-log-out"
-						th:text="#{logout.message}"></span>
-				</a></li>
+			<ul class="nav navbar-nav navbar-right">
+				<li sec:authorize="isAuthenticated()">
+					<a href="/profile">Mi Perfil</a>
+				</li>
+				<li sec:authorize="isAuthenticated()">
+					<a><span class="glyphicon glyphicon-euro" th:text="${session.money}"></span></a>
+				</li>
 
-		</ul>
+				<li sec:authorize="isAuthenticated()">
+					<a href="/logout">
+						<span class="glyphicon glyphicon-log-out" th:text="#{logout.message}"></span>
+					</a>
+				</li>
+				<li sec:authorize="!isAuthenticated()">
+					<a href="/signup">
+						<span class="glyphicon glyphicon-user"></span>
+						<span th:text="#{signup.message}"></span>
+					</a>
+				</li>
+				<li sec:authorize="!isAuthenticated()">
+					<a href="/login">
+						<span class="glyphicon glyphicon-log-in"></span>
+						<span th:text="#{login.message}"></span>
+					</a>
+				</li>
+			</ul>
 	</div>
 </nav>
+
+</html>

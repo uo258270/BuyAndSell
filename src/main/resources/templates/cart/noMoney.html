@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/head" />
+
+<body>
+
+	<nav th:replace="fragments/nav"></nav>
+    <div>
+        <h1>Error de compra</h1>
+        <p th:if="${error}" th:text="${error}"></p>
+        <p>Por favor, verifica tu saldo y vuelve a intentarlo.</p>
+    </div>
+</body>
+
+</html>

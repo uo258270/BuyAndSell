@@ -27,4 +27,5 @@ public interface UserService {
 	boolean updateMoney(Long userId, Double price);
 
 
+	void addMoney(String email, Double amount) throws Exception;
 }

@@ -2,9 +2,12 @@ package com.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.exception.ProductAlreadySoldException;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -38,14 +41,10 @@ public class ShoppingCartEntity implements Serializable {
 	private UserEntity user;
 
 	@OneToMany(mappedBy = "cart")
-	private List<ProductCartEntity> productCartEntities;
+	private List<ProductCartEntity> productCartEntities = new ArrayList<>();
 
 	public List<ProductCartEntity> getProductCartEntities() {
-		return productCartEntities;
-	}
-
-	public void setProductCartEntities(List<ProductCartEntity> productCartEntities) {
-		this.productCartEntities = productCartEntities;
+		return Collections.unmodifiableList(productCartEntities);
 	}
 
 	public Long getId() {
@@ -91,15 +90,23 @@ public class ShoppingCartEntity implements Serializable {
 		return sum;
 	}
 
-	public void buy(UserEntity user) {
+	public void buy(UserEntity user) throws ProductAlreadySoldException {
 		double totalOrderPrice = getTotalOrderPrice();
 		user.decMoney(totalOrderPrice);
 		this.user = user;
 		this.user._getCarts().add(this);
 
 		for (ProductCartEntity productCartEntity : productCartEntities) {
+			
 			ProductEntity product = productCartEntity.getProduct();
-			product.decStock();
+			if(!product.isSold()) {
+				product.decStock();
+				product.setSold(true);
+			}
+			else {
+                throw new ProductAlreadySoldException("El producto ya ha sido vendido.");
+            }
+			
 		}
 	}
 
@@ -120,4 +127,28 @@ public class ShoppingCartEntity implements Serializable {
 		return  Objects.equals(id, other.id);
 	}
 
+	public void incQuantity(ProductEntity prod) {
+		for (ProductCartEntity productInCart : productCartEntities) {
+	        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+	            productInCart.incQuantity(prod);
+	            return;
+	        }
+	    }
+		productCartEntities.add(new ProductCartEntity(prod, this));
+	}
+
+	
+	public void decQuantity(ProductEntity prod) {
+		ProductCartEntity toDelete = null;
+	    for (ProductCartEntity productInCart : productCartEntities) {
+	        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+	            if (productInCart.getQuantityInCart() > 0) {
+	            	productInCart.decQuantity();
+	            	if (productInCart.getQuantityInCart() == 0) toDelete = productInCart;
+	                break;
+	            }
+	        }
+	    }
+	    if (toDelete != null) productCartEntities.remove(toDelete);
+	}
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/head"></head>
+
+<body>
+
+	<nav th:replace="fragments/nav"></nav>
+
+	<div class="container">
+		<h2 th:text="${'Productos Destacados de ' + user.name}"></h2>
+
+		<div th:if="${#lists.isEmpty(featuredList)}">
+			<p>No hay productos destacados en este momento.</p>
+		</div>
+		<ul th:if="${not #lists.isEmpty(featuredList)}" th:each="featuredProduct : ${featuredList}"
+			class="product-list">
+			<li class="product-info">
+				<p th:text="${featuredProduct.product.name}">Producto:</p>
+				<p th:text="${featuredProduct.product.detail}">Detalle:</p>
+				<p th:text="${featuredProduct.product.price}">Precio:</p>
+			</li>
+
+			<form th:action="@{/product/detail}" method="get">
+				<input type="hidden" name="productId" th:value="${featuredProduct.product.productId}" />
+				<button type="submit" class="view-detail">Detalles</button>
+			</form>
+			<form th:action="@{/featured/delete}" method="post">
+				<input type="hidden" name="id" th:value="${featuredProduct.featuredId}" />
+				<button type="submit">Eliminar de destacados</button>
+			</form>
+		</ul>
+	</div>
+
+	<footer th:replace="fragments/footer"></footer>
+</body>
+
+</html>

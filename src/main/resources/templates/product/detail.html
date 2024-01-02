@@ -16,19 +16,19 @@
 		</div>
 
 		<div>
-			<p th:text="${'Precio: $' + product.price}"></p>
+			<p th:text="${'Precio: $' + product.price}">Precio:</p>
 		</div>
 
 		<div>
-			<p th:text="${'Stock: ' + product.stock}"></p>
+			<p th:text="${'Stock: ' + product.stock}">Stock:</p>
 		</div>
 
 		<div>
-			<p th:text="${'Categoria: ' + product.category}"></p>
+			<p th:text="${'Categoria: ' + product.category}">Categoria:</p>
 		</div>
 
 		<div>
-			<h3>Images</h3>
+			<h2>Images</h2>
 			<ul>
 				<li th:each="image : ${product.images}">
 					<img th:src="${image}" alt="Imagen del producto" onerror="this.style.display='none'" />
@@ -36,37 +36,47 @@
 			</ul>
 		</div>
 
-		<div>
+		<div th:if="${averageRating > 0}">
 			<h3>Valoracion media del producto</h3>
-			<div th:if="${reviews != null}">
-				<p>
-					<span class="star-rating" th:utext="${'&#9733;'.repeat(averageRating)}"></span>
-					<span th:text="${'Valoracion media: ' + averageRating}"></span>
-				</p>
-			</div>
+			<p>
+				<span class="star-rating" th:utext="${'&#9733;'.repeat(averageRating)}"></span>
+				<span th:text="${'Valoracion media: ' + averageRating}"></span>
+			</p>
 		</div>
 
-
-		<div>
+		<div th:if="${not #lists.isEmpty(product.reviews)}">
 			<h3>Reseñas de los productos</h3>
-			<ul th:if="${reviews != null}">
-				<li th:each="review : ${reviews}">
+			<ul th:each="review : ${product.reviews}">
+				<li>
 					<p>
 						<span class="star-rating" th:utext="${'&#9733;'.repeat(review.rating)}"></span>
 						<span th:text="${'Valoracion: ' + review.rating}"></span>
 					</p>
-					<p th:text="${'Commentario: ' + review.comment}"></p>
-					<a th:if="${#authorization.expression('isAuthenticated() and ' + 'principal.username == ' + review.user.email)}"
+					<p th:text="${'Comentario: ' + review.comment}"></p>
+					<a th:if="${#authorization.expression('isAuthenticated() and principal?.name != null and principal?.name != product?.user?.email')}"
 						th:href="@{/reviews/delete/{id}(id=${review.id})}" class="delete-review">Eliminar</a>
+
+
+
 				</li>
 			</ul>
 		</div>
 
+		<form th:action="@{/featured/add}" method="post">
+			<input type="hidden" name="productId" th:value="${product.productId}" />
+			<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+		</form>
 
-		<a th:href="@{/product/listProducts}" class="back-button">Volver a la lista de productos</a>
+		<form th:action="@{/cart/addProduct}" method="post">
+			<input type="hidden" name="productId" th:value="${product.productId}" />
+			 <input type="number" name="quantity" value="1" />
+			<button type="submit" class="add-to-cart">Añadir al carrito</button>
+		</form>
+
+
+		<a th:href="@{/product/allRecommendedProducts}" class="back-button">Volver a la lista de productos</a>
 	</div>
 
-	<!-- Pie de Página -->
 	<footer th:replace="fragments/footer" />
 </body>
 

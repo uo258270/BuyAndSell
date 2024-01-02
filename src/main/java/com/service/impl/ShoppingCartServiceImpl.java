@@ -13,7 +13,9 @@ import com.entity.ProductCartEntity;
 import com.entity.ProductEntity;
 import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
+import com.exception.InvalidStockException;
 import com.exception.NotEnoughMoney;
+import com.exception.ProductAlreadySoldException;
 import com.repository.ProductCartRepository;
 import com.repository.ProductRepository;
 import com.repository.ShoppingCartRepository;
@@ -33,15 +35,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	@Autowired
 	private ProductRepository productRepository;
 	
-	private ProductCartRepository productCartRepository;
 
 	private ShoppingCartEntity cart = new ShoppingCartEntity();
 
-	public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepo, ShoppingCartEntity cart) {
-		super();
-		this.shoppingCartRepo = shoppingCartRepo;
-		this.cart = cart;
-	}
 
 	@Override
 	public void clear(ShoppingCartEntity cart) {
@@ -54,60 +50,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 		if (carts != null && !carts.isEmpty()) {
 			return carts;
 		} else {
-			throw new RuntimeException("this user doues not have any shoppings made");
+			throw new RuntimeException("this user does not have any shoppings made");
 		}
 	}
 
-	@Override
-	public void deleteProductFromShoppingCart(ProductEntity product) {
-		if (cart != null && cart.getProductCartEntities() != null) {
-	        List<ProductCartEntity> productCartEntities = cart.getProductCartEntities();
-
-	        for (ProductCartEntity pc : productCartEntities) {
-	            if (pc.getProduct().equals(product)) {
-	                productCartEntities.remove(pc);
-	                return; 
-	            }
-	        }
-
-	        throw new RuntimeException("Product not found in this cart");
-	    } else {
-	        throw new RuntimeException("There are no products in this cart");
-	    }
-
-	}
-
-	//preguntar esto
-	@Override
-	public void addProduct(ProductEntity product, int quantity) {
-		 ProductCartEntity existingProductCart = findProductInCart(cart, product);
-
-        if (existingProductCart != null) {
-            existingProductCart.incQuantity(product);
-            productCartRepository.save(existingProductCart);
-        } else {
-            ProductCartEntity newProductCart = new ProductCartEntity();
-            newProductCart.setCart(cart);
-            newProductCart.setProduct(product);
-            newProductCart.setQuantityInCart(quantity);
-            productCartRepository.save(newProductCart);
-            
-            cart.getProductCartEntities().add(newProductCart);
-            shoppingCartRepo.save(cart);
-        }
-	}
 	
-	private ProductCartEntity findProductInCart(ShoppingCartEntity cart, ProductEntity product) {
-	    List<ProductCartEntity> productCartEntities = cart.getProductCartEntities();
-
-	    for (ProductCartEntity pc : productCartEntities) {
-	        if (pc.getProduct().equals(product)) {
-	            return pc;
-	        }
-	    }
-
-	    return null;
-	}
+	
 
 	@Override
 	public Optional<ShoppingCartEntity> getCart() {
@@ -116,8 +64,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 	@Override
 	@Transactional
-	public void buyShoppingCart(String userName) throws NotEnoughMoney {
-		UserEntity user = userRepository.findByUsername(userName);
+	public void buyShoppingCart(String email) throws NotEnoughMoney, ProductAlreadySoldException {
+		UserEntity user = userRepository.findByEmail(email);
 		if (user.getMoney() >= cart.getTotalOrderPrice()) {
 			cart.buy(user);
 			shoppingCartRepo.save(cart);
@@ -131,31 +79,21 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	
 	
 	@Override
-	public void incrementProductQuantity(Long productId) {
+	public void incrementProductQuantity(Long productId) throws InvalidStockException {
 		ProductEntity prod = productRepository.findByProductId(productId);
-		 for (ProductCartEntity productInCart : cart.getProductCartEntities()) {
-		        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
-		            productInCart.incQuantity(prod);
-		            productRepository.save(prod);
-		            break;
-		        }
-		    }
+		if (prod.getStock() < 1) {
+			throw new InvalidStockException("No hay stock suficiente de este producto");
+		}
+		cart.incQuantity(prod);
+		 
 
 	}
 
+	
 	@Override
 	public void decrementProductQuantity(Long productId) {
 		ProductEntity prod = productRepository.findByProductId(productId);
-	    for (ProductCartEntity productInCart : cart.getProductCartEntities()) {
-	        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
-	            if (productInCart.getQuantityInCart() > 0) {
-	            	productInCart.decQuantity(); 
-	                productRepository.save(prod);  
-	                break;
-	            }
-	        }
-	    }
-
+		cart.decQuantity(prod);
 	}
-
+	
 }

@@ -53,16 +53,17 @@ public class ProductsServiceImpl implements ProductsService{
 
 	@Override
 	public ProductEntity findById(Long productId) throws Exception {
-		if(productId!=null) {
-			ProductEntity response = productRepository.findByProductId(productId);
-			if(response!=null) {
-				return response;
-			}else {
-				throw new Exception("Query does not found results");
-			}
-		}else {
-			throw new Exception("productId can not be null");
-		}
+		 if (productId != null) {
+		        ProductEntity product = productRepository.findByProductId(productId);
+		        if (product != null) {
+		            product.getReviews().size(); 
+		            return product;
+		        } else {
+		            throw new Exception("Product not found");
+		        }
+		    } else {
+		        throw new Exception("ProductId cannot be null");
+		    }
 		
 	}
 
@@ -82,24 +83,10 @@ public class ProductsServiceImpl implements ProductsService{
 
 	@Override
 	public void addProduct(ProductEntity product) throws Exception {
-		validateProduct(product);
 		productRepository.save(product);
 		
 	}
 
-	private void validateProduct(ProductEntity product) throws Exception {
-		if(product !=null) {
-			if(product.getProductId()!=null) {
-				ProductEntity response = productRepository.findByProductId(product.getProductId());
-				if(response!=null) {
-					throw new Exception("This product already exists in the data base");
-				}
-				throw new Exception("productId can not be null");
-			}
-			throw new Exception("product can not be null");
-		}
-		
-	}
 
 	@Override
 	public void deleteProduct(Long productId) throws Exception {
@@ -137,6 +124,24 @@ public class ProductsServiceImpl implements ProductsService{
 	public boolean updateProduct(ProductEntity product) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	@Override
+	public List<ProductEntity> searchProducts(String searchTerm){
+		List<ProductEntity> prod = productRepository.findByNameContainingIgnoreCase(searchTerm);
+		if(prod!=null) {
+			return prod;
+		}else {
+			throw new RuntimeException("No results found");
+		}
+		
+		
+    }
+	
+	@Override
+	public List<ProductEntity> getSoldProducts(Long userId) {
+	    return productRepository.findByUserIdAndSoldTrue(userId);
 	}
 
 }

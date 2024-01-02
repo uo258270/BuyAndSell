@@ -23,4 +23,8 @@ public interface ProductsService {
 	
 	List<ProductEntity> getProductsExceptOwn(Long userId);
 	double calculateAverageRating(Long productId);
+	
+	List<ProductEntity> searchProducts(String searchTerm);
+	
+	List<ProductEntity> getSoldProducts(Long userId);
 }

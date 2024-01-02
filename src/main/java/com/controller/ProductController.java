@@ -1,19 +1,22 @@
 package com.controller;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
@@ -22,7 +25,7 @@ import com.service.RecommendationSystemService;
 import com.service.UserService;
 import com.validators.AddOfferValidator;
 
-@RestController
+@Controller
 @RequestMapping("/product")
 public class ProductController {
 
@@ -39,33 +42,74 @@ public class ProductController {
 	private RecommendationSystemService recommendedService;
 
 	public ProductController(ProductsService productService, UserService userService,
-			AddOfferValidator addOfferValidator) {
+			AddOfferValidator addOfferValidator, RecommendationSystemService recommendedService) {
 		super();
 		this.productService = productService;
 		this.userService = userService;
 		this.addOfferValidator = addOfferValidator;
+		this.recommendedService = recommendedService;
 	}
 
-	@GetMapping("/own/{userId}")
-	public String listOwnProducts(@PathVariable Long userId, Model model) {
-		List<ProductEntity> prod = productService.getProducts(userId);
+	@GetMapping("/own")
+	public String listOwnProducts(Model model, Principal principal) throws Exception {
+		String email = principal.getName();
+		UserEntity user = userService.findByEmail(email);
+		List<ProductEntity> prod = productService.getProducts(user.getUserId());
+		List<ProductEntity> soldProducts = productService.getSoldProducts(user.getUserId());
 		model.addAttribute("products", prod);
-		return "/product/listOwn";
+		model.addAttribute("soldProducts", soldProducts);
+		return "product/listOwn";
+
 	}
 
-	@GetMapping("/exceptOwn/{userId}")
-	public String listAllProductsExceptOwn(@PathVariable Long userId, Model model) {
-		List<ProductEntity> prod = productService.getProductsExceptOwn(userId);
+	@GetMapping("/exceptOwn")
+	public String listAllProductsExceptOwn(Model model, Principal principal) throws Exception {
+		String email = principal.getName();
+		UserEntity user = userService.findByEmail(email);
+		List<ProductEntity> prod = productService.getProductsExceptOwn(user.getUserId());
 		model.addAttribute("products", prod);
+		return "product/listProducts";
+	}
+
+	@GetMapping("/allRecommendedProducts")
+	public String listAllRecommendedProducts(Model model, Principal principal) throws Exception {
+		if (principal == null) {
+			return "redirect:/login";
+		}
+
+		String email = principal.getName();
+		UserEntity user = userService.findByEmail(email);
+
+		List<ProductEntity> productsExceptOwn = productService.getProductsExceptOwn(user.getUserId());
+		model.addAttribute("products", productsExceptOwn);
+
+		List<ProductEntity> recommendedByReview = recommendedService.getProductsBySimilarReviewUsers(user.getUserId());
+		model.addAttribute("recommendedReviews", recommendedByReview);
+
+		List<ProductEntity> recommendedByCart = recommendedService.getProductsBySimilarUserCarts(user.getUserId());
+		model.addAttribute("recommended", recommendedByCart);
+
+		List<ProductEntity> popular = recommendedService.getMostPopularProducts();
+		model.addAttribute("popular", popular);
+
+		List<ProductEntity> topRated = recommendedService.getTopRatedProducts();
+		model.addAttribute("rated", topRated);
+
 		return "/product/listProducts";
 	}
 
+	@GetMapping("/add")
+	public String getProduct(Model model) {
+		model.addAttribute("product", new ProductEntity());
+		return "product/add";
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public String setProduct(Model model, Principal principal, @Validated ProductEntity product, BindingResult result)
+	public String setProduct(@Validated ProductEntity product, BindingResult result, Model model, Principal principal)
 			throws Exception {
 		addOfferValidator.validate(product, result);
 		if (result.hasErrors()) {
-			return "redirect:/add";
+			return "product/add";
 		}
 
 		product.setProductDate(new Date());
@@ -74,13 +118,7 @@ public class ProductController {
 		product.setUser(user);
 		productService.addProduct(product);
 
-		return "redirect:/product/own/" + user.getUserId();
-	}
-
-	@RequestMapping(value = "/add", method = RequestMethod.GET)
-	public String getProduct(Model model) {
-		model.addAttribute("product", new ProductEntity());
-		return "product/add";
+		return "redirect:/product/own";
 	}
 
 	@RequestMapping("/product/delete/{id}")
@@ -102,58 +140,46 @@ public class ProductController {
 
 		productService.updateProduct(editedProduct);
 		Long userId = editedProduct.getUser().getUserId();
-		return "redirect:/product/own/" + userId;
+		return "redirect:/product/own/";
 
 	}
 
-	@GetMapping("/detail/{productId}")
-	public String showProductDetail(@PathVariable Long productId, Model model) throws Exception {
+	@RequestMapping("/detail")
+	public String showProductDetail(Long productId, Model model, Principal principal) throws Exception {
 		ProductEntity product = productService.findById(productId);
 
 		if (product == null) {
 			throw new Exception("El producto no existe");
 		}
-		double averageRating = productService.calculateAverageRating(productId);
-        model.addAttribute("product", product);
-        model.addAttribute("averageRating", averageRating);
+		double averageRating = 0.0;
+		if (!product.getReviews().isEmpty()) {
+			averageRating = productService.calculateAverageRating(productId);
+
+		}
+		System.out.println("Principal name: " + principal.getName());
+		System.out.println("Product user name: " + product.getUser().getName());
+
+
+		model.addAttribute("product", product);
+		model.addAttribute("principal", principal);
+		model.addAttribute("averageRating", averageRating);
 
 		return "product/detail";
 	}
 
-	@GetMapping("/product/recommendedReview/{userId}")
-	public String listRecommendedProductsByReview(Model model, @PathVariable Long userId) {
-		List<ProductEntity> recommended = recommendedService.getProductsBySimilarReviewUsers(userId);
-		model.addAttribute("recommendedReviews", recommended);
-		return "/product/listProducts";
+	@GetMapping("/search")
+	public String showSearchPage(Model model) {
+		return "product/search";
 	}
 
-	@GetMapping("/product/recommended/{userId}")
-	public String listRecommendedProductsByCart(Model model, @PathVariable Long userId) {
-		List<ProductEntity> recommended = recommendedService.getProductsBySimilarUserCarts(userId);
-		model.addAttribute("recommended", recommended);
-		return "/product/listProducts";
-	}
-
-	@GetMapping("/product/popular")
-	public String listPopularProducts(Model model) throws Exception {
-		try {
-			List<ProductEntity> popular = recommendedService.getMostPopularProducts();
-			model.addAttribute("popular", popular);
-			return "/product/listProducts";
-		} catch (Exception e) {
-			throw new Exception("Error while trying to list popular products", e);
+	@GetMapping("/search/results")
+	public String searchProducts(@RequestParam(name = "searchTerm", required = false) String searchTerm, Model model) {
+		if (searchTerm != null && !searchTerm.isBlank()) {
+			List<ProductEntity> searchResults = productService.searchProducts(searchTerm);
+			model.addAttribute("searchTerm", searchTerm);
+			model.addAttribute("searchResults", searchResults);
 		}
-	}
 
-	@GetMapping("/product/topRated")
-	public String listTopRatedProducts(Model model) throws Exception {
-		try {
-			List<ProductEntity> rated = recommendedService.getTopRatedProducts();
-			model.addAttribute("rated", rated);
-			return "/product/listProducts";
-		} catch (Exception e) {
-			throw new Exception("Error while trying to list popular products", e);
-		}
+		return "product/searchResults";
 	}
-
 }

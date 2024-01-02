@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/head" />
+
+<body>
+	<nav th:replace="fragments/nav" />
+
+	<div class="container">
+		<h2>Resultados de búsqueda</h2>
+
+		<div th:if="${searchTerm}">
+			<p th:text="'Resultados para: ' + ${searchTerm}"></p>
+
+			<ul>
+				<li th:each="result : ${searchResults}">
+					<h3 th:text="${result.name}">Producto:</h3>
+					<p th:text="${result.detail}">Detalle:</p>
+					<p th:text="${result.price}">Precio:</p>
+					<form th:action="@{/product/detail/{productId}(productId=${result.productId})}" method="get">
+						<button type="submit">Detalles</button>
+					</form>
+<!--					<th:block th:if="${result.user.email ne principal?.name}">-->
+						<form th:action="@{/cart/addProduct}" method="post" enctype="multipart/form-data">
+							<input type="hidden" name="productId" th:value="${result.productId}" />
+							<input type="number" name="quantity" value="1" /> 
+							<button type="submit" class="add-to-cart">Añadir al carrito</button>
+						</form>
+<!--					</th:block>-->
+
+
+				</li>
+			</ul>
+		</div>
+
+		<div th:unless="${searchTerm}">
+			<p>No se proporcionó un término de búsqueda.</p>
+		</div>
+
+
+	</div>
+
+	<footer th:replace="fragments/footer" />
+</body>
+
+</html>

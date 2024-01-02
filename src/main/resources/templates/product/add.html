@@ -1,49 +1,95 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="fragments/head" />
+<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+
 </head>
+
 <body>
-    <nav th:replace="fragments/nav"></nav>
+	<nav th:replace="fragments/nav"></nav>
 
-    <div class="container">
-        <h2>Añadir nuevo producto al carrito</h2>
+	<div class="container">
+		<h2>Añadir nuevo producto</h2>
 
-        <form th:action="@{/cart/addProduct}" method="post" th:object="${newProduct}" enctype="multipart/form-data">
-            <!-- Campos del formulario -->
-            <div>
-                <label for="name">Nombre:</label>
-                <input type="text" id="name" name="name" th:field="*{name}" />
-            </div>
+		<form th:action="@{/product/add}" method="post" th:object="${product}" enctype="multipart/form-data">
+			<div>
+				<label for="name">Nombre:</label>
+				<input type="text" id="name" name="name" th:field="*{name}" />
+			</div>
 
-            <div>
-                <label for="detail">Detalle:</label>
-                <textarea id="detail" name="detail" th:field="*{detail}"></textarea>
-            </div>
+			<div>
+				<label for="detail">Detalle:</label>
+				<textarea id="detail" name="detail" th:field="*{detail}"></textarea>
+			</div>
 
-            <div>
-                <label for="price">Precio:</label>
-                <input type="text" id="price" name="price" th:field="*{price}" />
-            </div>
+			<div>
+				<label for="price">Precio:</label>
+				<input type="text" id="price" name="price" th:field="*{price}" />
+			</div>
 
-            <div>
-                <label for="stock">Stock:</label>
-                <input type="text" id="stock" name="stock" th:field="*{stock}" />
-            </div>
+			<div>
+				<label for="stock">Stock:</label>
+				<input type="text" id="stock" name="stock" th:field="*{stock}" />
+			</div>
 
-            <div>
-                <label for="category">Categoría:</label>
-                <input type="text" id="category" name="category" th:field="*{category}" />
-            </div>
+			<div>
+				<label for="category">Categoría:</label>
+				<select id="category" name="category" th:field="*{category}">
+					<option value="tecnologia">Tecnología</option>
+					<option value="ropa">Ropa y accesorios</option>
+					<option value="belleza">Belleza</option>
+					<option value="electrodomesticos">Electrodomésticos</option>
+					<option value="libros">Libros</option>
+					<option value="juguetes">Juguetes</option>
+				</select>
+			</div>
 
-            <div>
-                <label for="quantity">Cantidad:</label>
-                <input type="text" id="quantity" name="quantity" />
-            </div>
+			<div th:each="image, iterStat : ${product.images}" class="image-input">
+				<label th:for="'images' + ${iterStat.index}">Imagen ${iterStat.index}:</label>
+				<input type="text" th:id="'images' + ${iterStat.index}" th:name="'images[' + ${iterStat.index} + ']'" th:value="${image}" />
+			</div>
 
-            <button type="submit">Añadir al carrito</button>
-        </form>
-    </div>
+			<!-- Elimina el bloque de entrada de imagen estática original -->
+			<div th:remove="tag" id="imageInputs">
+				<div class="image-input">
+					<label for="images">Imagen 0:</label>
+					<input type="text" id="images" name="images[0]" />
+				</div>
+			</div>
 
-    <footer th:replace="fragments/footer" /></footer>
+			<!-- Ajusta el JavaScript para manejar los campos de entrada de imagen dinámica -->
+			<script>
+				$(document).ready(function () {
+					var maxImages = 5;
+
+					$("#addImageButton").click(function () {
+						var currentInputCount = $(".image-input").length;
+
+						if (currentInputCount < maxImages) {
+							var newIndex = currentInputCount;
+							var newImageInput = '<div class="image-input"><label for="images' + newIndex + '">Imagen ' + newIndex + ':</label>' +
+								'<input type="text" id="images' + newIndex + '" name="images[' + newIndex + ']" />' +
+								'</div>';
+
+							$(".image-input:last").after(newImageInput);
+						}
+					});
+				});
+			</script>
+			
+			<div id="addImageButtonContainer">
+				<button type="button" id="addImageButton">Agregar otra imagen</button>
+			</div>
+
+			<div id="addProductButtonContainer">
+				<button type="submit" id="addProductButton">Añadir Producto</button>
+			</div>
+		</form>
+	</div>
+
+	<footer th:replace="fragments/footer" />
+	</footer>
 </body>
+
 </html>

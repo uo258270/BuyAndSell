@@ -19,18 +19,18 @@ public class FeaturedProductServiceImpl implements FeaturedProductService{
 	private FeaturedRepository featuredRepository;
 
 	@Override
-	public Boolean isFeatured(ProductEntity product) {
-		FeaturedProductEntity fav = featuredRepository.getByProductId(product.getProductId());
+	public FeaturedProductEntity getFeaturedById(Long id) throws Exception {
+		FeaturedProductEntity fav = featuredRepository.getByProductId(id);
 		if(fav!=null) {
-			return true;
+			return fav;
 		}
-		return false;
+		throw new Exception("Product was null");
 	}
 
 	@Override
 	public List<FeaturedProductEntity> findByUser(UserEntity user) throws Exception {
 		List<FeaturedProductEntity> list = featuredRepository.getByUserId(user.getUserId());
-		if(list!=null) {
+		if(list!=null && !list.isEmpty()) {
 			return list;
 		}else {
 			throw new Exception("This user does not have any featured products");
@@ -38,12 +38,18 @@ public class FeaturedProductServiceImpl implements FeaturedProductService{
 	}
 
 	@Override
-	public void addFeatured(ProductEntity product) throws Exception {
-		if(product!=null && product.getUser()!=null) {
-			FeaturedProductEntity fav = new FeaturedProductEntity();
-			fav.setDate(new Date());
-			fav.setProduct(product);
-			fav.setUser(product.getUser());
+	public void addFeatured(ProductEntity product, UserEntity user) throws Exception {
+		if(product!=null && user!=null) {
+			if(!isFavourited(product)) {
+				FeaturedProductEntity fav = new FeaturedProductEntity();
+				fav.setDate(new Date());
+				fav.setProduct(product);
+				fav.setUser(user);
+				featuredRepository.save(fav);
+			}else {
+				throw new Exception("Product was already featured");
+			}
+			
 		}else {
 			throw new Exception("Product was null");
 		}
@@ -54,6 +60,15 @@ public class FeaturedProductServiceImpl implements FeaturedProductService{
 	public void deleteFeaturedProduct(FeaturedProductEntity featured) throws Exception {
 		featuredRepository.delete(featured);
 		
+	}
+
+	@Override
+	public Boolean isFavourited(ProductEntity prod) {
+		FeaturedProductEntity fav = featuredRepository.isFav(prod.getProductId());
+		if(fav!=null) {
+			return true;
+		}
+		return false;
 	}
 	
 	

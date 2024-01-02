@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.entity.ProductCartEntity;
@@ -32,7 +34,8 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 	// mas populares
 	@Override
 	public List<ProductEntity> getMostPopularProducts() throws Exception {
-		List<ProductEntity> prods = productRepository.findMostPopularProductsThisMonthLimited();
+		Pageable pageable = PageRequest.of(0, 5); 
+		List<ProductEntity> prods = productRepository.findMostPopularProductsThisMonthLimited(pageable);
 		if (prods != null) {
 			return prods;
 		} else {
@@ -166,7 +169,7 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 	@Override
 	public List<ProductEntity> getProductsBySimilarUserCarts(Long userId) {
 
-		List<ShoppingCartEntity> userPurchases = userRepository.findShoppingCartEntityListByUserId(userId);
+		List<ShoppingCartEntity> userPurchases = userRepository.getShoppingCartsByUserId(userId);
 
 		List<UserEntity> similarUsers = userRepository.findAll();
 

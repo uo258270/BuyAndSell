@@ -38,9 +38,9 @@ public class SignUpFormValidator implements Validator {
 		if (user.getPassword().length() < 5 || user.getPassword().length() > 24) {
 			errors.rejectValue("password", "error.signup.password.length");
 		}
-//		if (!user.getPasswordConfirm().equals(user.getPassword())) {
-//			errors.rejectValue("passwordConfirm", "error.signup.passwordConfirm.coincidence");
-//		}
+		if (!user.getPasswordConfirm().equals(user.getPassword())) {
+			errors.rejectValue("passwordConfirm", "error.signup.passwordConfirm.coincidence");
+		}
 		if (!user.getEmail().matches(".+@.+\\..+")) {
 			errors.rejectValue("email", "error.signup.email.format");
 		}

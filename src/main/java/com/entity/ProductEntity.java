@@ -44,6 +44,8 @@ public class ProductEntity implements Serializable {
 	private String category;
 
 	private int numOfViews;
+	
+	private boolean sold;
 
 	private List<String> images;
 	
@@ -56,12 +58,26 @@ public class ProductEntity implements Serializable {
 	@ManyToMany(fetch = FetchType.LAZY)
 	private List<ShoppingCartEntity> carts;
 
-	@OneToMany(mappedBy = "product")
+	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
 	private List<ReviewEntity> reviews;
 
 	public List<ReviewEntity> getReviews() {
 		return reviews;
 	}
+	
+	
+
+	public boolean isSold() {
+		return sold;
+	}
+
+
+
+	public void setSold(boolean sold) {
+		this.sold = sold;
+	}
+
+
 
 	public void setReviews(List<ReviewEntity> reviews) {
 		this.reviews = reviews;
