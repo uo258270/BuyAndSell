@@ -7,17 +7,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.exception.InvalidStockException;
 import com.exception.ProductAlreadySoldException;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.repository.ProductRepository;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.transaction.Transactional;
 
 @Entity
 @Table(name = "CART")
@@ -40,7 +44,7 @@ public class ShoppingCartEntity implements Serializable {
 	@ManyToOne
 	private UserEntity user;
 
-	@OneToMany(mappedBy = "cart")
+	@OneToMany(mappedBy = "cart", fetch = FetchType.EAGER)//cascada
 	private List<ProductCartEntity> productCartEntities = new ArrayList<>();
 
 	public List<ProductCartEntity> getProductCartEntities() {
@@ -75,7 +79,7 @@ public class ShoppingCartEntity implements Serializable {
 		this.dateCreated = dateCreated;
 	}
 
-	// preguntar el añadir cantidad
+	//añadir cantidad TODO
 	public Double getTotalOrderPrice() {
 		double sum = 0D;
 		for (ProductCartEntity productCartEntity : productCartEntities) {
@@ -90,23 +94,23 @@ public class ShoppingCartEntity implements Serializable {
 		return sum;
 	}
 
-	public void buy(UserEntity user) throws ProductAlreadySoldException {
+	public void buy(UserEntity user, ProductRepository productRepository) throws ProductAlreadySoldException {
 		double totalOrderPrice = getTotalOrderPrice();
 		user.decMoney(totalOrderPrice);
 		this.user = user;
 		this.user._getCarts().add(this);
 
 		for (ProductCartEntity productCartEntity : productCartEntities) {
-			
+
 			ProductEntity product = productCartEntity.getProduct();
-			if(!product.isSold()) {
+			if (!product.isSold()) {
 				product.decStock();
 				product.setSold(true);
+				productRepository.save(product);
+			} else {
+				throw new ProductAlreadySoldException("El producto ya ha sido vendido.");
 			}
-			else {
-                throw new ProductAlreadySoldException("El producto ya ha sido vendido.");
-            }
-			
+
 		}
 	}
 
@@ -124,31 +128,50 @@ public class ShoppingCartEntity implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ShoppingCartEntity other = (ShoppingCartEntity) obj;
-		return  Objects.equals(id, other.id);
+		return Objects.equals(id, other.id);
 	}
 
-	public void incQuantity(ProductEntity prod) {
+	public void incQuantity(ProductEntity prod) throws InvalidStockException {
 		for (ProductCartEntity productInCart : productCartEntities) {
-	        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
-	            productInCart.incQuantity(prod);
-	            return;
-	        }
-	    }
-		productCartEntities.add(new ProductCartEntity(prod, this));
+			if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+				productInCart.incQuantity(prod);
+				return;
+			}
+		}
+		ProductCartEntity newProductCart = new ProductCartEntity(prod, this);
+		addProductCart(newProductCart);
 	}
 
-	
 	public void decQuantity(ProductEntity prod) {
 		ProductCartEntity toDelete = null;
-	    for (ProductCartEntity productInCart : productCartEntities) {
-	        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
-	            if (productInCart.getQuantityInCart() > 0) {
-	            	productInCart.decQuantity();
-	            	if (productInCart.getQuantityInCart() == 0) toDelete = productInCart;
-	                break;
-	            }
-	        }
-	    }
-	    if (toDelete != null) productCartEntities.remove(toDelete);
+		for (ProductCartEntity productInCart : productCartEntities) {
+			if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+				if (productInCart.getQuantityInCart() > 0) {
+					productInCart.decQuantity();
+					if (productInCart.getQuantityInCart() == 0)
+						toDelete = productInCart;
+					break;
+				}
+			}
+		}
+		if (toDelete != null) {
+			removeProductCart(toDelete);
+		}
+	}
+
+	public void addProductCart(ProductCartEntity productCartEntity) {
+		this.productCartEntities.add(productCartEntity);
+	}
+
+	public void removeProductCart(ProductCartEntity productCartEntity) {
+		this.productCartEntities.remove(productCartEntity);
+	}
+
+	public void clear() {
+		//DUDA AQUI NO FUNCIONA, NO ELIMINA TODO 
+		for (ProductCartEntity productCartEntity : productCartEntities) {
+			removeProductCart(productCartEntity);
+		}
+
 	}
 }

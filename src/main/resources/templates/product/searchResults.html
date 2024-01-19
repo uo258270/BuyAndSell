@@ -1,46 +1,61 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="fragments/head" />
+<head th:replace="~{fragments/head}" />
 
 <body>
-	<nav th:replace="fragments/nav" />
+	<nav th:replace="~{fragments/nav}" />
 
-	<div class="container">
-		<h2>Resultados de búsqueda</h2>
+	<div class="container search-container">
+		<h2 class="search-header">Resultados de Búsqueda</h2>
 
 		<div th:if="${searchTerm}">
-			<p th:text="'Resultados para: ' + ${searchTerm}"></p>
+			<div class="search-results">
+				<div th:each="result : ${searchResults}" class="search-result">
+					<div class="product-container">
+						<img th:if="${result.images != null and not #lists.isEmpty(result.images)}"
+							th:src="${result.images[0]}" alt="Product Image" class="product-image" />
+						<img th:unless="${result.images != null and not #lists.isEmpty(result.images)}"
+							src="/images/defaultImage.jpg" alt="Default Image" class="product-image" />
 
-			<ul>
-				<li th:each="result : ${searchResults}">
-					<h3 th:text="${result.name}">Producto:</h3>
-					<p th:text="${result.detail}">Detalle:</p>
-					<p th:text="${result.price}">Precio:</p>
-					<form th:action="@{/product/detail/{productId}(productId=${result.productId})}" method="get">
-						<button type="submit">Detalles</button>
-					</form>
-<!--					<th:block th:if="${result.user.email ne principal?.name}">-->
-						<form th:action="@{/cart/addProduct}" method="post" enctype="multipart/form-data">
-							<input type="hidden" name="productId" th:value="${result.productId}" />
-							<input type="number" name="quantity" value="1" /> 
-							<button type="submit" class="add-to-cart">Añadir al carrito</button>
-						</form>
-<!--					</th:block>-->
+						<div class="product-details">
+							<h3 th:text="${result.name}" class="product-name">Producto:</h3>
+							<p th:text="${result.detail}" class="product-detail">Detalle:</p>
+							<p th:text="'Precio: $' + ${result.price}" class="product-price">Precio:</p>
+							<form th:action="@{/product/detail/{productId}(productId=${result.productId})}"
+								method="get">
+								<button type="submit" class="details-button">Detalles</button>
+							</form>
+							<div class="button-separator"></div>
 
+							<form th:action="@{/cart/addProduct}" method="post" enctype="multipart/form-data"
+								class="add-to-cart-form">
+								<input type="hidden" name="productId" th:value="${result.productId}" />
 
-				</li>
-			</ul>
+								<div class="cart-item">
+									<input type="number" name="quantity" value="1" class="quantity-input" />
+									<button type="submit" class="add-to-cart">Añadir al carrito</button>
+								</div>
+							</form>
+							<form th:action="@{/featured/add}" method="post" enctype="multipart/form-data">
+								<input type="hidden" name="productId" th:value="${result.productId}" />
+								<button type="submit" class="add-to-favorites">
+									<span class="glyphicon glyphicon-heart"></span> Añadir a Favoritos
+								</button>
+							</form>
+
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div th:unless="${searchTerm}">
-			<p>No se proporcionó un término de búsqueda.</p>
+			<p class="no-search-term">No se proporcionó un término de búsqueda.</p>
 		</div>
-
-
 	</div>
 
-	<footer th:replace="fragments/footer" />
+	<footer th:replace="~{fragments/footer}" class="custom-footer"></footer>
 </body>
 
 </html>

@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="fragments/head" />
+<link rel="stylesheet" type="text/css" href="custom.css" />
+<head th:replace="~{fragments/head}" />
 </head>
 
 <body>
-    <!-- Barra de Navegación superior -->
-    <nav th:replace="fragments/nav"></nav>
+    <nav th:replace="~{fragments/nav}"></nav>
 
-    <div class="container">
-        <h2>Buscar Productos</h2>
+    <div class="search-container">
+        <h2 class="search-header">Buscar Productos</h2>
 
         <form th:action="@{/product/search/results}" method="get">
             <div>
-                <label for="searchTerm">Término de búsqueda:</label>
-                <input type="text" id="searchTerm" name="searchTerm" />
+                <label for="searchTerm" class="search-label">Término de búsqueda:</label>
+                <input type="text" id="searchTerm" name="searchTerm" class="search-input" />
             </div>
 
             <div>
-                <button type="submit">Buscar</button>
+                <button type="submit" class="search-button">Buscar</button>
             </div>
         </form>
     </div>
 
-    <footer th:replace="fragments/footer"></footer>
+    <footer th:replace="~{fragments/footer}"></footer>
 </body>
 
 </html>

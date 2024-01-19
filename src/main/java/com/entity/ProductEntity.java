@@ -1,11 +1,22 @@
 package com.entity;
 
 import java.io.Serializable;
+import jakarta.persistence.Transient;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import com.entity.enums.CategoryEnum;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,14 +52,20 @@ public class ProductEntity implements Serializable {
 
 	private int stock;
 
-	private String category;
+	@Enumerated(EnumType.STRING) 
+	@Column(name = "category")
+	private CategoryEnum category;
 
 	private int numOfViews;
 	
 	private boolean sold;
 
-	private List<String> images;
+	@Transient
+	private List<MultipartFile> images = new ArrayList<>();
 	
+	@ElementCollection
+    private List<String> imagePaths = new ArrayList<>();
+
 
 	// relacion con user
 	@ManyToOne
@@ -158,23 +175,34 @@ public class ProductEntity implements Serializable {
 		this.numOfViews = numOfViews;
 	}
 
-	public String getCategory() {
+
+
+
+
+
+	public CategoryEnum getCategory() {
 		return category;
 	}
 
-	public void setCategory(String category) {
+
+
+	public void setCategory(CategoryEnum category) {
 		this.category = category;
 	}
 
 
 
-	public List<String> getImages() {
+	public List<MultipartFile> getImages() {
 		return images;
 	}
 
-	public void setImages(List<String> images) {
+
+
+	public void setImages(List<MultipartFile> images) {
 		this.images = images;
 	}
+
+
 
 	public UserEntity getUser() {
 		return user;
@@ -207,6 +235,18 @@ public class ProductEntity implements Serializable {
 			return false;
 		ProductEntity other = (ProductEntity) obj;
 		return Objects.equals(productId, other.productId);
+	}
+
+
+
+	public List<String> getImagePaths() {
+		return imagePaths;
+	}
+
+
+
+	public void setImagePaths(List<String> imagePaths) {
+		this.imagePaths = imagePaths;
 	}
 
 	

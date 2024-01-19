@@ -43,7 +43,6 @@ public class FeaturedController {
 		
 	}
 	
-	
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public String addFavProduct(Model model, Principal principal, @Validated ProductEntity prod, BindingResult result) throws Exception {
 		try {
@@ -53,17 +52,18 @@ public class FeaturedController {
 			model.addAttribute("user", user);
 			List<FeaturedProductEntity> featuredList = featuredService.findByUser(user);
 			model.addAttribute("featuredList", featuredList);
-			return "/featured/listByUser";
+			return "redirect:/featured/listByUser";
 		}
 		catch(Exception e) {
-			throw new Exception("Product cannot be added to favourites");
+			 model.addAttribute("errorMessage", "El producto ya ha sido añadido a favoritos");
+		        return "/error";
 		}
 		
 	}
 
 
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
-	public String deleteFavProduct(Model model, Principal principal,  Long id) throws Exception {
+	public String deleteFavProduct(Model model, Principal principal,  @RequestParam Long id) throws Exception {
 		try {
 			String email = principal.getName();
 			UserEntity user = userService.findByEmail(email);

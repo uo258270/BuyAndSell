@@ -25,6 +25,7 @@ import com.entity.UserEntity;
 import com.exception.InvalidStockException;
 import com.exception.NotEnoughMoney;
 import com.exception.NotFoundException;
+import com.exception.ProductAlreadySoldException;
 import com.service.ProductsService;
 import com.service.ShoppingCartService;
 import com.service.UserService;
@@ -32,6 +33,8 @@ import com.service.UserService;
 @Controller
 @RequestMapping("/cart")
 public class ShoppingCartController {
+
+	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
 	@Autowired
 	ShoppingCartService shoppingCartService;
@@ -81,9 +84,10 @@ public class ShoppingCartController {
 	}
 
 	@PostMapping("/clearCart")
-	public String clearCart(ShoppingCartEntity cart) {
+	public String clearCart(Model model) {
 		try {
-			shoppingCartService.clear(cart);
+			shoppingCartService.clear();
+			model.addAttribute("cartCleared", true);
 			return "redirect:/cart";
 		} catch (NotFoundException e) {
 			throw new NotFoundException(e.getMessage());
@@ -103,33 +107,38 @@ public class ShoppingCartController {
 	}
 
 	@RequestMapping("/buy")
-	public String buyProduct(Principal principal) throws Exception {
-		try {
-			shoppingCartService.buyShoppingCart(principal.getName());
-			return "/cart/thankYou";
-		} catch (NotEnoughMoney e) {
-			return "/cart/noMoney";
-		}
+	public String buyProduct(Principal principal, Model model) throws Exception {
+	    try {
+	    	//TODO no se actualiza el dinero despues de hacer una compra
+	        shoppingCartService.buyShoppingCart(principal.getName());
+	        return "/cart/thankYou";
+	    } catch (NotEnoughMoney e) {
+	        model.addAttribute("errorMessage", "No tienes suficiente dinero para realizar la compra.");
+	        return "/error";
+	    } catch (ProductAlreadySoldException e) {
+	        model.addAttribute("errorMessage", "El producto ya ha sido vendido.");
+	        return "/error";
+	    }
 	}
-	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
-
+	
+	
 
 	@PostMapping("/updateQuantity")
-	public String updateQuantity(@RequestParam Long productId, @RequestParam int quantity, @RequestParam String action) throws Exception {
-		try {
-			 logger.info("productId: {}", productId);
-		        logger.info("quantity: {}", quantity);
-		        logger.info("action: {}", action);
-			if ("increment".equals(action)) {
-				shoppingCartService.incrementProductQuantity(productId);
-			} else if ("decrement".equals(action)) {
-				shoppingCartService.decrementProductQuantity(productId);
-			}
-			return "redirect:/cart";
-		} catch (Exception e) {
-			throw new Exception();
-		}
+	public String updateQuantity(@RequestParam Long productId, @RequestParam int quantity, @RequestParam String action, Model model) throws Exception {
+	    try {
+	        if ("increment".equals(action)) {
+	            shoppingCartService.incrementProductQuantity(productId);
+	        } else if ("decrement".equals(action)) {
+	            shoppingCartService.decrementProductQuantity(productId);
+	        }
+
+	        return "redirect:/cart";
+	    } catch (InvalidStockException e) {
+	        model.addAttribute("errorMessage", "No hay suficiente stock disponible para este producto.");
+	        return "/error";
+	    }
 	}
+
 
 	
 }

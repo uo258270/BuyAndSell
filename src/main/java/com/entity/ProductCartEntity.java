@@ -1,5 +1,6 @@
 package com.entity;
 
+import com.exception.InvalidStockException;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,26 +8,23 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
-
 @Entity
 public class ProductCartEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@ManyToOne
-    private ProductEntity product;
 
-    @ManyToOne
-    private ShoppingCartEntity cart;
+	@ManyToOne
+	private ProductEntity product;
+
+	@ManyToOne
+	private ShoppingCartEntity cart;
 
 	private int quantityInCart;
-	
+
 	public ProductCartEntity() {
 	}
-	
-	
 
 	public ProductCartEntity(ProductEntity product, ShoppingCartEntity cart) {
 		super();
@@ -34,8 +32,6 @@ public class ProductCartEntity {
 		this.cart = cart;
 		quantityInCart = 1;
 	}
-
-
 
 	public Long getId() {
 		return id;
@@ -69,25 +65,21 @@ public class ProductCartEntity {
 		this.quantityInCart = quantityInCart;
 	}
 
-	public void incQuantity(ProductEntity prod) {
-		int stock = prod.getStock();
-		if((quantityInCart+1)<=stock) {
-			quantityInCart += 1;
-		}else {
-			throw new IllegalArgumentException();
-		}
-		
+	public void incQuantity(ProductEntity prod) throws InvalidStockException {
+	    int stock = prod.getStock();
+	    if ((quantityInCart + 1) <= stock) {
+	        quantityInCart += 1;
+	    } else {
+	        throw new InvalidStockException("No hay suficiente stock disponible para este producto.");
+	    }
 	}
-	
+
 	public void decQuantity() {
-		if((quantityInCart-1)>0) {
+		if ((quantityInCart - 1) > 0) {
 			quantityInCart -= 1;
-		}else {
-			throw new IllegalArgumentException();
+		} else {
+			cart.removeProductCart(this);
 		}
-		
 	}
-	
-	
-	
+
 }

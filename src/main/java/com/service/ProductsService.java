@@ -3,6 +3,7 @@ package com.service;
 import java.util.List;
 
 import com.entity.ProductEntity;
+import com.exception.UpdateProductException;
 
 
 public interface ProductsService {
@@ -15,8 +16,8 @@ public interface ProductsService {
 	//borrar delete
 	void deleteProduct(Long productId) throws Exception;
 	
-	//modificar producto update
-	boolean updateProduct(ProductEntity product);
+	// producto update
+	boolean updateProduct(ProductEntity product, ProductEntity editedProduct) throws UpdateProductException;
 	
 	//listar productos
 	List<ProductEntity> getProducts(Long userId);

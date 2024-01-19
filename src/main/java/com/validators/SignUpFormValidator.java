@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.*;
 
 import com.entity.UserEntity;
+import com.exception.NotFoundException;
 import com.service.UserService;
 
 @Component
@@ -26,8 +27,7 @@ public class SignUpFormValidator implements Validator {
 				errors.rejectValue("email", "error.signup.email.duplicate");
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new NotFoundException("user email cannot be found");
 		}
 		if (user.getName().length() < 5 || user.getName().length() > 24) {
 			errors.rejectValue("name", "error.signup.name.length");

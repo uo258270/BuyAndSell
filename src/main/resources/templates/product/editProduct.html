@@ -1,60 +1,68 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head" />
+
+<head th:replace="~{fragments/head}" />
 </head>
+
 <body>
-    <nav th:replace="fragments/nav"></nav>
+	<nav th:replace="~{fragments/nav}"></nav>
 
-    <div class="container">
-        <h2>Editar Producto</h2>
+	<div class="container">
+		<div class="edit-product-container">
+			<h2>Editar Producto</h2>
 
-        <form th:action="@{/product/edit/{id}(id=${product.productId})}" method="post" th:object="${product}" enctype="multipart/form-data">
-            <!-- Campos del formulario -->
-            <div>
-                <label for="name">Titulo del producto:</label>
-                <input type="text" id="name" th:field="*{name}" />
-            </div>
+			<form th:action="@{'/product/edit/' + ${product.productId}}" method="post" th:object="${product}"
+				enctype="multipart/form-data">
+				<div class="form-group">
+					<label for="name">Titulo del producto:</label>
+					<input type="text" id="name" th:field="*{name}" class="form-control" />
+				</div>
 
-            <div>
-                <label for="detail">Detalles:</label>
-                <input type="text" id="detail" th:field="*{detail}" />
-            </div>
-            
-             <div>
-                <label for="price">Precio:</label>
-                <input type="text" id="price" th:field="*{price}" />
-            </div>
+				<div class="form-group">
+					<label for="detail">Detalles:</label>
+					<input type="text" id="detail" th:field="*{detail}" class="form-control" />
+				</div>
 
-            <div>
-                <label for="stock">Stock:</label>
-                <input type="text" id="stock" th:field="*{stock}" />
-            </div>
+				<div class="form-group">
+					<label for="price">Precio:</label>
+					<input type="text" id="price" th:field="*{price}" class="form-control" />
+				</div>
 
-            <div>
-                <label for="category">Categoria:</label>
-                <input type="text" id="category" th:field="*{category}" />
-            </div>
+				<div class="form-group">
+					<label for="stock">Stock:</label>
+					<input type="text" id="stock" th:field="*{stock}" class="form-control" />
+				</div>
 
-			  <div>
-                <label for="newImages">Añadir nuevas imagenes:</label>
-                <input type="file" id="newImages" name="newImages" accept="image/*" multiple />
-            </div>
+				<div class="form-group">
+					<label for="category">Categoría:</label>
 
-            <!-- Lista de imágenes existentes para eliminar -->
-            <div>
-                <label>Imagenes actuales:</label>
-                <ul>
-                    <li th:each="image : ${product.images}">
-                        <img th:src="'data:image/png;base64,' + ${image}" alt="Product Image" />
-                        <input type="checkbox" name="imagesToRemove" th:value="${image}" /> Eliminar
-                    </li>
-                </ul>
-            </div>
-          
-            <button type="submit">Guardar cambios</button>
-        </form>
-    </div>
+					<select id="category" name="category" th:field="*{category}" class="form-control">
+						<option th:each="cat : ${categorias}" th:value="${cat}" th:text="${cat}"></option>
+					</select>
+				</div>
 
-    <footer th:replace="fragments/footer" /></footer>
+				<div class="form-group">
+					<label for="newImages">Añadir nuevas imágenes:</label>
+					<input type="file" id="newImages" name="images" accept="image/*" multiple
+						class="form-control-file" />
+				</div>
+
+				<div class="form-group">
+					<label>Imágenes actuales:</label>
+					<ul class="image-list">
+						<li th:each="image : ${product.images}">
+							<img th:src="'data:image/png;base64,' + ${image}" alt="Product Image" />
+							<input type="checkbox" name="imagesToRemove" th:value="${image}" /> Eliminar
+						</li>
+					</ul>
+				</div>
+
+				<button type="submit" name="editProductButton" class="btn btn-primary">Guardar cambios</button>
+			</form>
+		</div>
+	</div>
+
+	<footer th:replace="~{fragments/footer}"></footer>
 </body>
+
 </html>

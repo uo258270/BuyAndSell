@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +13,6 @@ import com.entity.ProductEntity;
 import com.entity.ReviewEntity;
 
 
-@Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
 	ProductEntity findByProductId(Long productId);
@@ -20,8 +20,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 	ProductEntity findByName(String name);
 	
 	@Transactional
-	@Query("Delete from ProductEntity where productId = :id")
-	Integer deleteProduct(Long id);
+	Integer deleteByProductId(Long productId);
 	
 	@Query("SELECT p FROM ProductEntity p " +
 		       "WHERE MONTH(p.productDate) = MONTH(CURRENT_DATE) " +
@@ -36,10 +35,12 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
 	List<ProductEntity> findAllByUserUserIdIsNot(Long userId);
 
-	List<ReviewEntity> findReviewsByProductId(Long productId);
+	
 
 	List<ProductEntity> findByNameContainingIgnoreCase(String searchTerm);
 
-	List<ProductEntity> findByUserIdAndSoldTrue(Long userId);
+	List<ProductEntity> findByUserUserIdAndSoldTrue(Long userId);
+	
+	
 
 }

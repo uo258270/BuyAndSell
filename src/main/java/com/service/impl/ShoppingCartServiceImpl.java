@@ -1,5 +1,6 @@
 package com.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,14 +35,18 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 	@Autowired
 	private ProductRepository productRepository;
-	
+
+	@Autowired
+	private ProductCartRepository productCartRepository;
 
 	private ShoppingCartEntity cart = new ShoppingCartEntity();
 
-
 	@Override
-	public void clear(ShoppingCartEntity cart) {
-		cart.getProductCartEntities().clear();
+	@Transactional
+	public void clear() {
+		cart.clear();
+		shoppingCartRepo.save(cart);
+
 	}
 
 	@Override
@@ -54,9 +59,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 		}
 	}
 
-	
-	
-
 	@Override
 	public Optional<ShoppingCartEntity> getCart() {
 		return Optional.ofNullable(cart);
@@ -67,17 +69,17 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	public void buyShoppingCart(String email) throws NotEnoughMoney, ProductAlreadySoldException {
 		UserEntity user = userRepository.findByEmail(email);
 		if (user.getMoney() >= cart.getTotalOrderPrice()) {
-			cart.buy(user);
-			shoppingCartRepo.save(cart);
-			for (ProductCartEntity product : cart.getProductCartEntities()) {
+			cart.buy(user, productRepository);
+			cart = shoppingCartRepo.save(cart);
+			List<ProductCartEntity> list = cart.getProductCartEntities();
+			for (ProductCartEntity product : list) {
 				product.setQuantityInCart(0);
 			}
 		} else {
-			throw new NotEnoughMoney("User doesn't have enough money");
+			throw new NotEnoughMoney("El usuario no tiene suficiente dinero para realizar la compra");
 		}
 	}
-	
-	
+
 	@Override
 	public void incrementProductQuantity(Long productId) throws InvalidStockException {
 		ProductEntity prod = productRepository.findByProductId(productId);
@@ -85,15 +87,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 			throw new InvalidStockException("No hay stock suficiente de este producto");
 		}
 		cart.incQuantity(prod);
-		 
 
 	}
 
-	
 	@Override
 	public void decrementProductQuantity(Long productId) {
 		ProductEntity prod = productRepository.findByProductId(productId);
 		cart.decQuantity(prod);
 	}
-	
+
 }

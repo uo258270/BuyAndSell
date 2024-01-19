@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head" />
+<head th:replace="~{fragments/head}" />
 </head>
 <body>
-    <nav th:replace="fragments/nav"></nav>
+    <nav th:replace="~{fragments/nav}"></nav>
 
     <div class="container">
         <h2>Añadir una reseña</h2>
@@ -27,7 +27,6 @@
          <a th:href="@{/product/detail/{productId}(productId=${productId})}" class="back-button">Volver al Producto</a>
     </div>
 
-    <!-- Pie de Página -->
-    <footer th:replace="fragments/footer" />
+    <footer th:replace="~{fragments/footer}" />
 </body>
 </html>

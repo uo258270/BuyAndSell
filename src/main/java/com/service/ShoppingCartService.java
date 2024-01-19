@@ -18,7 +18,7 @@ public interface ShoppingCartService {
 	//updateUnits
 	//clear
 
-	void clear(ShoppingCartEntity cart);
+	void clear();
 
 	Optional<ShoppingCartEntity> getCart();
 

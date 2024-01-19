@@ -1,83 +1,174 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="fragments/head" />
+<head th:replace="~{fragments/head}" />
+<link rel="stylesheet" type="text/css" href="custom.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+
+
 </head>
+<style>
+	.star-rating {
+		display: flex;
+	}
+
+	.star {
+		cursor: pointer;
+	}
+
+	.star i {
+		font-size: 24px;
+		color: #ccc;
+	}
+
+	.star.selected i {
+		color: #ffcc00;
+	}
+</style>
 
 <body>
-	<nav th:replace="fragments/nav"></nav>
 
-	<div class="container">
-		<h2 th:text="${product.name}">Nombre del producto</h2>
+	<nav th:replace="~{fragments/nav}"></nav>
+
+	<div class="container product-details-container">
 
 
-		<div>
-			<p th:text="${product.detail}">Detalle del producto</p>
-		</div>
 
-		<div>
-			<p th:text="${'Precio: $' + product.price}">Precio:</p>
-		</div>
+		<h2>Detalle del producto - <span th:text="${product.name}">Nombre del producto</span></h2>
 
-		<div>
+
+		<div class="product-info">
+			<h2 th:text="${product.name}">Nombre del producto</h2>
+			<div class="product-description">
+				<p th:text="${product.detail}">Detalle del producto</p>
+			</div>
+			<p th:text="${'Precio: ' + product.price}">Precio:</p>
 			<p th:text="${'Stock: ' + product.stock}">Stock:</p>
+			<p th:text="${'Categoría: ' + product.category}">Categoría:</p>
+
+
+			<div class="product-images">
+				<h3 class="image-heading">Imágenes</h3>
+				<ul class="image-list">
+					<li th:each="image : ${product.images}">
+						<img th:src="${image}" alt="Imagen del producto" class="product-image" />
+					</li>
+					<li th:if="${#lists.isEmpty(product.images)}">
+						<img src="/images/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+					</li>
+				</ul>
+			</div>
+
+			<div th:if="${averageRating > 0}" class="average-rating">
+				<h3>Valoración media del producto</h3>
+				<p>
+					<span class="star-rating" th:utext="${'&#9733;'.repeat(averageRating)}"></span>
+					<span th:text="${'Valoración media: ' + averageRating}"></span>
+				</p>
+			</div>
+
+			<div th:if="${not #lists.isEmpty(product.reviews)}" class="product-reviews">
+				<h3>Reseñas de los productos</h3>
+				<ul class="review-list" th:each="review : ${product.reviews}">
+					<li class="review-item">
+						<p>
+							<span class="star-rating" th:utext="${'&#9733;'.repeat(review.rating)}"></span>
+							<span th:text="${'Valoración: ' + review.rating}"></span>
+						</p>
+						<p th:text="${'Comentario: ' + review.comment}"></p>
+						<form
+							th:if="${#authorization.expression('isAuthenticated() and principal != null and principal.username != #vars.product?.user?.username')}"
+							th:action="@{/reviews/delete/{id}(id=${review.ratingId})}" method="post">
+							<input type="hidden" name="productId" th:value="${product.productId}" />
+							<input type="hidden" name="_method" value="delete" />
+							<button type="submit" class="delete-review">Eliminar</button>
+						</form>
+
+					</li>
+				</ul>
+				<div th:unless="${product.reviews}" class="no-reviews">
+					<p>No hay reseñas para este producto.</p>
+				</div>
+			</div>
+
+			<div th:if="${product.sold}" class="add-review-block">
+				<h3>Añadir una reseña</h3>
+				<form th:action="@{/reviews/add(productId=${product.productId})}" method="post" th:object="${review}"
+					id="addReviewForm">
+					<input type="hidden" name="productId" th:value="${product.productId}" />
+					<input type="hidden" name="user.id" th:value="${principal?.name}" />
+
+					<div class="form-group">
+						<label for="rating">Valoración:</label>
+						<input type="hidden" name="rating" id="rating">
+						<div class="star-rating" id="starRating">
+							<div class="star" onclick="fillStars(1)"><i class="fa fa-star"></i></div>
+							<div class="star" onclick="fillStars(2)"><i class="fa fa-star"></i></div>
+							<div class="star" onclick="fillStars(3)"><i class="fa fa-star"></i></div>
+							<div class="star" onclick="fillStars(4)"><i class="fa fa-star"></i></div>
+							<div class="star" onclick="fillStars(5)"><i class="fa fa-star"></i></div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="comment">Comentario:</label>
+						<textarea id="comment" name="comment" class="form-control" required></textarea>
+					</div>
+
+					<button type="submit" class="btn btn-primary">Añadir Reseña</button>
+				</form>
+			</div>
+
+
+			<script th:inline="javascript">
+				function fillStars(rating) {
+					document.getElementById('rating').value = rating;
+
+					var stars = document.getElementById('starRating').children;
+
+					for (var i = 0; i < stars.length; i++) {
+						if (i < rating) {
+							stars[i].classList.add('selected');
+						} else {
+							stars[i].classList.remove('selected');
+						}
+					}
+				}
+
+				document.addEventListener('DOMContentLoaded', function () {
+					var reviewForm = document.getElementById('addReviewForm');
+				});
+			</script>
+
+
+
+
+			<th:block th:unless="${product.sold}" class="no-purchase-warning">
+				<p>Debes comprar este producto para añadir reseñas.</p>
+			</th:block>
+
+			<div th:if="${warningMessage}" class="alert alert-warning">
+				<p th:text="${warningMessage}"></p>
+			</div>
+
+			<div class="product-actions">
+				<form th:action="@{/featured/add}" method="post">
+					<input type="hidden" name="productId" th:value="${product.productId}" />
+					<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+				</form>
+
+				<form th:action="@{/cart/addProduct}" method="post">
+					<input type="hidden" name="productId" th:value="${product.productId}" />
+					<input type="number" name="quantity" value="1" class="quantity-input" />
+					<button type="submit" class="add-to-cart">Añadir al carrito</button>
+				</form>
+			</div>
+
+			<a th:href="@{/product/allRecommendedProducts}" class="back-button">Volver a la lista de productos</a>
 		</div>
 
-		<div>
-			<p th:text="${'Categoria: ' + product.category}">Categoria:</p>
-		</div>
-
-		<div>
-			<h2>Images</h2>
-			<ul>
-				<li th:each="image : ${product.images}">
-					<img th:src="${image}" alt="Imagen del producto" onerror="this.style.display='none'" />
-				</li>
-			</ul>
-		</div>
-
-		<div th:if="${averageRating > 0}">
-			<h3>Valoracion media del producto</h3>
-			<p>
-				<span class="star-rating" th:utext="${'&#9733;'.repeat(averageRating)}"></span>
-				<span th:text="${'Valoracion media: ' + averageRating}"></span>
-			</p>
-		</div>
-
-		<div th:if="${not #lists.isEmpty(product.reviews)}">
-			<h3>Reseñas de los productos</h3>
-			<ul th:each="review : ${product.reviews}">
-				<li>
-					<p>
-						<span class="star-rating" th:utext="${'&#9733;'.repeat(review.rating)}"></span>
-						<span th:text="${'Valoracion: ' + review.rating}"></span>
-					</p>
-					<p th:text="${'Comentario: ' + review.comment}"></p>
-					<a th:if="${#authorization.expression('isAuthenticated() and principal?.name != null and principal?.name != product?.user?.email')}"
-						th:href="@{/reviews/delete/{id}(id=${review.id})}" class="delete-review">Eliminar</a>
-
-
-
-				</li>
-			</ul>
-		</div>
-
-		<form th:action="@{/featured/add}" method="post">
-			<input type="hidden" name="productId" th:value="${product.productId}" />
-			<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-		</form>
-
-		<form th:action="@{/cart/addProduct}" method="post">
-			<input type="hidden" name="productId" th:value="${product.productId}" />
-			 <input type="number" name="quantity" value="1" />
-			<button type="submit" class="add-to-cart">Añadir al carrito</button>
-		</form>
-
-
-		<a th:href="@{/product/allRecommendedProducts}" class="back-button">Volver a la lista de productos</a>
-	</div>
-
-	<footer th:replace="fragments/footer" />
+		<footer th:replace="~{fragments/footer}" />
 </body>
 
 </html>

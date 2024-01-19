@@ -28,7 +28,7 @@ public class AddOfferValidator implements Validator {
 	        errors.rejectValue("name", "Error.addOffer.title.length");
 	    }
 	    
-	    if (product.getDetail().length() < 3 || product.getDetail().length() > 40) {
+	    if (product.getDetail().length() < 3 || product.getDetail().length() > 100) {
 	        errors.rejectValue("detail", "Error.addOffer.details.length");
 	    }
 	    

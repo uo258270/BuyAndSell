@@ -1,16 +1,66 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="fragments/head" />
+<head th:replace="~{fragments/head}" />
 <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<style>
+	.container {
+		max-width: 600px;
+		margin: auto;
+		padding: 20px;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		background-color: #f8f8f8;
+	}
 
+	label {
+		display: block;
+		margin-bottom: 5px;
+	}
+
+	input[type="text"],
+	textarea,
+	select {
+		width: 100%;
+		padding: 8px;
+		margin-bottom: 10px;
+		box-sizing: border-box;
+	}
+
+	.image-input {
+		margin-bottom: 10px;
+	}
+
+	#addImageButtonContainer,
+	#addProductButtonContainer {
+		text-align: right;
+		margin-top: 10px;
+	}
+
+	#addImageButton,
+	#addProductButton {
+		padding: 10px;
+		background-color: rgb(71, 184, 85);
+		color: #fff;
+		border: none;
+		border-radius: 5px;
+		cursor: pointer;
+	}
+</style>
 </head>
 
 <body>
-	<nav th:replace="fragments/nav"></nav>
+	<nav th:replace="~{fragments/nav}"></nav>
 
 	<div class="container">
 		<h2>Añadir nuevo producto</h2>
+
+		<div th:if="${errors}" class="alert alert-danger">
+			<p>Por favor, corrige los siguientes errores:</p>
+			<ul>
+				<li th:each="error : ${errors}" th:text="${error.defaultMessage}"></li>
+			</ul>
+		</div>
 
 		<form th:action="@{/product/add}" method="post" th:object="${product}" enctype="multipart/form-data">
 			<div>
@@ -35,30 +85,18 @@
 
 			<div>
 				<label for="category">Categoría:</label>
-				<select id="category" name="category" th:field="*{category}">
-					<option value="tecnologia">Tecnología</option>
-					<option value="ropa">Ropa y accesorios</option>
-					<option value="belleza">Belleza</option>
-					<option value="electrodomesticos">Electrodomésticos</option>
-					<option value="libros">Libros</option>
-					<option value="juguetes">Juguetes</option>
+				<select id="category" name="category" th:field="*{category}" class="form-control">
+					<option th:each="cat : ${categorias}" th:value="${cat}" th:text="${cat}"></option>
 				</select>
 			</div>
 
-			<div th:each="image, iterStat : ${product.images}" class="image-input">
-				<label th:for="'images' + ${iterStat.index}">Imagen ${iterStat.index}:</label>
-				<input type="text" th:id="'images' + ${iterStat.index}" th:name="'images[' + ${iterStat.index} + ']'" th:value="${image}" />
-			</div>
-
-			<!-- Elimina el bloque de entrada de imagen estática original -->
-			<div th:remove="tag" id="imageInputs">
-				<div class="image-input">
-					<label for="images">Imagen 0:</label>
-					<input type="text" id="images" name="images[0]" />
+			<div class="form-group">
+					<label for="newImages">Añadir nuevas imágenes:</label>
+					<input type="file" id="newImages" name="images" accept="image/*" multiple
+						class="form-control-file" />
 				</div>
-			</div>
 
-			<!-- Ajusta el JavaScript para manejar los campos de entrada de imagen dinámica -->
+
 			<script>
 				$(document).ready(function () {
 					var maxImages = 5;
@@ -69,7 +107,7 @@
 						if (currentInputCount < maxImages) {
 							var newIndex = currentInputCount;
 							var newImageInput = '<div class="image-input"><label for="images' + newIndex + '">Imagen ' + newIndex + ':</label>' +
-								'<input type="text" id="images' + newIndex + '" name="images[' + newIndex + ']" />' +
+								'<input type="file" id="images' + newIndex + '" name="images[' + newIndex + ']" accept="image/*" />' +
 								'</div>';
 
 							$(".image-input:last").after(newImageInput);
@@ -77,7 +115,8 @@
 					});
 				});
 			</script>
-			
+
+
 			<div id="addImageButtonContainer">
 				<button type="button" id="addImageButton">Agregar otra imagen</button>
 			</div>
@@ -88,8 +127,7 @@
 		</form>
 	</div>
 
-	<footer th:replace="fragments/footer" />
-	</footer>
+	<footer th:replace="~{fragments/footer}" />
 </body>
 
 </html>
