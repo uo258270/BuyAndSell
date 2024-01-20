@@ -1,0 +1,54 @@
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+ 
+    margin-bottom: 60px;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #101010;
+    text-align: center;
+    line-height: 60px
+}
+.my-custom-scrollbar {
+    position: relative;
+    height: 200px;
+    overflow: auto;
+}
+
+.table-wrapper-scroll-y {
+    display: block;
+}
+.horizontal-list {
+		list-style: none;
+		display: flex;
+		overflow-x: auto;
+	}
+
+	.horizontal-list li {
+		margin-right: 5px;
+	}
+
+	.vertical-list {
+		list-style: none;
+		margin-bottom: 20px;
+	}
+
+	.vertical-list li {
+		margin-bottom: 10px;
+	}
+
+	.list-title {
+		font-size: 18px;
+		font-weight: bold;
+		margin-bottom: 10px;
+	}
+	
