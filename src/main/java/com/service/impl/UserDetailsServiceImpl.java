@@ -15,6 +15,15 @@ import java.util.*;
 public class UserDetailsServiceImpl implements UserDetailsService {
 	@Autowired
 	private UserRepository usersRepository;
+	
+	
+
+	public UserDetailsServiceImpl(UserRepository usersRepository) {
+		super();
+		this.usersRepository = usersRepository;
+	}
+
+
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -24,7 +33,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	        throw new UsernameNotFoundException("User not authorized.");
 	    }
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-		grantedAuthorities.add(new SimpleGrantedAuthority(user.getRole()));
+		grantedAuthorities.add(new SimpleGrantedAuthority(user.getRoleName()));
 
 		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
 				grantedAuthorities);

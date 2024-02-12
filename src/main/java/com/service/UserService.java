@@ -2,6 +2,8 @@ package com.service;
 
 
 
+import java.util.List;
+
 import com.entity.UserEntity;
 
 public interface UserService {
@@ -28,4 +30,8 @@ public interface UserService {
 
 
 	void addMoney(String email, Double amount) throws Exception;
+	
+	 void autoLogin(String email, String password);
+
+	List<UserEntity> getStandardUsers();
 }

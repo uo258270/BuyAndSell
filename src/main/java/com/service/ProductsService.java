@@ -3,6 +3,7 @@ package com.service;
 import java.util.List;
 
 import com.entity.ProductEntity;
+import com.exception.NullDataException;
 import com.exception.UpdateProductException;
 
 
@@ -28,4 +29,7 @@ public interface ProductsService {
 	List<ProductEntity> searchProducts(String searchTerm);
 	
 	List<ProductEntity> getSoldProducts(Long userId);
+	List<ProductEntity> getPurchasedProducts(Long userId) throws NullDataException;
+	boolean checkIfProductIsFavorite(Long productId);
+	ProductEntity increaseNumOfViews(ProductEntity product);
 }

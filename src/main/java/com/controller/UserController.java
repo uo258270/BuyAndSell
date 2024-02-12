@@ -5,20 +5,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import org.springframework.stereotype.Controller;
-
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
+import com.entity.enums.RoleEnum;
 import com.service.ProductsService;
-import com.service.impl.UserServiceImpl;
+import com.service.UserService;
 import com.validators.SignUpFormValidator;
 
 import jakarta.servlet.http.HttpSession;
@@ -30,7 +30,7 @@ public class UserController {
 	private HttpSession httpSession;
 
 	@Autowired
-	private UserServiceImpl usersService;
+	private UserService usersService;
 
 	@Autowired
 	private SignUpFormValidator signUpFormValidator;
@@ -38,23 +38,30 @@ public class UserController {
 	@Autowired
 	private ProductsService productService;
 
+	public UserController(HttpSession httpSession, UserService usersService, SignUpFormValidator signUpFormValidator,
+			ProductsService productService) {
+		super();
+		this.httpSession = httpSession;
+		this.usersService = usersService;
+		this.signUpFormValidator = signUpFormValidator;
+		this.productService = productService;
+	}
+
 	@RequestMapping(value = "/signup", method = RequestMethod.GET)
 	public String signup(Model model) {
-		model.addAttribute("user", new UserEntity());
+		model.addAttribute("userEntity", new UserEntity());
 		return "signup";
 	}
 
 	@RequestMapping(value = "/signup", method = RequestMethod.POST)
-	public String signup(@Validated UserEntity user, BindingResult result, Model model) throws Exception {
-		signUpFormValidator.validate(user, result);
+	public String signup(UserEntity userEntity, BindingResult result, Model model) throws Exception {
+		signUpFormValidator.validate(userEntity, result);
 		if (result.hasErrors()) {
-			model.addAttribute("user", user);
 			return "signup";
 		}
-
-		user.setRole(usersService.getRoles()[0]);
-		usersService.addUser(user);
-		usersService.autoLogin(user.getEmail(), user.getPasswordConfirm());
+		userEntity.setRole(RoleEnum.ROLE_USER);
+		usersService.addUser(userEntity);
+		usersService.autoLogin(userEntity.getEmail(), userEntity.getPasswordConfirm());
 		return "redirect:/home";
 	}
 
@@ -106,13 +113,26 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/user/addMoney", method = RequestMethod.POST)
-	public String addMoney(Double amount, Principal principal) {
+	public String addMoney(Double amount, Principal principal, Model model){
 		String email = principal.getName();
 		try {
 			usersService.addMoney(email, amount);
 		} catch (Exception e) {
-			e.printStackTrace();
+			model.addAttribute("errorMessage", "Error processing the transaction");
+	        return "/error";
 		}
+
 		return "redirect:/profile";
 	}
+	
+	@ModelAttribute
+	public void loadCurrentUser(Model model, Principal p) throws Exception {
+		if (p != null) {
+			model.addAttribute("currentUser", usersService.findByEmail(p.getName()));
+		}
+		else {
+			model.addAttribute("currentUser", null);
+		}
+	}
+
 }

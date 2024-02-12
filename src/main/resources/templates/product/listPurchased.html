@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head}" />
+
+<body>
+    <nav th:replace="~{fragments/nav}"></nav>
+
+    <div class="container">
+        <h2>Tus productos comprados</h2>
+
+        <div th:if="${not #lists.isEmpty(purchasedProducts)}" th:each="product : ${purchasedProducts}"
+            class="product-list">
+            <div class="product-container">
+                <img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}" alt="Imagen del producto"
+                    class="product-image" />
+                <p class="th-label product-name" th:text="${product.name}">Producto:</p>
+                <p class="product-detail" th:text="${product.detail}">Detalle:</p>
+                <p class="th-date product-date" th:text="${#dates.format(product.productDate, 'yyyy-MM-dd')}">Fecha
+                    de compra:</p>
+                <p class="th-price product-price" th:text="${product.price}">Precio de compra:</p>
+                <form th:action="@{/product/detail}" method="get">
+                    <input type="hidden" name="productId" th:value="${product.productId}" />
+                    <button type="submit" class="view-detail">Detalles</button>
+                </form>
+            </div>
+        </div>
+
+        <p th:if="${#lists.isEmpty(purchasedProducts)}" class="th-no-products">Aún no has comprado productos.</p>
+    </div>
+
+    <footer th:replace="~{fragments/footer}"></footer>
+</body>
+
+</html>

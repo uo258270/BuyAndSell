@@ -2,33 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head}" />
-<style>
-	.horizontal-list {
-		list-style: none;
-		display: flex;
-		overflow-x: auto;
-	}
-
-	.horizontal-list li {
-		margin-right: 10px;
-	}
-
-	.vertical-list {
-		list-style: none;
-		margin-bottom: 20px;
-	}
-
-	.vertical-list li {
-		margin-bottom: 10px;
-	}
-
-	.list-title {
-		font-size: 18px;
-		font-weight: bold;
-		margin-bottom: 10px;
-	}
-</style>
-
+<link rel="stylesheet" href="/css/prodCustom.css" />
 
 <body>
 	<nav th:replace="~{fragments/nav}"></nav>
@@ -39,141 +13,204 @@
 		<div class="all-products">
 			<div class="vertical-list">
 				<p class="list-title">Productos</p>
+
 				<ul class="horizontal-list">
-					<li th:each="product : ${products}">
-						<p th:text="${product.name}">Producto:</p>
-						<p th:text="${product.detail}">Detalle:</p>
-						<p th:text="${product.productDate}">Fecha de publicación:</p>
-						<p th:text="${product.price}">Precio:</p>
-						<form th:action="@{/product/detail}" method="get">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="view-detail">Detalles</button>
-						</form>
+					<li th:each="product : ${products}" class="product-container">
+						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
+								alt="Imagen del producto" class="product-image" />
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
+							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+						</th:block>
+						<div class="product-details">
+							<p th:text="${product.name}">Producto:</p>
+							<p th:text="${product.detail}">Detalle:</p>
+							<p th:text="${product.price}">Precio:</p>
+						</div>
+						<div class="product-actions">
+							<a th:href="@{/product/detail/{productId}(productId=${product.productId})}" class="view-detail">Detalles</a>
+							<th:block
+								th:unless="${#authorization.expression('isAuthenticated() and principal != null and principal.username == #vars.product?.user?.username')}">
+								<form th:action="@{/featured/add}" method="post">
+									<input type="hidden" name="productId" th:value="${product.productId}" />
+									<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+								</form>
+							</th:block>
 
-						<form th:action="@{/featured/add}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-						</form>
-
-						<form th:action="@{/cart/addProduct}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<input type="number" name="quantity" value="1" />
-							<button type="submit" class="add-to-cart">Añadir al carrito</button>
-						</form>
-
+						</div>
+						<div class="add-to-cart-section">
+							<form th:action="@{/cart/addProduct}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<input type="number" name="quantity" value="1" />
+								<button type="submit" class="add-to-cart">
+									<span class="glyphicon glyphicon-shopping-cart"></span> 
+								</button>
+							</form>
+						</div>
 					</li>
 				</ul>
-		
 
-			
+
 				<p class="list-title">Productos Recomendados por Reseñas</p>
 				<ul class="horizontal-list">
-					<li th:each="product : ${recommendedReviews}">
-						<p th:text="${product.name}">Producto:</p>
-						<p th:text="${product.detail}">Detalle:</p>
-						<p th:text="${product.productDate}">Fecha de publicación:</p>
-						<p th:text="${product.price}">Precio:</p>
-						<form th:action="@{/product/detail}" method="get">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="view-detail">Detalles</button>
-						</form>
-
-						<form th:action="@{/featured/add}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-						</form>
-
-						<form th:action="@{/cart/addProduct}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<input type="number" name="quantity" value="1" />
-							<button type="submit" class="add-to-cart">Añadir al carrito</button>
-						</form>
+					<li th:each="product : ${recommendedReviews}" class="product-container">
+						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
+								alt="Imagen del producto" class="product-image" />
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
+							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+						</th:block>
+						<div class="product-details">
+							<p th:text="${product.name}">Producto:</p>
+							<p th:text="${product.detail}">Detalle:</p>
+							<p th:text="${product.price}">Precio:</p>
+						</div>
+						<div class="product-actions">
+							<form th:action="@{/product/detail}" method="get">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="view-detail">Detalles</button>
+							</form>
+							<form th:action="@{/featured/add}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+							</form>
+						</div>
+						<div class="add-to-cart-section">
+							<form th:action="@{/cart/addProduct}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<input type="number" name="quantity" value="1" />
+								<button type="submit" class="add-to-cart">
+									<span class="glyphicon glyphicon-shopping-cart"></span> 
+								</button>
+							</form>
+						</div>
 					</li>
 				</ul>
-			
 
-			
+
+
 				<p class="list-title">Productos recomendados por compras parecidas</p>
 				<ul class="horizontal-list">
-					<li th:each="product : ${recommended}">
-						<p th:text="${product.name}">Producto:</p>
-						<p th:text="${product.detail}">Detalle:</p>
-						<p th:text="${product.productDate}">Fecha de publicación:</p>
-						<p th:text="${product.price}">Precio:</p>
-						<form th:action="@{/product/detail}" method="get">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="view-detail">Detalles</button>
-						</form>
-						<form th:action="@{/featured/add}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-						</form>
-						<!-- Añadir al carrito -->
-						<form th:action="@{/cart/addProduct}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<input type="number" name="quantity" value="1" />
-							<button type="submit" class="add-to-cart">Añadir al carrito</button>
-						</form>
+					<li th:each="product : ${recommended}" class="product-container">
+						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
+								alt="Imagen del producto" class="product-image" />
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
+							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+						</th:block>
+						<div class="product-details">
+							<p th:text="${product.name}">Producto:</p>
+							<p th:text="${product.detail}">Detalle:</p>
+							<p th:text="${product.price}">Precio:</p>
+						</div>
+						<div class="product-actions">
+							<form th:action="@{/product/detail}" method="get">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="view-detail">Detalles</button>
+							</form>
+							<form th:action="@{/featured/add}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+							</form>
+						</div>
+						<div class="add-to-cart-section">
+							<form th:action="@{/cart/addProduct}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<input type="number" name="quantity" value="1" />
+								<button type="submit" class="add-to-cart">
+									<span class="glyphicon glyphicon-shopping-cart"></span> 
+								</button>
+							</form>
+						</div>
 					</li>
 				</ul>
-			
 
-			
+
+
 				<p class="list-title">Productos mas populares</p>
 				<ul class="horizontal-list">
-					<li th:each="product : ${popular}">
-						<p th:text="${product.name}">Producto:</p>
-						<p th:text="${product.detail}">Detalle:</p>
-						<p th:text="${product.productDate}">Fecha de publicación:</p>
-						<p th:text="${product.price}">Precio:</p>
-						<form th:action="@{/product/detail}" method="get">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="view-detail">Detalles</button>
-						</form>
-						<form th:action="@{/featured/add}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-						</form>
-						<!-- Añadir al carrito -->
-						<form th:action="@{/cart/addProduct}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<input type="number" name="quantity" value="1" />
-							<button type="submit" class="add-to-cart">Añadir al carrito</button>
-						</form>
+					<li th:each="product : ${popular}" class="product-container">
+						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
+								alt="Imagen del producto" class="product-image" />
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
+							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+						</th:block>
+						<div class="product-details">
+							<p th:text="${product.name}">Producto:</p>
+							<p th:text="${product.detail}">Detalle:</p>
+							<p th:text="${product.price}">Precio:</p>
+						</div>
+						<div class="product-actions">
+							<form th:action="@{/product/detail}" method="get">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="view-detail">Detalles</button>
+							</form>
+							<form th:action="@{/featured/add}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+							</form>
+						</div>
+						<div class="add-to-cart-section">
+							<form th:action="@{/cart/addProduct}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<input type="number" name="quantity" value="1" />
+								<button type="submit" class="add-to-cart">
+									<span class="glyphicon glyphicon-shopping-cart"></span> 
+								</button>
+							</form>
+						</div>
 					</li>
 				</ul>
-			
 
-		
+
+
 				<p class="list-title">Productos mejor valorados</p>
 				<ul class="horizontal-list">
-					<li th:each="product : ${rated}">
-						<p th:text="${product.name}">Producto:</p>
-						<p th:text="${product.detail}">Detalle:</p>
-						<p th:text="${product.productDate}">Fecha de publicación:</p>
-						<p th:text="${product.price}">Precio:</p>
-						<form th:action="@{/product/detail}" method="get">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="view-detail">Detalles</button>
-						</form>
-						<form th:action="@{/featured/add}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-						</form>
-
-						<form th:action="@{/cart/addProduct}" method="post">
-							<input type="hidden" name="productId" th:value="${product.productId}" />
-							<input type="number" name="quantity" value="1" />
-							<button type="submit" class="add-to-cart">Añadir al carrito</button>
-						</form>
+					<li th:each="product : ${rated}" class="product-container">
+						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
+								alt="Imagen del producto" class="product-image" />
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
+							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+						</th:block>
+						<div class="product-details">
+							<p th:text="${product.name}">Producto:</p>
+							<p th:text="${product.detail}">Detalle:</p>
+							<p th:text="${product.price}">Precio:</p>
+						</div>
+						<div class="product-actions">
+							<form th:action="@{/product/detail}" method="get">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="view-detail">Detalles</button>
+							</form>
+							<form th:action="@{/featured/add}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+							</form>
+						</div>
+						<div class="add-to-cart-section">
+							<form th:action="@{/cart/addProduct}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<input type="number" name="quantity" value="1" />
+								<button type="submit" class="add-to-cart">
+									<span class="glyphicon glyphicon-shopping-cart"></span> 
+								</button>
+							</form>
+						</div>
 					</li>
 				</ul>
-			
 
+
+			</div>
 		</div>
-	</div>
 
-	<footer th:replace="~{fragments/footer}"></footer>
+		<footer th:replace="~{fragments/footer}"></footer>
 
 </body>
 

@@ -7,8 +7,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import com.entity.enums.RoleEnum;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -45,7 +49,8 @@ public class UserEntity implements Serializable{
 	
 	private String address;
 	
-	private String role;
+	@Enumerated(EnumType.STRING)
+	private RoleEnum role;
 	
 	private Date registerDate;
 	
@@ -56,14 +61,9 @@ public class UserEntity implements Serializable{
 	private List<ShoppingCartEntity> carts;
 	
 
-	 @OneToMany(mappedBy = "user")
+	 @OneToMany(mappedBy = "userEntity")
 	 private List<ReviewEntity> reviews;
 	 
-	 
-	 
-
-	
-
 	public List<ReviewEntity> getReviews() {
 		return reviews;
 	}
@@ -74,6 +74,10 @@ public class UserEntity implements Serializable{
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public void setCarts(List<ShoppingCartEntity> carts) {
+		this.carts = carts;
 	}
 
 	public Double getMoney() {
@@ -171,12 +175,16 @@ public class UserEntity implements Serializable{
 		this.lastName = lastName;
 	}
 
-	public String getRole() {
+	public RoleEnum getRole() {
 		return role;
 	}
+	
+	public String getRoleName() {
+		return role.name();
+	}
 
-	public void setRole(String role) {
-		this.role = role;
+	public void setRole(RoleEnum roleUser) {
+		this.role = roleUser;
 	}
 
 	@Override

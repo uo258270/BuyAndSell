@@ -8,10 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.entity.FeaturedProductEntity;
 import com.entity.ProductEntity;
@@ -81,17 +82,20 @@ public class FeaturedController {
 	
 	@RequestMapping(value = "/listByUser")
 	public String listFavProducts(Model model, Principal principal) throws Exception {
-		try {
+
 			String email = principal.getName();
 			UserEntity user = userService.findByEmail(email);
 			model.addAttribute("user", user);
 			model.addAttribute("featuredList", featuredService.findByUser(user));
 			return "featured/listByUser";
-		}
-		catch(Exception e) {
-			throw new Exception("List is empty");
-		}
 		
+	}
+	
+	@GetMapping("/featured/check")
+	@ResponseBody
+	public boolean checkIfProductIsFavorite(@RequestParam Long productId) {
+	    
+	    return productService.checkIfProductIsFavorite(productId);
 	}
 	
 	

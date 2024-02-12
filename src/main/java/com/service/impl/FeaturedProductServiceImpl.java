@@ -2,6 +2,7 @@ package com.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,41 +18,44 @@ public class FeaturedProductServiceImpl implements FeaturedProductService{
 	
 	@Autowired
 	private FeaturedRepository featuredRepository;
+	
+	
+
+	public FeaturedProductServiceImpl(FeaturedRepository featuredRepository) {
+		super();
+		this.featuredRepository = featuredRepository;
+	}
 
 	@Override
 	public FeaturedProductEntity getFeaturedById(Long id) throws Exception {
-		FeaturedProductEntity fav = featuredRepository.getByProductId(id);
+		Optional<FeaturedProductEntity> fav = featuredRepository.findById(id);
 		if(fav!=null) {
-			return fav;
+			return fav.get();
 		}
 		throw new Exception("Product was null");
 	}
 
 	@Override
-	public List<FeaturedProductEntity> findByUser(UserEntity user) throws Exception {
+	public List<FeaturedProductEntity> findByUser(UserEntity user) {
 		List<FeaturedProductEntity> list = featuredRepository.getByUserId(user.getUserId());
-		if(list!=null && !list.isEmpty()) {
-			return list;
-		}else {
-			throw new Exception("This user does not have any featured products");
-		}
+		return list;
 	}
 
 	@Override
 	public void addFeatured(ProductEntity product, UserEntity user) throws Exception {
 		if(product!=null && user!=null) {
-			if(!isFavourited(product)) {
+			if(!isFavourited(product, user.getUserId())) {
 				FeaturedProductEntity fav = new FeaturedProductEntity();
 				fav.setDate(new Date());
 				fav.setProduct(product);
 				fav.setUser(user);
 				featuredRepository.save(fav);
 			}else {
-				throw new Exception("Product was already featured");
+				throw new RuntimeException("Product was already featured");
 			}
 			
 		}else {
-			throw new Exception("Product was null");
+			throw new RuntimeException("Product was null");
 		}
 		
 	}
@@ -63,8 +67,8 @@ public class FeaturedProductServiceImpl implements FeaturedProductService{
 	}
 
 	@Override
-	public Boolean isFavourited(ProductEntity prod) {
-		FeaturedProductEntity fav = featuredRepository.isFav(prod.getProductId());
+	public Boolean isFavourited(ProductEntity prod, Long userId) {
+		FeaturedProductEntity fav = featuredRepository.isFav(prod.getProductId(), userId);
 		if(fav!=null) {
 			return true;
 		}

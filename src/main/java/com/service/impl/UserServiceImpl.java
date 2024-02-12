@@ -19,9 +19,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.entity.UserEntity;
+import com.entity.enums.RoleEnum;
+import com.exception.NotFoundException;
+import com.exception.NullDataException;
 import com.repository.UserRepository;
 import com.service.UserService;
-
 
 @Service("UserServiceImpl")
 public class UserServiceImpl implements UserService {
@@ -33,21 +35,20 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
-	public UserServiceImpl() {
+
+	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+			AuthenticationManager authenticationManager) {
 		super();
-		
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.authenticationManager = authenticationManager;
 	}
-	
+
 	String[] roles = { "ROLE_USER", "ROLE_ADMIN" };
 
-	public String[] getRoles() {
-		return roles;
-	}
-	
 	
 	public String findLoggedInEmail() {
 		Object userDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();
@@ -57,17 +58,19 @@ public class UserServiceImpl implements UserService {
 		return null;
 	}
 
+	
+	@Override
 	public void autoLogin(String email, String password) {
 		UserEntity user = userRepository.findByEmail(email);
 
-		if(user == null){
-	        throw new UsernameNotFoundException("User not authorized.");
-	    }
+		if (user == null) {
+			throw new UsernameNotFoundException("User not authorized.");
+		}
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-		grantedAuthorities.add(new SimpleGrantedAuthority(user.getRole()));
+		grantedAuthorities.add(new SimpleGrantedAuthority(user.getRoleName()));
 
-		UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
-				grantedAuthorities);
+		UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
+				user.getPassword(), grantedAuthorities);
 
 		UsernamePasswordAuthenticationToken aToken = new UsernamePasswordAuthenticationToken(userDetails, password,
 				userDetails.getAuthorities());
@@ -80,28 +83,23 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserEntity findById(Long userId) throws Exception {
-		if (userId != null) {
-			UserEntity response = userRepository.findByUserId(userId);
-			if (response == null) {
-				throw new Exception("Query does not found results");
-			}
-			return response;
-		} else {
-			throw new Exception("userId con not be null");
+
+		UserEntity response = userRepository.findByUserId(userId);
+		if (response == null) {
+			throw new Exception("Query does not found results");
 		}
+		return response;
+
 	}
 
 	@Override
 	public UserEntity findByUsername(String username) throws Exception {
-		if (username != null) {
-			UserEntity response = userRepository.findByUsername(username);
-			if (response == null) {
-				throw new Exception("Query does not found results");
-			}
-			return response;
-		} else {
-			throw new Exception("username con not be null");
+		UserEntity response = userRepository.findByUsername(username);
+		if (response == null) {
+			throw new Exception("Query does not found results");
 		}
+		return response;
+
 	}
 
 	@Override
@@ -110,8 +108,6 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 
 	}
-
-	
 
 	@Override
 	public void deleteUser(Long userId) throws Exception {
@@ -128,24 +124,23 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserEntity findByEmail(String email) throws Exception {
-		if (email != null) {
-			UserEntity response = userRepository.findByEmail(email);
-			if (response == null) {
-				throw new Exception("Query does not found results");
-			}
+	public UserEntity findByEmail(String email) throws NullDataException {
+		UserEntity response;
+		try {
+			response = userRepository.findByEmail(email);
 			return response;
-		} else {
-			throw new Exception("email can not be null");
+		} catch (NotFoundException e) {
+			throw new NotFoundException("Query does not found results");
 		}
+
 	}
-	
-	public List<UserEntity> getStandardUsers(){
+
+	public List<UserEntity> getStandardUsers() {
 		List<UserEntity> users = new ArrayList<UserEntity>();
-		users = userRepository.findByRole("ROLE_USER");
+		users = userRepository.findByRole(RoleEnum.ROLE_USER);
 		return users;
 	}
-	
+
 	public boolean updateMoney(Long id, Double money) {
 		UserEntity user = userRepository.findById(id).get();
 		if (money > user.getMoney()) {
@@ -156,21 +151,18 @@ public class UserServiceImpl implements UserService {
 		return true;
 	}
 
-
 	public void addMoney(String email, Double amount) throws Exception {
 		UserEntity user = userRepository.findByEmail(email);
 		if (amount != null && amount > 0) {
-			if(user.getMoney()==null) {
+			if (user.getMoney() == null) {
 				user.setMoney(0.0);
 			}
-            user.setMoney(user.getMoney()+amount);
-            userRepository.save(user);
-        }else {
-        	throw new Exception("amount is not valid");
-        }
-		
+			user.setMoney(user.getMoney() + amount);
+			userRepository.save(user);
+		} else {
+			throw new Exception("amount is not valid");
+		}
+
 	}
 
-
-	
 }

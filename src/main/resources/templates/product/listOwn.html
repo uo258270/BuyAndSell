@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head}">
-	<link rel="stylesheet" type="text/css" href="custom.css" />
-</head>
+<head th:replace="~{fragments/head}" />
+<link rel="stylesheet" type="text/css" href="custom.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+<style>
+
+
+
+
+</style>
 
 <body>
 	<nav th:replace="~{fragments/nav}"></nav>
@@ -15,52 +21,67 @@
 		<ul th:if="${not #lists.isEmpty(products)}" th:each="product : ${products}"
 			class="product-list product-published">
 			<li class="product-container">
-				<th:block th:each="image : ${product.imagePaths}">
-					<img th:src="@{/product/image/{name}(name=${image})}" alt="Imagen del producto" class="product-image" />
+				<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+					<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}" alt="Imagen del producto"
+						class="product-image" />
 				</th:block>
 				<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
-					<img src="/images/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+					<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
 				</th:block>
-				<p class="th-label product-name" th:text="${product.name}">Producto:</p>
-				<p class="product-detail" th:text="${product.detail}">Detalle:</p>
-				<p class="th-price product-price" th:text="${product.price}">Precio:</p>
+
+				<div class="product-info-listOwn">
+					<p class="th-label product-name" th:text="${product.name}">Producto:</p>
+					<p class="product-detail" th:text="${product.detail}">Detalle:</p>
+					<p class="th-price product-price" th:text="${product.price}">Precio:</p>
+				</div>
+
 				<div class="product-actions">
 					<a th:href="@{/product/edit/{id}(id=${product.productId})}" class="edit-product">Editar</a>
-					<a th:href="@{/product/delete/{id}(id=${product.productId})}" class="delete-product">Borrar</a>
+					<a th:href="@{/product/delete/{id}(id=${product.productId})}" class="delete-product">
+						<span class="glyphicon glyphicon-trash"></span>
+					</a>
+
 				</div>
 			</li>
 		</ul>
+		<p th:if="${#lists.isEmpty(products)}" class="th-no-products">Aun no tienes
+			productos publicados.</p>
 
 
-		<h3>Productos Vendidos</h3>
+		<h3>Productos vendidos</h3>
 		<ul th:if="${not #lists.isEmpty(soldProducts)}" th:each="soldProduct : ${soldProducts}"
 			class="product-list product-sold">
 			<li class="product-container">
-				<th:block th:each="image : ${soldProduct.images}">
-					<img th:src="${image}" alt="Imagen del producto" class="product-image" />
+				<th:block th:if="${not #lists.isEmpty(soldProduct.imagePaths)}">
+					<img th:src="@{/product/image/{name}(name=${soldProduct.imagePaths[0]})}" alt="Imagen del producto"
+						class="product-image" />
 				</th:block>
-				<th:block th:if="${#lists.isEmpty(soldProduct.images)}">
-					<img src="/images/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+				<th:block th:if="${#lists.isEmpty(soldProduct.imagePaths)}">
+					<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
 				</th:block>
-				<!-- Todos los elementos del producto dentro del mismo <li> -->
-				<p class="th-label product-name" th:text="${soldProduct.name}">Producto:</p>
-				<p class="product-detail" th:text="${soldProduct.detail}">Detalle:</p>
-				<p class="th-date product-date" th:text="${#dates.format(soldProduct.productDate, 'yyyy-MM-dd')}">Fecha
-					de venta:</p>
-				<p class="th-price product-price" th:text="${soldProduct.price}">Precio de venta:</p>
+				<div class="product-info-listOwn">
+					<p class="th-label product-name" th:text="${soldProduct.name}">Producto:</p>
+					<p class="product-detail" th:text="${soldProduct.detail}">Detalle:</p>
+					<p class="th-date product-date">
+						<span>Fecha de venta:</span>
+						<span th:text="${#dates.format(soldProduct.productDate, 'dd-MM-yyyy')}"></span>
+					</p>
+					<p class="th-price product-price" th:text="${soldProduct.price}">Precio de venta:</p>
+				</div>
+
 				<form th:action="@{/product/detail}" method="get">
 					<input type="hidden" name="productId" th:value="${soldProduct.productId}" />
-					<button type="submit" class="view-detail">Detalles</button>
+					<button type="submit" class="view-detail-button">Detalles</button>
 				</form>
 			</li>
 		</ul>
+		<p th:if="${ #lists.isEmpty(soldProducts)}" class="th-no-products">Aun no tienes
+			productos vendidos.</p>
 
 
 
 
 
-		<p th:if="${#lists.isEmpty(products) and #lists.isEmpty(soldProducts)}" class="th-no-products">Aun no tienes
-			productos publicados.</p>
 	</div>
 
 

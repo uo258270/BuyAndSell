@@ -7,9 +7,9 @@
 
 	<nav th:replace="~{fragments/nav}"></nav>
     <div>
-        <h1>¡Gracias por tu compra!</h1>
-        <p>Tu compra se ha realizado con éxito. Esperamos que disfrutes de tus productos.</p>
-        <p>Vuelve pronto.</p>
+        <h1 th:text="#{thanks.title.en}"></h1>
+        <p th:text="#{thanks.success.en}"></p>
+        <p th:text="#{thanks.return.en}"></p>
     </div>
 </body>
 

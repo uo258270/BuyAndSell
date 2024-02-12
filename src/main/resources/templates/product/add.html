@@ -2,57 +2,15 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head}" />
+ <link rel="stylesheet" type="text/css" href="custom.css" />
 <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<style>
-	.container {
-		max-width: 600px;
-		margin: auto;
-		padding: 20px;
-		border: 1px solid #ccc;
-		border-radius: 5px;
-		background-color: #f8f8f8;
-	}
 
-	label {
-		display: block;
-		margin-bottom: 5px;
-	}
 
-	input[type="text"],
-	textarea,
-	select {
-		width: 100%;
-		padding: 8px;
-		margin-bottom: 10px;
-		box-sizing: border-box;
-	}
-
-	.image-input {
-		margin-bottom: 10px;
-	}
-
-	#addImageButtonContainer,
-	#addProductButtonContainer {
-		text-align: right;
-		margin-top: 10px;
-	}
-
-	#addImageButton,
-	#addProductButton {
-		padding: 10px;
-		background-color: rgb(71, 184, 85);
-		color: #fff;
-		border: none;
-		border-radius: 5px;
-		cursor: pointer;
-	}
-</style>
-</head>
 
 <body>
 	<nav th:replace="~{fragments/nav}"></nav>
 
-	<div class="container">
+	<div class="container-add">
 		<h2>Añadir nuevo producto</h2>
 
 		<div th:if="${errors}" class="alert alert-danger">
@@ -95,31 +53,6 @@
 					<input type="file" id="newImages" name="images" accept="image/*" multiple
 						class="form-control-file" />
 				</div>
-
-
-			<script>
-				$(document).ready(function () {
-					var maxImages = 5;
-
-					$("#addImageButton").click(function () {
-						var currentInputCount = $(".image-input").length;
-
-						if (currentInputCount < maxImages) {
-							var newIndex = currentInputCount;
-							var newImageInput = '<div class="image-input"><label for="images' + newIndex + '">Imagen ' + newIndex + ':</label>' +
-								'<input type="file" id="images' + newIndex + '" name="images[' + newIndex + ']" accept="image/*" />' +
-								'</div>';
-
-							$(".image-input:last").after(newImageInput);
-						}
-					});
-				});
-			</script>
-
-
-			<div id="addImageButtonContainer">
-				<button type="button" id="addImageButton">Agregar otra imagen</button>
-			</div>
 
 			<div id="addProductButtonContainer">
 				<button type="submit" id="addProductButton">Añadir Producto</button>

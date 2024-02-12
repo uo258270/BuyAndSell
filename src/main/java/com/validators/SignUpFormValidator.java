@@ -2,10 +2,11 @@ package com.validators;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.*;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
 
 import com.entity.UserEntity;
-import com.exception.NotFoundException;
 import com.service.UserService;
 
 @Component
@@ -22,17 +23,21 @@ public class SignUpFormValidator implements Validator {
 	public void validate(Object target, Errors errors) {
 		UserEntity user = (UserEntity) target;
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "error.empty");
+
 		try {
-			if (usersService.findByEmail(user.getEmail()) != null) {
+			UserEntity userEnt = usersService.findByEmail(user.getEmail());
+			if (userEnt != null) {
+				// el correo y esta en base de datos y por tanto esta repetido
 				errors.rejectValue("email", "error.signup.email.duplicate");
 			}
 		} catch (Exception e) {
-			throw new NotFoundException("user email cannot be found");
+			e.printStackTrace();
 		}
-		if (user.getName().length() < 5 || user.getName().length() > 24) {
+
+		if (user.getName().length() < 2 || user.getName().length() > 24) {
 			errors.rejectValue("name", "error.signup.name.length");
 		}
-		if (user.getLastName().length() < 5 || user.getLastName().length() > 24) {
+		if (user.getLastName().length() < 2 || user.getLastName().length() > 40) {
 			errors.rejectValue("lastName", "error.signup.lastName.length");
 		}
 		if (user.getPassword().length() < 5 || user.getPassword().length() > 24) {

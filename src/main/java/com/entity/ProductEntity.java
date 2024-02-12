@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.entity.enums.CategoryEnum;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -63,10 +64,12 @@ public class ProductEntity implements Serializable {
 	@Transient
 	private List<MultipartFile> images = new ArrayList<>();
 	
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
     private List<String> imagePaths = new ArrayList<>();
 
-
+	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+	private List<FeaturedProductEntity> featuredProducts;
+	
 	// relacion con user
 	@ManyToOne
 	@JoinColumn(name = "userId")
@@ -75,14 +78,27 @@ public class ProductEntity implements Serializable {
 	@ManyToMany(fetch = FetchType.LAZY)
 	private List<ShoppingCartEntity> carts;
 
-	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<ReviewEntity> reviews;
+
 
 	public List<ReviewEntity> getReviews() {
 		return reviews;
 	}
 	
 	
+
+	public List<FeaturedProductEntity> getFeaturedProducts() {
+		return featuredProducts;
+	}
+
+
+
+	public void setFeaturedProducts(List<FeaturedProductEntity> featuredProducts) {
+		this.featuredProducts = featuredProducts;
+	}
+
+
 
 	public boolean isSold() {
 		return sold;

@@ -24,7 +24,7 @@ public class AddOfferValidator implements Validator {
 	    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "Error.empty");
 	    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "detail", "Error.empty");
 	    
-	    if (product.getName().length() < 3 || product.getName().length() > 20) {
+	    if (product.getName().length() < 3 || product.getName().length() > 50) {
 	        errors.rejectValue("name", "Error.addOffer.title.length");
 	    }
 	    

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,6 +13,7 @@ import com.exception.ProductAlreadySoldException;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.repository.ProductRepository;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,7 +23,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.transaction.Transactional;
 
 @Entity
 @Table(name = "CART")
@@ -44,12 +45,22 @@ public class ShoppingCartEntity implements Serializable {
 	@ManyToOne
 	private UserEntity user;
 
-	@OneToMany(mappedBy = "cart", fetch = FetchType.EAGER)//cascada
+	@OneToMany(mappedBy = "cart", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST}) // cascada
 	private List<ProductCartEntity> productCartEntities = new ArrayList<>();
 
 	public List<ProductCartEntity> getProductCartEntities() {
-		return Collections.unmodifiableList(productCartEntities);
+	return Collections.unmodifiableList(productCartEntities);
+		//return productCartEntities;
+		
 	}
+	
+	
+
+	public void setProductCartEntities(List<ProductCartEntity> productCartEntities) {
+		this.productCartEntities = productCartEntities;
+	}
+
+
 
 	public Long getId() {
 		return id;
@@ -79,22 +90,23 @@ public class ShoppingCartEntity implements Serializable {
 		this.dateCreated = dateCreated;
 	}
 
-	//añadir cantidad TODO
 	public Double getTotalOrderPrice() {
 		double sum = 0D;
 		for (ProductCartEntity productCartEntity : productCartEntities) {
 			ProductEntity product = productCartEntity.getProduct();
 
-			if (productCartEntity.getQuantityInCart() == 1) {
-				sum += product.getPrice();
-			} else if (productCartEntity.getQuantityInCart() > 1) {
-				sum += product.getPrice() * productCartEntity.getQuantityInCart();
-			}
+			if (product != null) {
+	            if (productCartEntity.getQuantityInCart() == 1) {
+	                sum += product.getPrice();
+	            } else if (productCartEntity.getQuantityInCart() > 1) {
+	                sum += product.getPrice() * productCartEntity.getQuantityInCart();
+	            }
+	        }
 		}
 		return sum;
 	}
 
-	public void buy(UserEntity user, ProductRepository productRepository) throws ProductAlreadySoldException {
+	public List<ProductCartEntity> buy(UserEntity user, ProductRepository productRepository) throws ProductAlreadySoldException {
 		double totalOrderPrice = getTotalOrderPrice();
 		user.decMoney(totalOrderPrice);
 		this.user = user;
@@ -103,15 +115,16 @@ public class ShoppingCartEntity implements Serializable {
 		for (ProductCartEntity productCartEntity : productCartEntities) {
 
 			ProductEntity product = productCartEntity.getProduct();
-			if (!product.isSold()) {
+			if (product.getStock()>0) {
 				product.decStock();
 				product.setSold(true);
 				productRepository.save(product);
 			} else {
 				throw new ProductAlreadySoldException("El producto ya ha sido vendido.");
 			}
-
+			
 		}
+		return productCartEntities;
 	}
 
 	@Override
@@ -144,19 +157,34 @@ public class ShoppingCartEntity implements Serializable {
 
 	public void decQuantity(ProductEntity prod) {
 		ProductCartEntity toDelete = null;
-		for (ProductCartEntity productInCart : productCartEntities) {
+
+		Iterator<ProductCartEntity> iterator = productCartEntities.iterator();
+		while (iterator.hasNext()) {
+			ProductCartEntity productInCart = iterator.next();
+			System.out.println("Current product in cart: " + productInCart.getProduct().getProductId());
+
 			if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
-				if (productInCart.getQuantityInCart() > 0) {
-					productInCart.decQuantity();
-					if (productInCart.getQuantityInCart() == 0)
-						toDelete = productInCart;
-					break;
+				System.out.println("Found matching product: " + prod.getProductId());
+
+				if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+					int currentQuantity = productInCart.getQuantityInCart();
+
+					if (currentQuantity > 0) {
+						productInCart.decQuantity();
+
+						if (productInCart.getQuantityInCart() == 0) {
+							toDelete = productInCart;
+						}
+
+					}
 				}
 			}
+
+			if (toDelete != null) {
+				removeProductCart(toDelete);
+			}
 		}
-		if (toDelete != null) {
-			removeProductCart(toDelete);
-		}
+
 	}
 
 	public void addProductCart(ProductCartEntity productCartEntity) {
@@ -164,14 +192,23 @@ public class ShoppingCartEntity implements Serializable {
 	}
 
 	public void removeProductCart(ProductCartEntity productCartEntity) {
-		this.productCartEntities.remove(productCartEntity);
+		List<ProductCartEntity> mutableList = new ArrayList<>(productCartEntities);
+	    
+	    mutableList.remove(productCartEntity);
+
+	    productCartEntities = mutableList;
 	}
 
+//	public void clear() {
+//		Iterator<ProductCartEntity> iterator = productCartEntities.iterator();
+//		while (iterator.hasNext()) {
+//			ProductCartEntity productCartEntity = iterator.next();
+//			iterator.remove();
+//		}
+//
+//	}
+	
 	public void clear() {
-		//DUDA AQUI NO FUNCIONA, NO ELIMINA TODO 
-		for (ProductCartEntity productCartEntity : productCartEntities) {
-			removeProductCart(productCartEntity);
-		}
-
+	    productCartEntities = new ArrayList<>();
 	}
 }

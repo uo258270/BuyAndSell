@@ -47,15 +47,15 @@
 						class="form-control-file" />
 				</div>
 
-				<div class="form-group">
-					<label>Imágenes actuales:</label>
-					<ul class="image-list">
-						<li th:each="image : ${product.images}">
-							<img th:src="'data:image/png;base64,' + ${image}" alt="Product Image" />
-							<input type="checkbox" name="imagesToRemove" th:value="${image}" /> Eliminar
-						</li>
-					</ul>
-				</div>
+				<label>Imágenes actuales:</label>
+				<ul class="image-list" th:if="${not #lists.isEmpty(product.imagePaths)}">
+					<li th:each="image : ${product.imagePaths}">
+						<img th:src="@{/product/image/{name}(name=${image})}" alt="Imagen del producto"
+							class="product-image" />
+						<input type="checkbox" name="imagesToRemove" th:value="${image}" /> Eliminar
+					</li>
+				</ul>
+				<p th:if="${#lists.isEmpty(product.imagePaths)}">No hay imágenes disponibles.</p>
 
 				<button type="submit" name="editProductButton" class="btn btn-primary">Guardar cambios</button>
 			</form>

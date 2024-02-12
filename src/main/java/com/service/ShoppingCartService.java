@@ -1,9 +1,7 @@
 package com.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import com.entity.ProductEntity;
 import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
 import com.exception.InvalidStockException;
@@ -12,24 +10,18 @@ import com.exception.ProductAlreadySoldException;
 
 public interface ShoppingCartService {
 
-	//findByUser
-	//add
-	//delete
-	//updateUnits
-	//clear
+	ShoppingCartEntity clear();
 
-	void clear();
-
-	Optional<ShoppingCartEntity> getCart();
+	ShoppingCartEntity getCart();
 
 
 	List<ShoppingCartEntity> findShoppingsByUser(UserEntity user);
 
-	 void buyShoppingCart(String name) throws NotEnoughMoney, ProductAlreadySoldException;
+	 ShoppingCartEntity buyShoppingCart(String name) throws NotEnoughMoney, ProductAlreadySoldException;
 
-	void incrementProductQuantity(Long productId) throws InvalidStockException;
+	ShoppingCartEntity incrementProductQuantity(Long productId) throws InvalidStockException;
 
-	void decrementProductQuantity(Long productId);
+	ShoppingCartEntity decrementProductQuantity(Long productId);
 
 	
 	

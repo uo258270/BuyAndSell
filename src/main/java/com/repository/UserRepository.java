@@ -4,14 +4,14 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
+import com.entity.enums.RoleEnum;
 
 
-@Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long>{
 
 	UserEntity findByUserId(Long userId);
@@ -24,10 +24,11 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>{
 	@Query("Delete from UserEntity where userId = :id")
 	int deleteUser(Long id);
 
-	List<UserEntity> findByRole(String string);
+	List<UserEntity> findByRole(RoleEnum role);
 	
-	@Query("SELECT user.carts FROM UserEntity user WHERE user.userId = :userId")
-    List<ShoppingCartEntity> getShoppingCartsByUserId(Long userId);
+	@Transactional
+	@Query("SELECT DISTINCT s FROM ShoppingCartEntity s LEFT JOIN FETCH s.productCartEntities WHERE s.user.id = :userId")
+	List<ShoppingCartEntity> getShoppingCartsByUserId(@Param("userId") Long userId);
 
 	
 	

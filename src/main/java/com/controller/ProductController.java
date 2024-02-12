@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +17,16 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import com.entity.ProductEntity;
 import com.entity.ReviewEntity;
@@ -41,7 +39,6 @@ import com.service.ProductsService;
 import com.service.RecommendationSystemService;
 import com.service.UserService;
 import com.validators.AddOfferValidator;
-
 
 @Controller
 @RequestMapping("/product")
@@ -73,6 +70,9 @@ public class ProductController {
 
 	@GetMapping("/own")
 	public String listOwnProducts(Model model, Principal principal) throws Exception {
+		if (principal == null) {
+			return "redirect:/login";
+		}
 		String email = principal.getName();
 		UserEntity user = userService.findByEmail(email);
 		List<ProductEntity> prod = productService.getProducts(user.getUserId());
@@ -106,13 +106,13 @@ public class ProductController {
 		List<ProductEntity> popular = recommendedService.getMostPopularProducts();
 		List<ProductEntity> topRated = recommendedService.getTopRatedProducts();
 
-		List<ProductEntity> allRecommendedProducts = new ArrayList<>();
+		Set<ProductEntity> allRecommendedProducts = new HashSet<>();
 		allRecommendedProducts.addAll(recommendedByReview);
 		allRecommendedProducts.addAll(recommendedByCart);
 		allRecommendedProducts.addAll(popular);
 		allRecommendedProducts.addAll(topRated);
 
-		List<ProductEntity> filteredProducts = new ArrayList<>();
+		Set<ProductEntity> filteredProducts = new HashSet<>();
 		for (ProductEntity product : allRecommendedProducts) {
 			if (product.getStock() > 0) {
 				filteredProducts.add(product);
@@ -135,8 +135,8 @@ public class ProductController {
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public String setProduct(@Validated ProductEntity product, BindingResult result, Model model, Principal principal, @RequestParam("images") List<MultipartFile> images)
-			throws Exception {
+	public String setProduct(@Validated ProductEntity product, BindingResult result, Model model, Principal principal,
+			@RequestParam("images") List<MultipartFile> images) throws Exception {
 		addOfferValidator.validate(product, result);
 		if (result.hasErrors()) {
 			model.addAttribute("errors", result.getAllErrors());
@@ -148,7 +148,7 @@ public class ProductController {
 		UserEntity user = userService.findByEmail(email);
 		product.setUser(user);
 		List<String> imageName = imageService.saveImages(images);
-		
+
 		product.setImagePaths(imageName);
 
 		productService.addProduct(product);
@@ -172,53 +172,72 @@ public class ProductController {
 
 	@PostMapping("/edit/{id}")
 	public String editProduct(@PathVariable Long id, ProductEntity editedProduct, Model model,
-			@RequestParam("images") List<MultipartFile> images) {
+			@RequestParam(name = "images", required = false) List<MultipartFile> images,
+			@RequestParam(name = "imagesToRemove", required = false) List<String> imagesToRemove) throws Exception  {
 		try {
-
-			List<String> imageName = imageService.saveImages(images);
-
 			ProductEntity product = productService.findById(id);
-			product.setImagePaths(imageName);
-			model.addAttribute("categorias", CategoryEnum.values());
+			List<MultipartFile> nonEmptyImages = images.stream().filter(image -> !image.isEmpty())
+					.collect(Collectors.toList());
 
+			if (imagesToRemove != null && !imagesToRemove.isEmpty()) {
+				imageService.deleteImages(imagesToRemove);
+				product.getImagePaths().removeAll(imagesToRemove);
+				editedProduct.getImagePaths().removeAll(imagesToRemove);
+			}
+			if (nonEmptyImages != null && !nonEmptyImages.isEmpty()) {
+				List<String> imageNames = imageService.saveImages(images);
+				editedProduct.setImagePaths(imageNames);
+				product.setImagePaths(imageNames);
+				model.addAttribute("categorias", CategoryEnum.values());
+
+			} else {
+				editedProduct.setImagePaths(product.getImagePaths());
+			}
+			editedProduct.setProductId(product.getProductId());
 			productService.updateProduct(product, editedProduct);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
+		} catch (NotFoundException e) {
+			throw new NotFoundException("El producto no se ha encontrado en el servicio");
+		} catch (UpdateProductException e) {
+			throw new UpdateProductException("Error al actualizar el producto");
+			}
 		return "redirect:/product/own";
 	}
-	 @Value("${image.upload.path}")
-	    private String uploadPath;
-	
+
+	@Value("${image.upload.path}")
+	private String uploadPath;
+
 	@RequestMapping("/image/{name}")
 	@ResponseBody
 	public Resource formatImage(@PathVariable String name) throws IOException {
-		
+
 		Path path = Paths.get(uploadPath, name).toAbsolutePath();
 		return new ByteArrayResource(Files.readAllBytes(path));
-		
+
 	}
 
-	@RequestMapping("/detail")
-	public String showProductDetail(@RequestParam Long productId, Model model, Principal principal) throws Exception {
-		ProductEntity product = productService.findById(productId);
+	@RequestMapping(value = "/detail/{productId}")
+	public String showProductDetail(@PathVariable Long productId, Model model, Principal principal) throws Exception  {
+		try {
+			ProductEntity product = productService.findById(productId);
+			double averageRating = 0.0;
+			if (!product.getReviews().isEmpty()) {
+				averageRating = productService.calculateAverageRating(productId);
 
-		if (product == null) {
+			}
+			ReviewEntity review = new ReviewEntity();
+			model.addAttribute("review", review);
+			
+			productService.increaseNumOfViews(product);
+			
+			model.addAttribute("product", product);
+			model.addAttribute("principal", principal);
+			model.addAttribute("averageRating", averageRating);
+ 
+			return "product/detail";
+		} catch (NotFoundException e) {
 			throw new NotFoundException("El producto no existe");
 		}
-		double averageRating = 0.0;
-		if (!product.getReviews().isEmpty()) {
-			averageRating = productService.calculateAverageRating(productId);
-
-		}
-		ReviewEntity review = new ReviewEntity();
-		model.addAttribute("review", review);
-
-		model.addAttribute("product", product);
-		model.addAttribute("principal", principal);
-		model.addAttribute("averageRating", averageRating);
-
-		return "product/detail";
 	}
 
 	@GetMapping("/search")
@@ -235,5 +254,14 @@ public class ProductController {
 		}
 
 		return "product/searchResults";
+	}
+
+	@GetMapping("/purchased")
+	public String listPurchasedProducts(Model model, Principal principal) throws Exception {
+		String email = principal.getName();
+		UserEntity user = userService.findByEmail(email);
+		List<ProductEntity> purchasedProducts = productService.getPurchasedProducts(user.getUserId());
+		model.addAttribute("purchasedProducts", purchasedProducts);
+		return "product/listPurchased";
 	}
 }

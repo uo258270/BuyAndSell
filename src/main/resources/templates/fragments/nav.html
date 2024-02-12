@@ -1,36 +1,41 @@
-<!-- nav.html -->
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <nav class="navbar navbar-inverse">
 	<div class="container-fluid">
 		<ul class="nav navbar-nav">
 			<li><a href="/home">Home</a></li>
-			<li id="offers-menu" class="dropdown" sec:authorize="isAuthenticated()"><a class="dropdown-toggle"
-					data-toggle="dropdown" href="#" th:text="#{nav.manageProducts}"> <span class="caret"></span></a>
+			<li id="offers-menu" class="dropdown" sec:authorize="isAuthenticated()">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#" th:text="#{nav.manageProducts}">
+					<span class="caret"></span>
+				</a>
 				<ul class="dropdown-menu">
 					<li><a href="/product/add" th:text="#{product.add}">Agregar un producto</a></li>
 					<li><a href="/product/own" th:text="#{nav.seeYourProducts}">Ver mis productos</a></li>
 					<li th:if="${#authorization.expression('isAuthenticated()')}">
-						<a th:href="@{/product/allRecommendedProducts}"
-							th:text="#{nav.seeAllProducts}">Ver productos</a>
+						<a th:href="@{/product/allRecommendedProducts}" th:text="#{nav.seeAllProducts}">Ver
+							productos</a>
 					</li>
-					<li th:if="${not #authorization.expression('isAuthenticated()')}">
+					<li th:if="${not #authorization.expression('isAuthenticated')}">
 						<a th:href="@{/product/exceptOwn}" th:text="#{nav.seeAllProducts}">Ver productos</a>
 					</li>
-
 					<li><a href="/product/search" th:text="#{lookProduct}">Buscar producto</a></li>
-					<li><a href="/featured/listByUser" th:text="#{nav.seeYourFavorites}">Mis productos favoritos</a></li>
+					<li><a href="/featured/listByUser" th:text="#{nav.seeYourFavorites}">Mis productos favoritos</a>
+					</li>
+					<li><a href="/product/purchased" th:text="#{nav.purchased}">Mis productos comprados</a></li>
 				</ul>
-
-			<li id="users-menu" class="dropdown" sec:authorize="hasRole('ROLE_ADMIN')"><a class="dropdown-toggle"
-					data-toggle="dropdown" href="#"> <span th:text="#{users.menu}"></span> <span class="caret"></span>
+			</li>
+			<li id="users-menu" class="dropdown" sec:authorize="hasRole('ROLE_ADMIN')">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+					<span th:text="#{users.menu}"></span> <span class="caret"></span>
 				</a>
 				<ul class="dropdown-menu">
 					<li><a href="/user/list"><span th:text="#{users.list}"></span></a></li>
 				</ul>
 			</li>
 		</ul>
-		<ul class="nav navbar-nav navbar-right">
 
+		<ul class="nav navbar-nav navbar-right">
 			<li>
 				<form class="navbar-form" action="/product/search/results" method="get">
 					<div class="form-group">
@@ -46,47 +51,63 @@
 					<span class="glyphicon glyphicon-shopping-cart"></span>
 				</a>
 			</li>
-			<li class="dropdown"><a id="btnLanguage" href="#" class="dropdown-toggle" data-toggle="dropdown"
-					role="button" aria-haspopup="true" aria-expanded="false"> <span th:text="#{language.change}"></span>
-					<span class="caret"></span>
+			
+			
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+					aria-expanded="false">
+					<span class="glyphicon glyphicon-globe" style="margin-right: 5px;"></span> <span
+						class="caret"></span>
 				</a>
 				<ul id="languageDropdownMenuButton" class="dropdown-menu">
-					<li><a id="btnEnglish" value="EN"> <img th:src="@{/img/if_uk_flag.png}"
-								style="border: 0; float: left; margin-right: 15px" /> <span
-								th:text="#{language.en}">Inglés</span>
-						</a></li>
-					<li><a id="btnSpanish" value="ES"> <img th:src="@{/img/if_spain_flag.png}"
-								style="border: 0; float: left; margin-right: 15px" /> <span
-								th:text="#{language.es}">Español</span>
-						</a></li>
+					<li>
+						<a id="btnEnglish" value="EN" class="flag-link" href="?lang=en">
+							<img th:src="@{/img/uk-flag.png}" class="flag-icon" />
+							<span th:text="#{language.en}">Inglés</span>
+						</a>
+					</li>
+					<li>
+						<a id="btnSpanish" value="ES" class="flag-link" href="?lang=es">
+							<img th:src="@{/img/es-flag.png}" class="flag-icon" />
+							<span th:text="#{language.es}">Español</span>
+						</a>
+					</li>
+				</ul>
+
+			</li>
+
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+					aria-expanded="false">
+					<span class="glyphicon glyphicon-user"></span> <span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+					<li sec:authorize="isAuthenticated()"><a href="/profile"><span
+								class="glyphicon glyphicon-user"></span> <span th:text="#{profile}">Mi Perfil</span></a>
+					</li>
+					<li sec:authorize="!isAuthenticated()"><a href="/signup"><span
+								class="glyphicon glyphicon-user"></span> <span
+								th:text="#{signup.message}">Registrarse</span></a>
+					</li>
+					<li sec:authorize="!isAuthenticated()"><a href="/login"><span
+								class="glyphicon glyphicon-log-in"></span> <span th:text="#{login.message}">Iniciar
+								Sesión</span></a>
+					</li>
+					<li sec:authorize="isAuthenticated()"><a href="/logout"><span
+								class="glyphicon glyphicon-log-out"></span> <span th:text="#{logout.message}">Cerrar
+								Sesión</span></a>
+					</li>
 				</ul>
 			</li>
-			<ul class="nav navbar-nav navbar-right">
-				<li sec:authorize="isAuthenticated()">
-					<a href="/profile">Mi Perfil</a>
-				</li>
-				<li sec:authorize="isAuthenticated()">
-					<a><span class="glyphicon glyphicon-euro" th:text="${session.money}"></span></a>
-				</li>
+			<li>
+				<a href="/profile">
+					<span th:text="${currentUser != null ? #numbers.formatCurrency(currentUser.money) : 0}"></span>
+				</a>
+			</li>
 
-				<li sec:authorize="isAuthenticated()">
-					<a href="/logout">
-						<span class="glyphicon glyphicon-log-out" th:text="#{logout.message}"></span>
-					</a>
-				</li>
-				<li sec:authorize="!isAuthenticated()">
-					<a href="/signup">
-						<span class="glyphicon glyphicon-user"></span>
-						<span th:text="#{signup.message}"></span>
-					</a>
-				</li>
-				<li sec:authorize="!isAuthenticated()">
-					<a href="/login">
-						<span class="glyphicon glyphicon-log-in"></span>
-						<span th:text="#{login.message}"></span>
-					</a>
-				</li>
-			</ul>
+
+
+		</ul>
 	</div>
 </nav>
 

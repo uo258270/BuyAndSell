@@ -2,80 +2,90 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head}" />
+// TODO: ESTA MAL EL LINK
+<!--<link rel="stylesheet" type="text/css" href="/custom.css" />--> 
 
 <body>
 
 	<nav th:replace="~{fragments/nav}"></nav>
-	<div style="display: inline-block;">
-		<div th:if="${not #lists.isEmpty(cart.productCartEntities)}">
-			<div th:each="productCartEntity : ${cart.productCartEntities}" class="cart-item">
-				<div th:if="${not #lists.isEmpty(productCartEntity.product.images)}">
-					<img th:src="${productCartEntity.product.images[0]}" alt="Product Image"
-						class="product-image-small" />
-				</div>
+	<div class="main-content">
+		<h2 th:text="#{cart.title}">Tu carrito:</h2>
 
-				<div class="product-details">
-					<h3 th:text="${productCartEntity.product.name}">Nombre del producto</h3>
-					<p th:text="${productCartEntity.product.price}"></p>
+		<div th:each="productCart : ${cart.productCartEntities}" class="cart-item">
+			<div class="product-images">
+				<li th:if="${productCart.product != null and not #lists.isEmpty(productCart.product.imagePaths)}">
+					<img th:src="@{/product/image/{name}(name=${productCart.product.imagePaths[0]})}"
+						alt="Imagen del producto" class="product-image" />
+				</li>
+				<li th:if="${#lists.isEmpty(productCart.product.imagePaths)}">
+					<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+				</li>
+			</div>
 
-					<form th:action="@{/cart/updateQuantity}" method="post">
-						<input type="hidden" name="productId" th:value="${productCartEntity.product.productId}" />
-						<span th:text="${productCartEntity.id}"></span>
-						<div class="quantity-container">
-							<button type="submit" name="action" value="decrement">-</button>
-							<input type="number" name="quantity" th:value="${productCartEntity.quantityInCart}" />
-							<button type="submit" name="action" value="increment">+</button>
-						</div>
-					</form>
+			<div class="product-details">
+				<h3 th:text="${productCart.product.name}" th:text:"#{cart.productName}"></h3>
+				<p th:text="${productCart.product.price}"></p>
 
-					<div th:if="${param.error}" class="error-message">
-						<p th:text="${error}"></p>
+				<form th:action="@{/cart/updateQuantity}" method="post">
+					<input type="hidden" name="productId" th:value="${productCart.product.productId}" />
+					<span th:text="${productCart.id}"></span>
+					<div class="quantity-container">
+						<button type="submit" name="action" value="decrement" th:text:"#{cart.decrement}"></button>
+						<input type="number" name="quantity" th:value="${productCart.quantityInCart}" />
+						<button type="submit" name="action" value="increment" th:text:"#{cart.increment}"></button>
 					</div>
+				</form>
 
-
+				<div th:if="${param.error}" class="error-message">
+					<p th:text="#{cart.errorMessage}"></p>
 				</div>
 			</div>
+		</div>
+
+		<div th:if="${not #lists.isEmpty(cart.productCartEntities)}">
 
 			<form th:action="@{/cart/clearCart}" method="post">
 				<input type="hidden" name="cart" th:value="${cart}" />
-				<button type="submit">Vaciar carrito</button>
+				<button type="submit" class="clear-cart-button" th:text="#{cart.clearCart}"></button>
 			</form>
 
 			<div class="cart-summary">
-				<h3>Total del Carrito: <span th:text="${cart.getTotalOrderPrice()}"></span></h3>
+				<h3 th:text="#{cart.total}">Total del Carrito: <span th:text="${cart.getTotalOrderPrice()}"></span></h3>
 				<form th:action="@{/cart/buy}" method="post">
-					<button type="submit">Pagar</button>
+					<button type="submit" class="pay-button" th:text="#{cart.pay}"></button>
 				</form>
 
-				<div th:if="${param.error}">
-					<p>No tienes suficiente dinero para realizar la compra.</p>
+				<div th:if="${param.error}" class="error-message">
+					<p th:text="#{cart.notEnoughMoneyError}"></p>
 				</div>
 			</div>
 
-			<div th:if="${cartCleared}">
-				<p>El carrito se ha vaciado correctamente.</p>
-			</div>
-
-
-			<div th:if="${#lists.isEmpty(cart.productCartEntities)}">
-				<p>Su carrito está vacío.</p>
-			</div>
-
-			<div th:if="${not #lists.isEmpty(favoriteProducts)}">
-				<h2>Tus Productos Favoritos</h2>
-				<div class="favorite-products">
-					<div th:each="favorite : ${favoriteProducts}" class="favorite-item">
-						<img th:src="${favorite.imageUrl}" alt="Product Image" class="product-image-small" />
-						<div class="product-details">
-							<h3 th:text="${favorite.name}"></h3>
-						</div>
-					</div>
-				</div>
+			<div th:if="${cartCleared}" class="success-message">
+				<p th:text="#{cart.cartCleared}"></p>
 			</div>
 
 		</div>
-		<footer th:replace="fragments/footer" />
-</body>
 
+		<div th:if="${#lists.isEmpty(cart.productCartEntities)}" class="empty-cart-message">
+			<p th:text="#{cart.emptyCartMessage}"></p>
+		</div>
+
+		<div th:if="${not #lists.isEmpty(favoriteProducts)}">
+			<h2 th:text="#{favorite.title}">Tus Productos Favoritos</h2>
+			<div class="favorite-products">
+				<div th:each="favorite : ${favoriteProducts}" class="favorite-item">
+					<img th:src="${favorite.imageUrl}" alt="Product Image" class="product-image-small" />
+					<div class="product-details">
+						<h3 th:text="${favorite.name}"></h3>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	</div>
+
+	<footer th:replace="fragments/footer" class="custom-footer"></footer>
+</body>
 
 </html>

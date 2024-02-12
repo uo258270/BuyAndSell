@@ -20,7 +20,7 @@ public class ReviewEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
-	private UserEntity user;
+	private UserEntity userEntity;
 
 	@ManyToOne
 	@JoinColumn(name = "product_id")
@@ -51,12 +51,14 @@ public class ReviewEntity {
 		this.ratingId = ratingId;
 	}
 
-	public UserEntity getUser() {
-		return user;
+	
+
+	public UserEntity getUserEntity() {
+		return userEntity;
 	}
 
-	public void setUser(UserEntity user) {
-		this.user = user;
+	public void setUserEntity(UserEntity userEntity) {
+		this.userEntity = userEntity;
 	}
 
 	public ProductEntity getProduct() {
@@ -77,7 +79,7 @@ public class ReviewEntity {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(comment, product, rating, ratingId, user);
+		return Objects.hash(comment, product, rating, ratingId, userEntity);
 	}
 
 	@Override
@@ -89,9 +91,7 @@ public class ReviewEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		ReviewEntity other = (ReviewEntity) obj;
-		return Objects.equals(comment, other.comment) && Objects.equals(product, other.product)
-				&& rating == other.rating && Objects.equals(ratingId, other.ratingId)
-				&& Objects.equals(user, other.user);
+		return Objects.equals(ratingId, other.ratingId);
 	}
 
 	

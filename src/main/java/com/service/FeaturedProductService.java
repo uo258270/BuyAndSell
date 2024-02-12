@@ -7,7 +7,6 @@ import com.entity.ProductEntity;
 import com.entity.UserEntity;
 
 public interface FeaturedProductService {
-	Boolean isFavourited(ProductEntity prod);
 	
 	//getForUser
 	List<FeaturedProductEntity> findByUser(UserEntity user) throws Exception;
@@ -18,5 +17,7 @@ public interface FeaturedProductService {
 	//delete
 	void deleteFeaturedProduct(FeaturedProductEntity featured) throws Exception;
 	FeaturedProductEntity getFeaturedById(Long id) throws Exception;
+
+	Boolean isFavourited(ProductEntity prod, Long userId);
 
 }

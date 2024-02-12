@@ -2,6 +2,7 @@ package com.service;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageService {
     
     @Value("${image.upload.path}")
-    private String uploadPath;
+	public String uploadPath;
 
     public List<String> saveImages(List<MultipartFile> images) {
         List<String> imagePaths = new ArrayList<>();
@@ -29,7 +30,7 @@ public class ImageService {
         return imagePaths;
     }
 
-    private String saveImageToFileSystem(MultipartFile image) {
+    public String saveImageToFileSystem(MultipartFile image) {
         String fileName = UUID.randomUUID().toString() + "-" + image.getOriginalFilename();
         String filePath = Paths.get(uploadPath, fileName).toString();
 
@@ -40,5 +41,20 @@ public class ImageService {
         }
 
         return fileName;
+    }
+    
+    public void deleteImages(List<String> imageNames) {
+        for (String imageName : imageNames) {
+            try {
+                deleteImageFromFileSystem(imageName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void deleteImageFromFileSystem(String imageName) throws IOException {
+        Path imagePath = Paths.get(uploadPath, imageName);
+        Files.delete(imagePath);
     }
 }
