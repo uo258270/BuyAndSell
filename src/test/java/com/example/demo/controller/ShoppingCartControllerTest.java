@@ -30,7 +30,7 @@ import com.entity.ShoppingCartEntity;
 import com.exception.InvalidStockException;
 import com.exception.NotEnoughMoney;
 import com.exception.ProductAlreadySoldException;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.ShoppingCartService;
 import com.service.UserService;
 
@@ -46,7 +46,7 @@ public class ShoppingCartControllerTest {
 	UserService userService;
 
 	@Mock
-	ProductsService productService;
+	ProductService productService;
 
 	@Mock
 	private Model model;

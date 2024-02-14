@@ -18,7 +18,7 @@ import com.entity.FeaturedProductEntity;
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.service.FeaturedProductService;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.UserService;
 
 @Controller
@@ -32,11 +32,11 @@ public class FeaturedController {
 	private UserService userService;
 
 	@Autowired
-	private ProductsService productService;
+	private ProductService productService;
 
 
 	
-	public FeaturedController(FeaturedProductService featuredService, UserService userService, ProductsService productService) {
+	public FeaturedController(FeaturedProductService featuredService, UserService userService, ProductService productService) {
 		super();
 		this.featuredService = featuredService;
 		this.userService = userService;

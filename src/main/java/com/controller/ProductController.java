@@ -35,7 +35,7 @@ import com.entity.enums.CategoryEnum;
 import com.exception.NotFoundException;
 import com.exception.UpdateProductException;
 import com.service.ImageService;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.RecommendationSystemService;
 import com.service.UserService;
 import com.validators.AddOfferValidator;
@@ -45,7 +45,7 @@ import com.validators.AddOfferValidator;
 public class ProductController {
 
 	@Autowired
-	private ProductsService productService;
+	private ProductService productService;
 
 	@Autowired
 	private ImageService imageService;
@@ -59,7 +59,7 @@ public class ProductController {
 	@Autowired
 	private RecommendationSystemService recommendedService;
 
-	public ProductController(ProductsService productService, UserService userService,
+	public ProductController(ProductService productService, UserService userService,
 			AddOfferValidator addOfferValidator, RecommendationSystemService recommendedService) {
 		super();
 		this.productService = productService;

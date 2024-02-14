@@ -52,7 +52,7 @@ import com.entity.enums.RoleEnum;
 import com.exception.NotFoundException;
 import com.exception.UpdateProductException;
 import com.service.ImageService;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.RecommendationSystemService;
 import com.service.UserService;
 import com.validators.AddOfferValidator;
@@ -65,7 +65,7 @@ public class ProductControllerTest {
 	private MockMvc mockMvc;
 
 	@Mock
-	private ProductsService productService;
+	private ProductService productService;
 
 	@Mock
 	private ImageService imageService;

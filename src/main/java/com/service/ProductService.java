@@ -7,7 +7,7 @@ import com.exception.NullDataException;
 import com.exception.UpdateProductException;
 
 
-public interface ProductsService {
+public interface ProductService {
 	//listar findById
 	ProductEntity findById(Long productId) throws Exception;
 	//filtrar findByName

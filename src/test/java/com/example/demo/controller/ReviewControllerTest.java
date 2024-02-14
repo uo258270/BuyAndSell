@@ -36,7 +36,7 @@ import com.entity.ReviewEntity;
 import com.entity.UserEntity;
 import com.exception.NotFoundException;
 import com.exception.UnauthorizedException;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.ReviewService;
 import com.service.UserService;
 
@@ -46,7 +46,7 @@ public class ReviewControllerTest {
 	private MockMvc mockMvc;
 
 	@Mock
-	private ProductsService productService;
+	private ProductService productService;
 
 	@Mock
 	private ReviewService reviewService;

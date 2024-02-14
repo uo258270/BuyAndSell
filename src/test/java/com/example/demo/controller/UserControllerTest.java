@@ -37,7 +37,7 @@ import org.springframework.validation.BindingResult;
 import com.controller.UserController;
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.UserService;
 import com.validators.SignUpFormValidator;
 
@@ -49,7 +49,7 @@ public class UserControllerTest {
 	private MockMvc mockMvc;
 
 	@Mock
-	private ProductsService productService;
+	private ProductService productService;
 
 	@Mock
 	private UserService userService;

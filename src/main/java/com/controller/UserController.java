@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.entity.enums.RoleEnum;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.UserService;
 import com.validators.SignUpFormValidator;
 
@@ -36,10 +36,10 @@ public class UserController {
 	private SignUpFormValidator signUpFormValidator;
 
 	@Autowired
-	private ProductsService productService;
+	private ProductService productService;
 
 	public UserController(HttpSession httpSession, UserService usersService, SignUpFormValidator signUpFormValidator,
-			ProductsService productService) {
+			ProductService productService) {
 		super();
 		this.httpSession = httpSession;
 		this.usersService = usersService;

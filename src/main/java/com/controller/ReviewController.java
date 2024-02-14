@@ -18,7 +18,7 @@ import com.entity.ReviewEntity;
 import com.entity.UserEntity;
 import com.exception.NotFoundException;
 import com.exception.UnauthorizedException;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.ReviewService;
 import com.service.UserService;
 
@@ -33,11 +33,11 @@ public class ReviewController {
 	private UserService userService;
 
 	@Autowired
-	private ProductsService productService;
+	private ProductService productService;
 	
 	
 
-	public ReviewController(ReviewService reviewService, UserService userService, ProductsService productService) {
+	public ReviewController(ReviewService reviewService, UserService userService, ProductService productService) {
 		super();
 		this.reviewService = reviewService;
 		this.userService = userService;

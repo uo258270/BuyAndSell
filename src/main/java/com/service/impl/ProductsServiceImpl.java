@@ -17,12 +17,12 @@ import com.repository.FeaturedRepository;
 import com.repository.ProductCartRepository;
 import com.repository.ProductRepository;
 import com.repository.ReviewRepository;
-import com.service.ProductsService;
+import com.service.ProductService;
 
 import jakarta.transaction.Transactional;
 
 @Service
-public class ProductsServiceImpl implements ProductsService {
+public class ProductsServiceImpl implements ProductService {
 
 	@Autowired
 	private ProductRepository productRepository;

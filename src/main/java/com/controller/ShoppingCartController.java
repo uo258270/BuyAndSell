@@ -16,7 +16,7 @@ import com.exception.InvalidStockException;
 import com.exception.NotEnoughMoney;
 import com.exception.NotFoundException;
 import com.exception.ProductAlreadySoldException;
-import com.service.ProductsService;
+import com.service.ProductService;
 import com.service.ShoppingCartService;
 import com.service.UserService;
 
@@ -32,10 +32,10 @@ public class ShoppingCartController {
 	UserService userService;
 
 	@Autowired
-	ProductsService productService;
+	ProductService productService;
 
 	public ShoppingCartController(ShoppingCartService shoppingCartService, UserService userService,
-			ProductsService productService) {
+			ProductService productService) {
 		super();
 		this.shoppingCartService = shoppingCartService;
 		this.userService = userService;
