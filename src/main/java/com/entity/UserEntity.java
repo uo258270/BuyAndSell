@@ -72,10 +72,6 @@ public class UserEntity implements Serializable{
 		this.reviews = reviews;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
 	public void setCarts(List<ShoppingCartEntity> carts) {
 		this.carts = carts;
 	}

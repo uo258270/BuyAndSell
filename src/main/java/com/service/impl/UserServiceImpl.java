@@ -46,9 +46,6 @@ public class UserServiceImpl implements UserService {
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 	}
-
-	String[] roles = { "ROLE_USER", "ROLE_ADMIN" };
-
 	
 	public String findLoggedInEmail() {
 		Object userDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();

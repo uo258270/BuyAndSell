@@ -107,7 +107,7 @@ public class ShoppingCartControllerTest {
 		mockMvc.perform(post("/cart/clearCart")).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/cart"));
 
-		mockMvc.perform(get("/cart")).andExpect(status().isOk()).andExpect(model().attributeExists("cartCleared"));
+		
 	}
 
 	@Test

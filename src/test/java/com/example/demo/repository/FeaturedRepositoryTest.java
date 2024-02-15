@@ -70,8 +70,16 @@ public class FeaturedRepositoryTest {
 	}
 	@Test
 	void isFav() {
-		saveEntity();
-		FeaturedProductEntity result = favRepo.isFav(1L, 1L);
+		
+		ProductEntity p = new ProductEntity();
+		p = prodRepo.save(p);
+		UserEntity u = new UserEntity();
+		u = userRepo.save(u);
+		FeaturedProductEntity fav = new FeaturedProductEntity();
+		fav.setProduct(p);
+		fav.setUser(u);
+		fav = favRepo.save(fav );
+		FeaturedProductEntity result = favRepo.isFav(p.getProductId(), u.getUserId());
 		Assertions.assertNotNull(result);
 		Assertions.assertNotNull(result.getUser());
 		Assertions.assertNotNull(result.getProduct());

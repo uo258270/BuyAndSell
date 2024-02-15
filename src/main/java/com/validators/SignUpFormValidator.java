@@ -12,7 +12,7 @@ import com.service.UserService;
 @Component
 public class SignUpFormValidator implements Validator {
 	@Autowired
-	private UserService usersService;
+	public UserService usersService;
 
 	@Override
 	public boolean supports(Class<?> aClass) {

@@ -62,10 +62,5 @@ public class WebSecurityConfig {
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration conf) throws Exception {
 		return conf.getAuthenticationManager();
 	}
-	/*
-	@Bean
-	public SpringSecurityDialect securityDialect() {
-		return new SpringSecurityDialect();
-	}
-	*/
+	
 }
