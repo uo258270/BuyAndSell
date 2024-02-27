@@ -25,7 +25,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -96,16 +95,7 @@ public class UserServiceImplTest {
 		Assertions.assertThrows(Exception.class, () -> userService.findById(1L));
 	}
 
-	@Test
-	void findLoggedInEmail_NoUserDetails_ReturnsNull() {
-	    UserDetails userDetails = Mockito.mock(UserDetails.class);
-	    
-	   SecurityContextHolder.getContext().setAuthentication(
-	            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
-
-	    String result = userService.findLoggedInEmail();
-	    Assertions.assertNull(result);
-	}
+	
 
 
     @Test
@@ -311,4 +301,6 @@ public class UserServiceImplTest {
 	private Authentication createMockedAuthentication() {
         return new UsernamePasswordAuthenticationToken("1", "1", new HashSet<>());
     }
+	
+	
 }

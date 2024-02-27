@@ -6,10 +6,10 @@
 <body>
 
 	<nav th:replace="~{fragments/nav}"></nav>
-    <div>
-        <h1 th:text="#{thanks.title.en}"></h1>
-        <p th:text="#{thanks.success.en}"></p>
-        <p th:text="#{thanks.return.en}"></p>
+    <div class="thanks-container">
+        <h1 class="thanks-title" th:text="#{thanks.title}"></h1>
+        <p class="thanks-success" th:text="#{thanks.success}"></p>
+        <p class="thanks-return" th:text="#{thanks.return}"></p>
     </div>
 </body>
 

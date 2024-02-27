@@ -189,12 +189,6 @@ public class ShoppingCartControllerTest {
 		mockMvc.perform(post("/cart/updateQuantity").param("productId", productId.toString())
 				.param("quantity", String.valueOf(quantity)).param("action", action)).andExpect(status().isOk())
 				.andExpect(model().attributeExists("errorMessage"))
-				.andExpect(model().attribute("errorMessage", "No hay suficiente stock disponible para este producto.")); // Verificamos
-																															// el
-																															// contenido
-																															// del
-																															// mensaje
-																															// de
-																															// error
+				.andExpect(model().attribute("errorMessage", "No hay suficiente stock disponible para este producto.")); 
 	}
 }

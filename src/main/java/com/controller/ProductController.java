@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,7 @@ import com.exception.UpdateProductException;
 import com.service.ImageService;
 import com.service.ProductService;
 import com.service.RecommendationSystemService;
+import com.service.ShoppingCartService;
 import com.service.UserService;
 import com.validators.AddOfferValidator;
 
@@ -58,14 +60,18 @@ public class ProductController {
 
 	@Autowired
 	private RecommendationSystemService recommendedService;
+	
+	@Autowired
+	private ShoppingCartService cartService;
 
 	public ProductController(ProductService productService, UserService userService,
-			AddOfferValidator addOfferValidator, RecommendationSystemService recommendedService) {
+			AddOfferValidator addOfferValidator, RecommendationSystemService recommendedService, ShoppingCartService cartService) {
 		super();
 		this.productService = productService;
 		this.userService = userService;
 		this.addOfferValidator = addOfferValidator;
 		this.recommendedService = recommendedService;
+		this.cartService = cartService;
 	}
 
 	@GetMapping("/own")
@@ -94,37 +100,34 @@ public class ProductController {
 
 	@GetMapping("/allRecommendedProducts")
 	public String listAllRecommendedProducts(Model model, Principal principal) throws Exception {
-		if (principal == null) {
-			return "redirect:/login";
-		}
+	    if (principal == null) {
+	        return "redirect:/login";
+	    }
 
-		String email = principal.getName();
-		UserEntity user = userService.findByEmail(email);
+	    String email = principal.getName();
+	    UserEntity user = userService.findByEmail(email);
 
-		List<ProductEntity> recommendedByReview = recommendedService.getProductsBySimilarReviewUsers(user.getUserId());
-		List<ProductEntity> recommendedByCart = recommendedService.getProductsBySimilarUserCarts(user.getUserId());
-		List<ProductEntity> popular = recommendedService.getMostPopularProducts();
-		List<ProductEntity> topRated = recommendedService.getTopRatedProducts();
+	    List<ProductEntity> recommended = recommendedService.getRecommendedProducts(user.getUserId());
+	    List<ProductEntity> popular = recommendedService.getMostPopularProducts();
+	    List<ProductEntity> topRated = recommendedService.getTopRatedProducts();
 
-		Set<ProductEntity> allRecommendedProducts = new HashSet<>();
-		allRecommendedProducts.addAll(recommendedByReview);
-		allRecommendedProducts.addAll(recommendedByCart);
-		allRecommendedProducts.addAll(popular);
-		allRecommendedProducts.addAll(topRated);
+	    Set<ProductEntity> allRecommendedProducts = new HashSet<>();
+	    allRecommendedProducts.addAll(recommended);
+	    allRecommendedProducts.addAll(popular);
+	    allRecommendedProducts.addAll(topRated);
 
-		Set<ProductEntity> filteredProducts = new HashSet<>();
-		for (ProductEntity product : allRecommendedProducts) {
-			if (product.getStock() > 0) {
-				filteredProducts.add(product);
-			}
-		}
-		model.addAttribute("products", filteredProducts);
-		model.addAttribute("recommendedReviews", recommendedByReview);
-		model.addAttribute("recommended", recommendedByCart);
-		model.addAttribute("popular", popular);
-		model.addAttribute("rated", topRated);
-		return "/product/listProducts";
+	    Set<ProductEntity> filteredProducts = allRecommendedProducts.stream()
+	            .filter(product -> product.getStock() > 0 && !product.getUser().equals(user))
+	            .collect(Collectors.toSet());
+
+	    model.addAttribute("products", filteredProducts);
+	    model.addAttribute("recommended", recommended);
+	    model.addAttribute("popular", popular);
+	    model.addAttribute("rated", topRated);
+
+	    return "/product/listProducts";
 	}
+
 
 	@GetMapping("/add")
 	public String getProduct(Model model) {
@@ -173,7 +176,7 @@ public class ProductController {
 	@PostMapping("/edit/{id}")
 	public String editProduct(@PathVariable Long id, ProductEntity editedProduct, Model model,
 			@RequestParam(name = "images", required = false) List<MultipartFile> images,
-			@RequestParam(name = "imagesToRemove", required = false) List<String> imagesToRemove) throws Exception  {
+			@RequestParam(name = "imagesToRemove", required = false) List<String> imagesToRemove) throws Exception {
 		try {
 			ProductEntity product = productService.findById(id);
 			List<MultipartFile> nonEmptyImages = images.stream().filter(image -> !image.isEmpty())
@@ -186,8 +189,10 @@ public class ProductController {
 			}
 			if (nonEmptyImages != null && !nonEmptyImages.isEmpty()) {
 				List<String> imageNames = imageService.saveImages(images);
-				editedProduct.setImagePaths(imageNames);
-				product.setImagePaths(imageNames);
+				for(String i : imageNames) {
+					editedProduct.addImagePath(i);
+					product.addImagePath(i);
+				}
 				model.addAttribute("categorias", CategoryEnum.values());
 
 			} else {
@@ -200,7 +205,7 @@ public class ProductController {
 			throw new NotFoundException("El producto no se ha encontrado en el servicio");
 		} catch (UpdateProductException e) {
 			throw new UpdateProductException("Error al actualizar el producto");
-			}
+		}
 		return "redirect:/product/own";
 	}
 
@@ -217,7 +222,7 @@ public class ProductController {
 	}
 
 	@RequestMapping(value = "/detail/{productId}")
-	public String showProductDetail(@PathVariable Long productId, Model model, Principal principal) throws Exception  {
+	public String showProductDetail(@PathVariable Long productId, Model model, Principal principal) throws Exception {
 		try {
 			ProductEntity product = productService.findById(productId);
 			double averageRating = 0.0;
@@ -227,13 +232,13 @@ public class ProductController {
 			}
 			ReviewEntity review = new ReviewEntity();
 			model.addAttribute("review", review);
-			
+
 			productService.increaseNumOfViews(product);
-			
+
 			model.addAttribute("product", product);
 			model.addAttribute("principal", principal);
 			model.addAttribute("averageRating", averageRating);
- 
+
 			return "product/detail";
 		} catch (NotFoundException e) {
 			throw new NotFoundException("El producto no existe");
@@ -263,5 +268,20 @@ public class ProductController {
 		List<ProductEntity> purchasedProducts = productService.getPurchasedProducts(user.getUserId());
 		model.addAttribute("purchasedProducts", purchasedProducts);
 		return "product/listPurchased";
+	}
+	
+	@ModelAttribute
+	public void loadCurrentUser(Model model, Principal p) throws Exception {
+		if (p != null) {
+			model.addAttribute("currentUser", userService.findByEmail(p.getName()));
+		}
+		else {
+			model.addAttribute("currentUser", null);
+		}
+	}
+	
+	@ModelAttribute
+	public void loadCart(Model model, Principal p) throws Exception {
+			model.addAttribute("cart", cartService.getCart());
 	}
 }

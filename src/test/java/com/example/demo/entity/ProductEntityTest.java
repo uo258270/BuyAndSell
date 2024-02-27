@@ -1,20 +1,27 @@
 package com.example.demo.entity;
 
-import com.entity.FeaturedProductEntity;
-import com.entity.ProductEntity;
-import com.entity.ReviewEntity;
-import com.entity.ShoppingCartEntity;
-import com.entity.UserEntity;
-import com.entity.enums.CategoryEnum;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.entity.FeaturedProductEntity;
+import com.entity.ProductCartEntity;
+import com.entity.ProductEntity;
+import com.entity.ReviewEntity;
+import com.entity.ShoppingCartEntity;
+import com.entity.UserEntity;
+import com.entity.enums.CategoryEnum;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductEntityTest {
@@ -70,7 +77,11 @@ public class ProductEntityTest {
 
 		List<ShoppingCartEntity> carts = new ArrayList<>();
 		carts.add(shoppingCart);
-		product.setCarts(carts);
+		
+		List<ProductCartEntity> proCart = new ArrayList<>();
+		ProductCartEntity p = null;
+		proCart.add(p);
+		product.setProductCarts(proCart);
 
 		FeaturedProductEntity featuredProduct = new FeaturedProductEntity();
 		featuredProduct.setFeaturedId(1L);
@@ -93,7 +104,7 @@ public class ProductEntityTest {
 		Assertions.assertEquals(100, product.getNumOfViews());
 		Assertions.assertFalse(product.isSold());
 		Assertions.assertEquals(user, product.getUser());
-		Assertions.assertEquals(carts, product.getCarts());
+		Assertions.assertEquals(proCart, product.getProductCarts());
 		Assertions.assertEquals(featuredProducts, product.getFeaturedProducts());
 		Assertions.assertEquals(images, product.getImages());
 		Assertions.assertEquals(imagePaths, product.getImagePaths());
@@ -104,4 +115,71 @@ public class ProductEntityTest {
 		Assertions.assertEquals(product, sameProduct);
 
 	}
+	 @Test
+	    void equals_SameProductId_ReturnsTrue() {
+	        Long productId = 1L;
+	        ProductEntity product1 = new ProductEntity();
+	        product1.setProductId(productId);
+	        ProductEntity product2 = new ProductEntity();
+	        product2.setProductId(productId);
+	        assertTrue(product1.equals(product2));
+	    }
+
+	    @Test
+	    void equals_DifferentProductId_ReturnsFalse() {
+	        ProductEntity product1 = new ProductEntity();
+	        product1.setProductId(1L);
+	        ProductEntity product2 = new ProductEntity();
+	        product2.setProductId(2L);
+	        assertFalse(product1.equals(product2));
+	    }
+
+	    @Test
+	    void equals_NullObject_ReturnsFalse() {
+	        ProductEntity product = new ProductEntity();
+	        assertFalse(product.equals(null));
+	    }
+
+	    @Test
+	    void equals_DifferentClassObject_ReturnsFalse() {
+	        ProductEntity product = new ProductEntity();
+	        assertFalse(product.equals(new Object()));
+	    }
+
+	    @Test
+	    void compradoPor_UserHasPurchased_ReturnsTrue() {
+	        String username = "user@example.com";
+	        ShoppingCartEntity cart = mock(ShoppingCartEntity.class);
+	        UserEntity user = mock(UserEntity.class);
+	        when(user.getEmail()).thenReturn(username);
+	        ProductCartEntity productCart = mock(ProductCartEntity.class);
+	        when(productCart.getCart()).thenReturn(cart);
+	        when(cart.getUser()).thenReturn(user);
+	        List<ProductCartEntity> productCarts = new ArrayList<>();
+	        productCarts.add(productCart);
+
+	        ProductEntity product = new ProductEntity();
+	        product.setProductCarts(productCarts);
+
+	        assertTrue(product.compradoPor(username));
+	    }
+
+	    @Test
+	    void compradoPor_UserHasNotPurchased_ReturnsFalse() {
+	        String username = "user@example.com";
+	        ShoppingCartEntity cart = mock(ShoppingCartEntity.class);
+	        UserEntity user = mock(UserEntity.class);
+	        when(user.getEmail()).thenReturn("other@example.com"); // Different username
+	        ProductCartEntity productCart = mock(ProductCartEntity.class);
+	        when(productCart.getCart()).thenReturn(cart);
+	        when(cart.getUser()).thenReturn(user);
+	        List<ProductCartEntity> productCarts = new ArrayList<>();
+	        productCarts.add(productCart);
+
+	        ProductEntity product = new ProductEntity();
+	        product.setProductCarts(productCarts);
+
+	        assertFalse(product.compradoPor(username));
+	    }
+	
 }

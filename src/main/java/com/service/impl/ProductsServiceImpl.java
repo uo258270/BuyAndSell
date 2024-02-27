@@ -192,11 +192,10 @@ public class ProductsServiceImpl implements ProductService {
 
 	@Override
 	public ProductEntity increaseNumOfViews(ProductEntity product) {
-		try {
-			product.setNumOfViews(product.getNumOfViews()+1);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
+		product.setNumOfViews(product.getNumOfViews() + 1);
+		productRepository.save(product);
+
 		return product;
 	}
 

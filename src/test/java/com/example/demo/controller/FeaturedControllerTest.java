@@ -38,6 +38,7 @@ import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.service.FeaturedProductService;
 import com.service.ProductService;
+import com.service.ShoppingCartService;
 import com.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,7 +50,10 @@ public class FeaturedControllerTest {
     private FeaturedProductService featuredService;
 
 	@Mock
-    private UserService userService;
+	private UserService userService;
+	
+	@Mock
+	private ShoppingCartService cartService;
 
 	@Mock
     private ProductService productService;

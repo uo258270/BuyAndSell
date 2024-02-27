@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.service.FeaturedProductService;
 import com.service.ProductService;
+import com.service.ShoppingCartService;
 import com.service.UserService;
 
 @Controller
@@ -33,17 +35,24 @@ public class FeaturedController {
 
 	@Autowired
 	private ProductService productService;
+	
+	@Autowired
+	private ShoppingCartService cartService;
 
 
 	
-	public FeaturedController(FeaturedProductService featuredService, UserService userService, ProductService productService) {
+
+	
+	public FeaturedController(FeaturedProductService featuredService, UserService userService,
+			ProductService productService, ShoppingCartService cartService) {
 		super();
 		this.featuredService = featuredService;
 		this.userService = userService;
-		this.productService =productService;
-		
+		this.productService = productService;
+		this.cartService = cartService;
 	}
-	
+
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public String addFavProduct(Model model, Principal principal, @Validated ProductEntity prod, BindingResult result) throws Exception {
 		try {
@@ -98,5 +107,19 @@ public class FeaturedController {
 	    return productService.checkIfProductIsFavorite(productId);
 	}
 	
+	@ModelAttribute
+	public void loadCurrentUser(Model model, Principal p) throws Exception {
+		if (p != null) {
+			model.addAttribute("currentUser", userService.findByEmail(p.getName()));
+		}
+		else {
+			model.addAttribute("currentUser", null);
+		}
+	}
+	
+	@ModelAttribute
+	public void loadCart(Model model, Principal p) throws Exception {
+			model.addAttribute("cart", cartService.getCart());
+	}
 	
 }

@@ -1,5 +1,6 @@
 package com.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Hibernate;
@@ -15,6 +16,7 @@ import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
 import com.exception.InvalidStockException;
 import com.exception.NotEnoughMoney;
+import com.exception.NullDataException;
 import com.exception.ProductAlreadySoldException;
 import com.repository.ProductRepository;
 import com.repository.ShoppingCartRepository;
@@ -34,19 +36,23 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	@Autowired
 	private ProductRepository productRepository;
 
-
 	private ShoppingCartEntity cart = new ShoppingCartEntity();
 
 	
 	
 	public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepo, UserRepository userRepository,
-			ProductRepository productRepository, ShoppingCartEntity cart) {
+			ProductRepository productRepository) {
 		super();
 		this.shoppingCartRepo = shoppingCartRepo;
 		this.userRepository = userRepository;
 		this.productRepository = productRepository;
-		this.cart = cart;
+		
 	}
+	
+	 public void setCart(ShoppingCartEntity cart) {
+	        this.cart = cart;
+	    }
+
 
 	@Override
 	@Transactional
@@ -69,19 +75,18 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 	@Override
 	public ShoppingCartEntity getCart() {
-		if (cart.getProductCartEntities() == null) {
-			cart = shoppingCartRepo.getById(cart.getId());
-			if(cart!=null) {
-				return cart;
-			}
-			else {
-				cart = new ShoppingCartEntity();
-			}
-		}
-
-		Hibernate.initialize(cart.getProductCartEntities());
-
-		return cart;
+	    if (cart == null || cart.getProductCartEntities() == null || cart.getProductCartEntities().isEmpty()) {
+	        if (cart != null) {
+	            cart = shoppingCartRepo.getById(cart.getId());
+	        }
+	        if (cart == null) {
+	            cart = new ShoppingCartEntity();
+	            cart.setProductCartEntities(new ArrayList<>());
+	        }
+	    } else {
+	         Hibernate.initialize(cart.getProductCartEntities());
+	    }
+	    return cart;
 	}
 
 	@Override
@@ -111,10 +116,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 	}
 
 	@Override
-	public ShoppingCartEntity decrementProductQuantity(Long productId) {
+	public ShoppingCartEntity decrementProductQuantity(Long productId) throws NullDataException {
 		ProductEntity prod = productRepository.findByProductId(productId);
-		cart.decQuantity(prod);
+		try {
+			cart.decQuantity(prod);
+		} catch (NullDataException e) {
+			 throw new NullDataException("cannot be decremented");
+		}
 		return cart;
 	}
 
+	
 }

@@ -10,8 +10,6 @@ public interface RecommendationSystemService {
 
 	List<ProductEntity> getTopRatedProducts() throws Exception;
 
-	List<ProductEntity> getProductsBySimilarReviewUsers(Long userId);
-
-	List<ProductEntity> getProductsBySimilarUserCarts(Long userId);
+	List<ProductEntity> getRecommendedProducts(Long userId);
 
 }

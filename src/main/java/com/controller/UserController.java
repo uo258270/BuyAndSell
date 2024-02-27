@@ -18,6 +18,7 @@ import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.entity.enums.RoleEnum;
 import com.service.ProductService;
+import com.service.ShoppingCartService;
 import com.service.UserService;
 import com.validators.SignUpFormValidator;
 
@@ -34,16 +35,22 @@ public class UserController {
 
 	@Autowired
 	private SignUpFormValidator signUpFormValidator;
+	
+	@Autowired
+	private ShoppingCartService cartService;
 
 	@Autowired
 	private ProductService productService;
 
+	
+
 	public UserController(HttpSession httpSession, UserService usersService, SignUpFormValidator signUpFormValidator,
-			ProductService productService) {
+			ShoppingCartService cartService, ProductService productService) {
 		super();
 		this.httpSession = httpSession;
 		this.usersService = usersService;
 		this.signUpFormValidator = signUpFormValidator;
+		this.cartService = cartService;
 		this.productService = productService;
 	}
 
@@ -125,6 +132,7 @@ public class UserController {
 		return "redirect:/profile";
 	}
 	
+	
 	@ModelAttribute
 	public void loadCurrentUser(Model model, Principal p) throws Exception {
 		if (p != null) {
@@ -133,6 +141,11 @@ public class UserController {
 		else {
 			model.addAttribute("currentUser", null);
 		}
+	}
+	
+	@ModelAttribute
+	public void loadCart(Model model, Principal p) throws Exception {
+			model.addAttribute("cart", cartService.getCart());
 	}
 
 }

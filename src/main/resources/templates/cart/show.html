@@ -2,8 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head}" />
-// TODO: ESTA MAL EL LINK
-<!--<link rel="stylesheet" type="text/css" href="/custom.css" />--> 
 
 <body>
 
@@ -27,12 +25,13 @@
 				<p th:text="${productCart.product.price}"></p>
 
 				<form th:action="@{/cart/updateQuantity}" method="post">
+
 					<input type="hidden" name="productId" th:value="${productCart.product.productId}" />
 					<span th:text="${productCart.id}"></span>
 					<div class="quantity-container">
-						<button type="submit" name="action" value="decrement" th:text:"#{cart.decrement}"></button>
+						<button type="submit" name="action" value="decrement">-</button>
 						<input type="number" name="quantity" th:value="${productCart.quantityInCart}" />
-						<button type="submit" name="action" value="increment" th:text:"#{cart.increment}"></button>
+						<button type="submit" name="action" value="increment">+</button>
 					</div>
 				</form>
 

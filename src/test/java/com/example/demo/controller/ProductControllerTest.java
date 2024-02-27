@@ -54,6 +54,7 @@ import com.exception.UpdateProductException;
 import com.service.ImageService;
 import com.service.ProductService;
 import com.service.RecommendationSystemService;
+import com.service.ShoppingCartService;
 import com.service.UserService;
 import com.validators.AddOfferValidator;
 
@@ -72,6 +73,9 @@ public class ProductControllerTest {
 
 	@Mock
 	private UserService userService;
+	
+	@Mock
+	private ShoppingCartService cartService;
 
 	@Mock
 	private AddOfferValidator addOfferValidator;
@@ -192,13 +196,12 @@ public class ProductControllerTest {
 		};
 
 		List<ProductEntity> recommendedByReview = Collections.singletonList(new ProductEntity());
-		List<ProductEntity> recommendedByCart = Collections.singletonList(new ProductEntity());
 		List<ProductEntity> popular = Collections.singletonList(new ProductEntity());
 		List<ProductEntity> topRated = Collections.singletonList(new ProductEntity());
 
 		when(userService.findByEmail(email)).thenReturn(user);
-		when(recommendedService.getProductsBySimilarReviewUsers(any())).thenReturn(recommendedByReview);
-		when(recommendedService.getProductsBySimilarUserCarts(any())).thenReturn(recommendedByCart);
+		when(recommendedService.getRecommendedProducts(any())).thenReturn(recommendedByReview);
+
 		when(recommendedService.getMostPopularProducts()).thenReturn(popular);
 		when(recommendedService.getTopRatedProducts()).thenReturn(topRated);
 
@@ -429,7 +432,7 @@ public class ProductControllerTest {
 	@Test
 	void testShowSearchPage() throws Exception {
 		mockMvc.perform(get("/product/search")).andExpect(status().isOk()).andExpect(view().name("product/search"))
-				.andExpect(model().size(0));
+				.andExpect(model().size(2));
 	}
 
 	@Test

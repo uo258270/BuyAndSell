@@ -23,6 +23,9 @@
 		<ul th:if="${not #lists.isEmpty(featuredList)}" th:each="featuredProduct : ${featuredList}"
 			class="product-list">
 			<li class="product-info">
+				<th:block th:if="${featuredProduct.product.stock <= 0}">
+							<div class="sold-out-bubble">Agotado</div>
+						</th:block>
 				<th:block th:if="${not #lists.isEmpty(featuredProduct.product.imagePaths)}">
 					<img th:src="@{/product/image/{name}(name=${featuredProduct.product.imagePaths[0]})}"
 						alt="Imagen del producto" class="product-image" />
@@ -57,14 +60,6 @@
 				</form>
 			</li>
 		</ul>
-
-
-
-		<div id="notification" class="notification">
-			<p></p>
-			<button class="btn-secondary">Undo</button>
-			<button id="close" class="notification__close">Cerrar</button>
-		</div>
 
 	</div>
 

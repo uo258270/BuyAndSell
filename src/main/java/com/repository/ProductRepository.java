@@ -16,8 +16,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 	ProductEntity findByName(String name);
 	
 	@Query("SELECT p FROM ProductEntity p " +
-		       "WHERE MONTH(p.productDate) = MONTH(CURRENT_DATE) " +
-		       "ORDER BY p.numOfViews DESC")
+	           "WHERE MONTH(p.productDate) = MONTH(CURRENT_DATE) " +
+	           "GROUP BY p " +
+	           "ORDER BY SUM(p.numOfViews) DESC")
 	List<ProductEntity> findMostPopularProductsThisMonthLimited(Pageable pageable);
 
 	

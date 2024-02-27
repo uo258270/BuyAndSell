@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import com.exception.NotFoundException;
 import com.exception.UnauthorizedException;
 import com.service.ProductService;
 import com.service.ReviewService;
+import com.service.ShoppingCartService;
 import com.service.UserService;
 
 @Controller
@@ -35,13 +37,18 @@ public class ReviewController {
 	@Autowired
 	private ProductService productService;
 	
+	@Autowired
+	private ShoppingCartService cartService;
+
 	
 
-	public ReviewController(ReviewService reviewService, UserService userService, ProductService productService) {
+	public ReviewController(ReviewService reviewService, UserService userService, ProductService productService,
+			ShoppingCartService cartService) {
 		super();
 		this.reviewService = reviewService;
 		this.userService = userService;
 		this.productService = productService;
+		this.cartService = cartService;
 	}
 
 
@@ -91,4 +98,19 @@ public class ReviewController {
 	    }
 	}
 
+	
+	@ModelAttribute
+	public void loadCurrentUser(Model model, Principal p) throws Exception {
+		if (p != null) {
+			model.addAttribute("currentUser", userService.findByEmail(p.getName()));
+		}
+		else {
+			model.addAttribute("currentUser", null);
+		}
+	}
+	
+	@ModelAttribute
+	public void loadCart(Model model, Principal p) throws Exception {
+			model.addAttribute("cart", cartService.getCart());
+	}
 }

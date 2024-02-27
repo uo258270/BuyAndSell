@@ -1,3 +1,55 @@
+.sold-out-bubble {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgb(227, 0, 0);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 1; 
+}
+.cart-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: red; 
+    color: white;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+.thanks-container {
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.thanks-title {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.thanks-success {
+    color: #555;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.thanks-return {
+    color: #555;
+    font-size: 16px;
+}
+
+
 .star-rating i {
 	font-size: 17px;
 	color: #FFD700;
@@ -728,7 +780,13 @@ form[name="editProductForm"] button[name="editProductButton"]:hover {
 	margin-top: 15px;
 	margin-bottom: 10px;
 }
-
+.purchased-container {
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 .view-detail-button,
 .remove-from-featured-button {
 	background-color: #4caf50;

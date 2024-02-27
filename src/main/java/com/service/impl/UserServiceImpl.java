@@ -46,14 +46,6 @@ public class UserServiceImpl implements UserService {
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 	}
-	
-	public String findLoggedInEmail() {
-		Object userDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();
-		if (userDetails instanceof UserDetails) {
-			return ((UserDetails) userDetails).getUsername();
-		}
-		return null;
-	}
 
 	
 	@Override

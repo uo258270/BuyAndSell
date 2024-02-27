@@ -49,6 +49,8 @@
 			<li>
 				<a href="/cart" style="font-size: 20px;">
 					<span class="glyphicon glyphicon-shopping-cart"></span>
+					 <span th:if="${not #lists.isEmpty(cart)}"
+                            class="cart-badge"></span>
 				</a>
 			</li>
 			

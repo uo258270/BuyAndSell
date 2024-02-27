@@ -6,6 +6,7 @@ import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
 import com.exception.InvalidStockException;
 import com.exception.NotEnoughMoney;
+import com.exception.NullDataException;
 import com.exception.ProductAlreadySoldException;
 
 public interface ShoppingCartService {
@@ -21,7 +22,7 @@ public interface ShoppingCartService {
 
 	ShoppingCartEntity incrementProductQuantity(Long productId) throws InvalidStockException;
 
-	ShoppingCartEntity decrementProductQuantity(Long productId);
+	ShoppingCartEntity decrementProductQuantity(Long productId) throws NullDataException;
 
 	
 	

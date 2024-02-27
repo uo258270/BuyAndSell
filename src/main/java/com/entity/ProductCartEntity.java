@@ -3,6 +3,7 @@ package com.entity;
 import java.util.Objects;
 
 import com.exception.InvalidStockException;
+import com.exception.NullDataException;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -76,7 +77,7 @@ public class ProductCartEntity {
 	    }
 	}
 
-	public void decQuantity() {
+	public void decQuantity() throws NullDataException {
 		if ((quantityInCart - 1) > 0) {
 			quantityInCart -= 1;
 		} else {

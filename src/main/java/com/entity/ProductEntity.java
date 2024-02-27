@@ -75,8 +75,8 @@ public class ProductEntity implements Serializable {
 	@JoinColumn(name = "userId")
 	private UserEntity user;
 
-	@ManyToMany(fetch = FetchType.LAZY)
-	private List<ShoppingCartEntity> carts;
+	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+	private List<ProductCartEntity> productCarts;
 
 	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<ReviewEntity> reviews;
@@ -116,13 +116,21 @@ public class ProductEntity implements Serializable {
 		this.reviews = reviews;
 	}
 
-	public List<ShoppingCartEntity> getCarts() {
-		return carts;
+
+
+
+
+	public List<ProductCartEntity> getProductCarts() {
+		return productCarts;
 	}
 
-	public void setCarts(List<ShoppingCartEntity> carts) {
-		this.carts = carts;
+
+
+	public void setProductCarts(List<ProductCartEntity> productCarts) {
+		this.productCarts = productCarts;
 	}
+
+
 
 	public Long getProductId() {
 		return productId;
@@ -264,7 +272,15 @@ public class ProductEntity implements Serializable {
 	public void setImagePaths(List<String> imagePaths) {
 		this.imagePaths = imagePaths;
 	}
+	
+	public boolean compradoPor(String username) {
+		return productCarts.stream().anyMatch(c -> c.getCart().getUser().getEmail().equals(username));		
+	}
 
+	
+	public void addImagePath(String imagePath) {
+		imagePaths.add(imagePath);
+	}
 	
 	
 	

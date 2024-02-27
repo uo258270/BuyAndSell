@@ -1,17 +1,9 @@
 package com.example.demo.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.repository.ProductCartRepository;
-import com.repository.ProductRepository;
-import com.repository.ShoppingCartRepository;
-import com.repository.UserRepository;
-import com.service.impl.RecommendationSystemServiceImpl;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,11 +12,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.entity.ProductCartEntity;
 import com.entity.ProductEntity;
@@ -33,6 +28,11 @@ import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
 import com.entity.enums.RoleEnum;
 import com.exception.NullDataException;
+import com.repository.ProductCartRepository;
+import com.repository.ProductRepository;
+import com.repository.ShoppingCartRepository;
+import com.repository.UserRepository;
+import com.service.impl.RecommendationSystemServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationSystemServiceImplTest {
@@ -172,7 +172,7 @@ public class RecommendationSystemServiceImplTest {
 		List<ShoppingCartEntity> userPurchases = Arrays.asList(
 				createShoppingCart(1L, Arrays.asList(createProductCart(4L))),
 				createShoppingCart(2L, Arrays.asList(createProductCart(5L))));
-			List<UserEntity> similarUsers = Arrays
+		List<UserEntity> similarUsers = Arrays
 				.asList(createUser(2L, Arrays.asList(createShoppingCart(3L, Arrays.asList(createProductCart(6L))))));
 
 		List<ProductEntity> mockedProducts = createMockedProductList();
@@ -192,19 +192,17 @@ public class RecommendationSystemServiceImplTest {
 
 	@Test
 	void calculatePearsonCorrelation_EmptyRatings() {
-	 
-	    UserEntity user1 = new UserEntity();
-	    List<ReviewEntity> re = new ArrayList<>();
+
+		UserEntity user1 = new UserEntity();
+		List<ReviewEntity> re = new ArrayList<>();
 		user1.setReviews(re);
-	    UserEntity user2 = new UserEntity();
-	    user2.setReviews(re);
+		UserEntity user2 = new UserEntity();
+		user2.setReviews(re);
 
-	    
-	    double correlation = recService.calculatePearsonCorrelation(user1, user2);
+		double correlation = recService.calculatePearsonCorrelation(user1, user2);
 
-	    Assertions.assertEquals(0.0, correlation);
+		Assertions.assertEquals(0.0, correlation);
 	}
-
 
 	@Test
 	void calculatePearsonCorrelation_ReturnsCorrelation() {
@@ -230,7 +228,6 @@ public class RecommendationSystemServiceImplTest {
 			review.setRatingId((long) (i + 1));
 			review.setRating(ratings[i]);
 
-			
 			ProductEntity product = new ProductEntity();
 			product.setProductId((long) (i + 1));
 			review.setProduct(product);
@@ -246,22 +243,22 @@ public class RecommendationSystemServiceImplTest {
 	@Test
 	void getProductsBySimilarReviewUsers_MaxProds() {
 		Long userId = 1L;
-	    UserEntity user = createMockedUserWithReviews(userId, 4, 5, 3, 2, 1, 4, 5, 2, 3, 1, 5, 4, 3, 2, 1);
+		UserEntity user = createMockedUserWithReviews(userId, 4, 5, 3, 2, 1, 4, 5, 2, 3, 1, 5, 4, 3, 2, 1);
 
-	   
-	    UserEntity otherUser1 = createMockedUserWithReviews(2L, 3, 4, 5, 1, 5, 4, 3, 2, 1);
-	    UserEntity otherUser2 = createMockedUserWithReviews(3L, 5, 4, 3, 2, 1, 4, 5, 2, 3);
-	    UserEntity otherUser3 = createMockedUserWithReviews(4L, 1, 2, 3, 4, 5, 4, 3, 2, 1);
-	    UserEntity otherUser4 = createMockedUserWithReviews(5L, 2, 3, 4, 5, 1, 4, 5, 2, 3);
+		UserEntity otherUser1 = createMockedUserWithReviews(2L, 3, 4, 5, 1, 5, 4, 3, 2, 1);
+		UserEntity otherUser2 = createMockedUserWithReviews(3L, 5, 4, 3, 2, 1, 4, 5, 2, 3);
+		UserEntity otherUser3 = createMockedUserWithReviews(4L, 1, 2, 3, 4, 5, 4, 3, 2, 1);
+		UserEntity otherUser4 = createMockedUserWithReviews(5L, 2, 3, 4, 5, 1, 4, 5, 2, 3);
 
-	    Mockito.when(userRepository.findByUserId(userId)).thenReturn(user);
-	    Mockito.when(userRepository.findAll()).thenReturn(Arrays.asList(otherUser1, otherUser2, otherUser3, otherUser4));
+		Mockito.when(userRepository.findByUserId(userId)).thenReturn(user);
+		Mockito.when(userRepository.findAll())
+				.thenReturn(Arrays.asList(otherUser1, otherUser2, otherUser3, otherUser4));
 
-	    List<ProductEntity> result = recService.getProductsBySimilarReviewUsers(userId);
+		List<ProductEntity> result = recService.getProductsBySimilarReviewUsers(userId);
 
-	  
-	    Assertions.assertEquals(5, result.size());
+		Assertions.assertEquals(5, result.size());
 	}
+
 	private UserEntity createUser(Long userId, List<ShoppingCartEntity> carts) {
 		UserEntity user = new UserEntity();
 		user.setUserId(userId);
@@ -359,4 +356,68 @@ public class RecommendationSystemServiceImplTest {
 		productCart.setProduct(product);
 		return productCart;
 	}
+
+	@Test
+	void getRecommendedProducts_OK() {
+	
+		Long userId = 1L;
+		UserEntity user = createMockedUserWithReviews(userId, 4, 5, 3, 2, 1, 4, 5, 2, 3, 1, 5, 4, 3, 2, 1);
+
+		List<ShoppingCartEntity> userPurchases = Arrays.asList(
+	            createShoppingCart(1L, Arrays.asList(createProductCart(4L))),
+	            createShoppingCart(2L, Arrays.asList(createProductCart(5L))));
+
+	    List<Long> productIds = Arrays.asList(4L, 5L, 6L, 7L, 8L); // IDs de productos similares al usuario principal
+	    List<Integer> ratings = Arrays.asList(3, 4, 5, 1, 5, 4, 3, 2, 1); // Calificaciones similares
+	    List<UserEntity> similarUsers = new ArrayList<>();
+	    similarUsers.add(user); // Agrega al usuario principal
+	    similarUsers.add(createSimilarUserWithReviewsAndPurchases(2L, userId, ratings, productIds));
+	    similarUsers.add(createSimilarUserWithReviewsAndPurchases(3L, userId, ratings, productIds));
+	    similarUsers.add(createSimilarUserWithReviewsAndPurchases(4L, userId, ratings, productIds));
+	    similarUsers.add(createSimilarUserWithReviewsAndPurchases(5L, userId, ratings, productIds));
+
+	    Mockito.when(userRepository.findByUserId(userId)).thenReturn(user);
+	    Mockito.when(userRepository.findAll()).thenReturn(similarUsers);
+
+		
+		List<ProductEntity> mockedProducts = createMockedProductList();
+
+		mockedProducts.get(0).getUser().setUserId(99L);
+
+		Mockito.when(userRepository.getShoppingCartsByUserId(any())).thenReturn(userPurchases);
+		List<Long> ids = Arrays.asList(1L, 2L, 3L, 4L);
+		Mockito.when(productCartRepository.findProductIdsByShoppingCarts(any())).thenReturn(ids);
+		Mockito.when(shoRepo.countByUserIdAndProductId(any(), any())).thenReturn(0L);
+		Mockito.when(productRepository.findById(any())).thenReturn(Optional.of(mockedProducts.get(0)));
+
+		
+		List<ProductEntity> result = recService.getRecommendedProducts(userId);
+
+		assertNotNull(result);
+
+		assertEquals(1, result.size());
+		
+	}
+
+	
+	private UserEntity createSimilarUserWithReviewsAndPurchases(Long userId, Long mainUserId, List<Integer> ratings, List<Long> productIds) {
+	    UserEntity user = createMockedUserWithReviews(userId, ratings.size());
+	    
+	    List<ShoppingCartEntity> purchases = new ArrayList<>();
+	    int numberOfPurchases = Math.min(ratings.size(), productIds.size()); 
+	    for (int i = 0; i < numberOfPurchases; i++) {
+	        Long productId = productIds.get(i);
+	        Long cartId = mainUserId * 1000 + productId; 
+	        
+	         ShoppingCartEntity shoppingCart = createShoppingCart(cartId, Arrays.asList(createProductCart(productId)));
+	        purchases.add(shoppingCart);
+	    }
+	    user.setCarts(purchases);
+	    
+	    return user;
+	}
+
+
+
+
 }

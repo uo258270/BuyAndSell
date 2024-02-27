@@ -38,6 +38,7 @@ import com.controller.UserController;
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.service.ProductService;
+import com.service.ShoppingCartService;
 import com.service.UserService;
 import com.validators.SignUpFormValidator;
 
@@ -53,6 +54,9 @@ public class UserControllerTest {
 
 	@Mock
 	private UserService userService;
+	
+	@Mock
+	private ShoppingCartService cartService;
 
 	@Mock
 	private SignUpFormValidator signUpFormValidator;

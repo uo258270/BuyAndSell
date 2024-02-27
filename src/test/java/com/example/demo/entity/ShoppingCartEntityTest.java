@@ -1,6 +1,9 @@
 package com.example.demo.entity;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +21,7 @@ import com.entity.ProductEntity;
 import com.entity.ShoppingCartEntity;
 import com.entity.UserEntity;
 import com.exception.InvalidStockException;
+import com.exception.NullDataException;
 import com.exception.ProductAlreadySoldException;
 import com.repository.ProductRepository;
 
@@ -136,7 +140,7 @@ public class ShoppingCartEntityTest {
         }
 
     @Test
-    void shoppingCartDecQuantity_ProductAlreadyInCart_DecreasesQuantity() {
+    void shoppingCartDecQuantity_ProductAlreadyInCart_DecreasesQuantity() throws NullDataException {
         ProductEntity product1 = new ProductEntity();
         product1.setProductId(1L);
         product1.setStock(5);
@@ -166,7 +170,7 @@ public class ShoppingCartEntityTest {
     }
 
     @Test
-    void shoppingCartRemoveProductCart_RemovesFromCart() {
+    void shoppingCartRemoveProductCart_RemovesFromCart() throws NullDataException {
         ProductEntity product1 = new ProductEntity();
         product1.setProductId(1L);
         product1.setStock(5);
@@ -203,4 +207,60 @@ public class ShoppingCartEntityTest {
 
         Assertions.assertTrue(shoppingCart.getProductCartEntities().isEmpty());
     }
+    
+    @Test
+    void buy_StockMayor0() throws ProductAlreadySoldException {
+       
+        UserEntity user = new UserEntity();
+        user.setMoney(15.0);
+        List<ShoppingCartEntity> carts = new ArrayList<>();
+        user.setCarts( carts);
+        ProductRepository productRepository = mock(ProductRepository.class);
+        
+       
+        ProductEntity product = new ProductEntity();
+        product.setStock(5);
+        product.setPrice(10.0);
+        
+        
+        ProductCartEntity cartItem = new ProductCartEntity();
+        cartItem.setProduct(product);
+      
+        List<ProductCartEntity> productCartEntities = new ArrayList<>();
+        productCartEntities.add(cartItem);
+       
+        shoppingCart.setProductCartEntities(productCartEntities);
+        
+        
+        List<ProductCartEntity> result = shoppingCart.buy(user, productRepository);
+       
+        assertEquals(productCartEntities, result);
+    }
+    
+    @Test
+    void testGettersAndSetters() {
+        Long expectedId = 123L;
+        UserEntity user = mock(UserEntity.class);
+        LocalDate dateCreated = LocalDate.of(2022, 2, 28);
+        
+      
+        shoppingCart.setId(expectedId);
+        shoppingCart.setUser(user);
+        shoppingCart.setDateCreated(dateCreated);
+        
+        assertEquals(expectedId, shoppingCart.getId());
+        assertEquals(user, shoppingCart.getUser());
+        assertEquals(dateCreated, shoppingCart.getDateCreated());
+    }
+    
+    @Test
+    void testIncQuantity_ProductCartEntitiesIsNull() throws InvalidStockException {
+       
+       ProductEntity product = mock(ProductEntity.class);
+        Assertions.assertDoesNotThrow(() -> shoppingCart.incQuantity(product));
+        assertEquals(1, shoppingCart.getProductCartEntities().size());
+    }
+    
+   
+  
 }

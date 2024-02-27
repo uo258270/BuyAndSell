@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -62,11 +63,26 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 		}
 
 	}
+	
+	//aqui para sacar los "recomendados para ti" basado en reseñas y en compras
+	@Override
+	public List<ProductEntity> getRecommendedProducts(Long userId){
+		List<ProductEntity> byRevs = getProductsBySimilarReviewUsers(userId);
+		List<ProductEntity> byShops = getProductsBySimilarUserCarts(userId);
+		
+		List<ProductEntity> combinedList = new ArrayList<>();
+	    combinedList.addAll(byRevs);
+	    combinedList.addAll(byShops);
+	    
+	    List<ProductEntity> distinctRecommendedProducts = combinedList.stream().distinct().collect(Collectors.toList());
+	    
+	    return distinctRecommendedProducts;
+	}
 
 	// ------------------------------------------------------------------------
 	// filtrado colaborativo basado en la correlacion de pearson.
 	// recomendados para el usuario basados en gustos en comun con otros usuarios
-	@Override
+	
 	public List<ProductEntity> getProductsBySimilarReviewUsers(Long userId) {
 		UserEntity user = userRepository.findByUserId(userId);
 
@@ -196,13 +212,13 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 
 //--------------------------------------------------------------------------------
 	// filtrado colaborativo basados en las compras de otros usuarios
-	@Override
 	public List<ProductEntity> getProductsBySimilarUserCarts(Long userId) {
 	    List<ShoppingCartEntity> userPurchases = userRepository.getShoppingCartsByUserId(userId);
 	    List<UserEntity> similarUsers = userRepository.findAll();
 
 	    // Calcular porcentaje de compras similares
-	    double similarityThreshold = 0.5;
+	    //TODO pruebas
+	    double similarityThreshold = 0.3;
 
 	    List<UserEntity> similarUsersList = new ArrayList<>();
 	    for (UserEntity user : similarUsers) {
@@ -225,18 +241,19 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 	    }
 
 	    // Filtrar productos que el usuario ya haya comprado
-	    List<ProductEntity> recommendedProducts = new ArrayList<>();
+	    Set<ProductEntity> recommendedProductsSet = new HashSet<>();
 	    for (Long productId : similarUserPurchases) {
 	        boolean alreadyPurchased = isProductAlreadyPurchased(userId, userPurchases, productId);
 
 	        // mirar que no pertenezca al usuario
 	        ProductEntity product = productRepository.findById(productId).orElse(null);
 	        if (!alreadyPurchased && product != null && !product.getUser().getUserId().equals(userId)) {
-	            recommendedProducts.add(product);
+	        	recommendedProductsSet.add(product);
 	        }
 	    }
+	    
 
-	    return recommendedProducts;
+	    return new ArrayList<>(recommendedProductsSet);
 	}
 
 	private boolean isProductAlreadyPurchased(Long userId, List<ShoppingCartEntity> userPurchases, Long productId) {

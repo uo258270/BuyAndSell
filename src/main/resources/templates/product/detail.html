@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head}" />
 
@@ -68,11 +68,14 @@
 					</li>
 				</ul>
 				<div th:unless="${product.reviews}" class="no-reviews">
-					<p>No hay reseñas para este producto.</p>
+					<p>No hay reseñas para este producto</p>
 				</div>
 			</div>
 
-			<div th:if="${product.sold}" class="add-review-block">
+
+			<div th:if="${product.compradoPor(#authentication.name) }"
+				class="add-review-block">
+
 				<h3>Añadir una reseña</h3>
 				<form th:action="@{/reviews/add}" method="post" th:object="${review}" id="addReviewForm">
 					<input type="hidden" name="productId" th:value="${product.productId}" />
@@ -98,7 +101,6 @@
 					<button type="submit" class="btn btn-primary">Añadir Reseña</button>
 				</form>
 			</div>
-
 
 			<script th:inline="javascript">
 				function fillStars(rating) {
@@ -135,7 +137,7 @@
 				<form th:action="@{/featured/add}" method="post">
 					<input type="hidden" name="productId" th:value="${product.productId}" />
 					<button type="submit" class="add-to-favorites-details">
-						 <i class="fas fa-heart" style="font-size: 24px; color: red;"></i>
+						<i class="fas fa-heart" style="font-size: 24px; color: red;"></i>
 					</button>
 				</form>
 
@@ -144,13 +146,16 @@
 					<input type="number" name="quantity" value="1" class="quantity-input" />
 					<button type="submit" class="add-to-cart">Añadir al carrito</button>
 				</form>
+
+
 				<th:block
-					th:if="${#authorization.expression('isAuthenticated() and principal != null and principal.username != #vars.product?.user?.username')}">
+					th:if="${#authorization.expression('isAuthenticated() and principal != null and principal.username == #vars.product?.user?.username')}">
 					<form th:action="@{/product/edit/{id}(id=${product.productId})}" method="get"
 						class="edit-product-form">
 						<button type="submit" class="edit-product">Editar</button>
 					</form>
 				</th:block>
+
 			</div>
 
 			<a th:href="@{/product/allRecommendedProducts}" class="back-button">Volver a la lista de productos</a>

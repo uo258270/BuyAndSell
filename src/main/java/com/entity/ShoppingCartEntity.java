@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.exception.InvalidStockException;
+import com.exception.NullDataException;
 import com.exception.ProductAlreadySoldException;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.repository.ProductRepository;
@@ -46,12 +47,16 @@ public class ShoppingCartEntity implements Serializable {
 	private UserEntity user;
 
 	@OneToMany(mappedBy = "cart", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST}) // cascada
-	private List<ProductCartEntity> productCartEntities = new ArrayList<>();
+	private List<ProductCartEntity> productCartEntities;
 
+	public ShoppingCartEntity() {
+	    this.productCartEntities = new ArrayList<>();
+	}
+	
+	
 	public List<ProductCartEntity> getProductCartEntities() {
-	return Collections.unmodifiableList(productCartEntities);
-		//return productCartEntities;
-		
+	  
+	    return Collections.unmodifiableList(productCartEntities);
 	}
 	
 	
@@ -70,9 +75,6 @@ public class ShoppingCartEntity implements Serializable {
 		this.id = id;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
 
 	public UserEntity getUser() {
 		return user;
@@ -143,70 +145,66 @@ public class ShoppingCartEntity implements Serializable {
 		ShoppingCartEntity other = (ShoppingCartEntity) obj;
 		return Objects.equals(id, other.id);
 	}
-
 	public void incQuantity(ProductEntity prod) throws InvalidStockException {
-		for (ProductCartEntity productInCart : productCartEntities) {
-			if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
-				productInCart.incQuantity(prod);
-				return;
-			}
-		}
-		ProductCartEntity newProductCart = new ProductCartEntity(prod, this);
-		addProductCart(newProductCart);
+	    for (ProductCartEntity productInCart : productCartEntities) {
+	        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+	            productInCart.incQuantity(prod);
+	            return;
+	        }
+	    }
+	    ProductCartEntity newProductCart = new ProductCartEntity(prod, this);
+	    addProductCart(newProductCart);
 	}
 
-	public void decQuantity(ProductEntity prod) {
-		ProductCartEntity toDelete = null;
+	public void decQuantity(ProductEntity prod) throws NullDataException {
+	    ProductCartEntity toDelete = null;
+	    Iterator<ProductCartEntity> iterator = productCartEntities.iterator();
+	    
+	    while (iterator.hasNext()) {
+	        ProductCartEntity productInCart = iterator.next();
+	        System.out.println("Current product in cart: " + productInCart.getProduct().getProductId());
 
-		Iterator<ProductCartEntity> iterator = productCartEntities.iterator();
-		while (iterator.hasNext()) {
-			ProductCartEntity productInCart = iterator.next();
-			System.out.println("Current product in cart: " + productInCart.getProduct().getProductId());
+	        if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
+	            System.out.println("Found matching product: " + prod.getProductId());
 
-			if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
-				System.out.println("Found matching product: " + prod.getProductId());
+	            int currentQuantity = productInCart.getQuantityInCart();
 
-				if (productInCart.getProduct().getProductId().equals(prod.getProductId())) {
-					int currentQuantity = productInCart.getQuantityInCart();
+	            if (currentQuantity > 0) {
+	                productInCart.decQuantity();
 
-					if (currentQuantity > 0) {
-						productInCart.decQuantity();
+	                if (productInCart.getQuantityInCart() == 0) {
+	                    toDelete = productInCart;
+	                }
+	            }
+	        }
+	    }
 
-						if (productInCart.getQuantityInCart() == 0) {
-							toDelete = productInCart;
-						}
-
-					}
-				}
-			}
-
-			if (toDelete != null) {
-				removeProductCart(toDelete);
-			}
-		}
-
+	    if (toDelete != null) {
+	        removeProductCart(toDelete);
+	    }
 	}
 
 	public void addProductCart(ProductCartEntity productCartEntity) {
-		this.productCartEntities.add(productCartEntity);
+	    if (productCartEntities == null) {
+	        productCartEntities = new ArrayList<>();
+	    }
+	    this.productCartEntities.add(productCartEntity);
 	}
 
-	public void removeProductCart(ProductCartEntity productCartEntity) {
-		List<ProductCartEntity> mutableList = new ArrayList<>(productCartEntities);
-	    
-	    mutableList.remove(productCartEntity);
 
-	    productCartEntities = mutableList;
+	public void removeProductCart(ProductCartEntity productCartEntity) throws NullDataException {
+	    if (productCartEntities != null) {
+	        List<ProductCartEntity> mutableList = new ArrayList<>(productCartEntities);
+	        
+	        mutableList.remove(productCartEntity);
+
+	        productCartEntities = mutableList;
+	    } else {
+	        throw new NullDataException("productCartEntities is null");
+	    }
 	}
 
-//	public void clear() {
-//		Iterator<ProductCartEntity> iterator = productCartEntities.iterator();
-//		while (iterator.hasNext()) {
-//			ProductCartEntity productCartEntity = iterator.next();
-//			iterator.remove();
-//		}
-//
-//	}
+
 	
 	public void clear() {
 	    productCartEntities = new ArrayList<>();

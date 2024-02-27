@@ -38,6 +38,7 @@ import com.exception.NotFoundException;
 import com.exception.UnauthorizedException;
 import com.service.ProductService;
 import com.service.ReviewService;
+import com.service.ShoppingCartService;
 import com.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,6 +54,9 @@ public class ReviewControllerTest {
 
 	@Mock
 	private UserService userService;
+	
+	@Mock
+	private ShoppingCartService cartService;
 
 	@InjectMocks
 	private ReviewController reviewController;

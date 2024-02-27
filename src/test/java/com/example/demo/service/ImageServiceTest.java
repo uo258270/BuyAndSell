@@ -1,11 +1,14 @@
 package com.example.demo.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,4 +78,28 @@ public class ImageServiceTest {
              verify(imageServiceSpy).deleteImageFromFileSystem(imageName);
          }
     }
+    
+    
+
+    @Test
+    void testDeleteImageFromFileSystem_Success() throws IOException {
+       
+        String imageName = "image1.jpg";
+        Files.createFile(Paths.get(uploadPath, imageName)); 
+        imageService.deleteImageFromFileSystem(imageName);
+
+       
+        assertFalse(Files.exists(Paths.get(uploadPath, imageName)));
+    }
+
+    @Test
+    void testDeleteImageFromFileSystem_FileNotFound() {
+      
+        String imageName = "non_existent_image.jpg";
+
+        assertThrows(IOException.class, () -> imageService.deleteImageFromFileSystem(imageName));
+    }
+
+   
+
 }
