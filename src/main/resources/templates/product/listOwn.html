@@ -71,7 +71,8 @@
 
 				<form th:action="@{/product/detail}" method="get">
 					<input type="hidden" name="productId" th:value="${soldProduct.productId}" />
-					<button type="submit" class="view-detail-button" th:text="#{list-own.view_details}">Detalles</button>
+					<a th:href="@{/product/detail/{productId}(productId=${product.productId})}"
+								class="view-detail">Detalles</a>
 				</form>
 			</li>
 		</ul>

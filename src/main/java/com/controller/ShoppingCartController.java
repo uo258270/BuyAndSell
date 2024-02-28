@@ -15,8 +15,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.entity.ShoppingCartEntity;
 import com.exception.InvalidStockException;
 import com.exception.NotEnoughMoney;
-import com.exception.NotFoundException;
 import com.exception.ProductAlreadySoldException;
+import com.service.FeaturedProductService;
 import com.service.ProductService;
 import com.service.ShoppingCartService;
 import com.service.UserService;
@@ -33,13 +33,17 @@ public class ShoppingCartController {
 
 	@Autowired
 	ProductService productService;
+	
+	@Autowired
+	FeaturedProductService featuredService;
 
 	public ShoppingCartController(ShoppingCartService shoppingCartService, UserService userService,
-			ProductService productService) {
+			ProductService productService, FeaturedProductService featuredService) {
 		super();
 		this.shoppingCartService = shoppingCartService;
 		this.userService = userService;
 		this.productService = productService;
+		this.featuredService  = featuredService;
 	}
 
 	@PostMapping("/addProduct")
@@ -109,9 +113,12 @@ public class ShoppingCartController {
 	public void loadCurrentUser(Model model, Principal p) throws Exception {
 		if (p != null) {
 			model.addAttribute("currentUser", userService.findByEmail(p.getName()));
+			model.addAttribute("favoriteProducts",  featuredService.findByUser(userService.findByEmail(p.getName())));
 		} else {
 			model.addAttribute("currentUser", null);
+			model.addAttribute("favoriteProducts", null);
 		}
 	}
+	
 
 }

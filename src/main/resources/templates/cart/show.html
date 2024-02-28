@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head}" />
-
+<link rel="stylesheet" href="/css/cart.css" />
 <body>
 
 	<nav th:replace="~{fragments/nav}"></nav>
@@ -69,16 +69,38 @@
 			<p th:text="#{cart.emptyCartMessage}"></p>
 		</div>
 
+		
 		<div th:if="${not #lists.isEmpty(favoriteProducts)}">
-			<h2 th:text="#{favorite.title}">Tus Productos Favoritos</h2>
-			<div class="favorite-products">
-				<div th:each="favorite : ${favoriteProducts}" class="favorite-item">
-					<img th:src="${favorite.imageUrl}" alt="Product Image" class="product-image-small" />
-					<div class="product-details">
-						<h3 th:text="${favorite.name}"></h3>
-					</div>
-				</div>
-			</div>
+		<p class="list-title" th:text="#{favorite.title}">Mis favoritos</p>
+				<ul class="horizontal-list">
+					<li th:each="fav : ${favoriteProducts}" class="product-container">
+						<th:block th:if="${fav.product.stock <= 0}">
+							<div class="sold-out-bubble">Agotado</div>
+						</th:block>
+						<th:block th:if="${not #lists.isEmpty(fav.product.imagePaths)}">
+							<img th:src="@{/product/image/{name}(name=${fav.product.imagePaths[0]})}"
+								alt="Imagen del producto" class="product-image" />
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(fav.product.imagePaths)}">
+							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+						</th:block>
+						<div class="product-details">
+							<p th:text="${fav.product.name}">Producto:</p>
+							<p th:text="${fav.product.detail}">Detalle:</p>
+							<p th:text="${fav.product.price}">Precio:</p>
+						</div>
+					
+						<div class="add-to-cart-section">
+							<form th:action="@{/cart/addProduct}" method="post">
+								<input type="hidden" name="productId" th:value="${fav.product.productId}" />
+								<input type="number" name="quantity" value="1" />
+								<button type="submit" class="add-to-cart">
+									<span class="glyphicon glyphicon-shopping-cart"></span>
+								</button>
+							</form>
+						</div>
+					</li>
+				</ul>
 		</div>
 
 	</div>

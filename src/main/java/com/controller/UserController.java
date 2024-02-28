@@ -111,6 +111,7 @@ public class UserController {
 		return "user/list";
 	}
 
+	//TODO echar un vistazo a cuando el usuario no tiene dinero, que salga un error en pantalla
 	@GetMapping("/profile")
 	public String profile(Model model, Principal principal) throws Exception {
 		String email = principal.getName();

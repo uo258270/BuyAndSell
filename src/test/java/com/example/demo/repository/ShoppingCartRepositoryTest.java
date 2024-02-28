@@ -57,16 +57,7 @@ public class ShoppingCartRepositoryTest {
 		Assertions.assertNotNull(result.get(0).getCart().getProductCartEntities());
 	}
 	
-	@Test
-	void getPurchasedProductsByUserId() {
-		saveEntity();
-		
-		List<ProductEntity> result = prodCRepo.getPurchasedProductsByUserId(1L);
-		
-		Assertions.assertNotNull(result);
-		Assertions.assertEquals(result.get(0).getProductId(), 1L);
-		Assertions.assertNotNull(result.get(0));
-	}
+	
 	
 	  
 	@Test

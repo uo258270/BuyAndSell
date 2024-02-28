@@ -14,22 +14,22 @@
             <form th:action="@{'/product/edit/' + ${product.productId}}" method="post" th:object="${product}"
                 enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="name" th:text="#{product.title}">Título del producto:</label>
+                    <label th:text="#{product.name}">Título del producto:</label>
                     <input type="text" id="name" th:field="*{name}" class="form-control" />
                 </div>
 
                 <div class="form-group">
-                    <label for="detail" th:text="#{product.details}">Detalles:</label>
+                    <label th:text="#{product.details}">Detalles:</label>
                     <input type="text" id="detail" th:field="*{detail}" class="form-control" />
                 </div>
 
                 <div class="form-group">
-                    <label for="price" th:text="#{product.price}">Precio:</label>
+                    <label th:text="#{product.price}">Precio:</label>
                     <input type="text" id="price" th:field="*{price}" class="form-control" />
                 </div>
 
                 <div class="form-group">
-                    <label for="stock" th:text="#{product.stock}">Stock:</label>
+                    <label th:text="#{product.stock}">Stock:</label>
                     <input type="text" id="stock" th:field="*{stock}" class="form-control" />
                 </div>
 
@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="newImages" th:text="#{product.add_new_images}">Añadir nuevas imágenes:</label>
+                    <label th:text="#{product.add_new_images}">Añadir nuevas imágenes:</label>
                     <input type="file" id="newImages" name="images" accept="image/*" multiple
                         class="form-control-file" />
                 </div>
