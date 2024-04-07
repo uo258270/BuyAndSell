@@ -3,6 +3,7 @@
 
 <head th:replace="~{fragments/head}" />
 
+
 <body>
 	<nav th:replace="~{fragments/nav}"></nav>
 	<div class="container product-details-container-detail">
@@ -159,8 +160,47 @@
 			</div>
 
 			<a th:href="@{/product/allRecommendedProducts}" class="back-button">Volver a la lista de productos</a>
-		</div>
+			
+				<h2 class="list-title">Productos similares</h2>
+				<ul class="horizontal-list-similarprod">
+					<li th:each="product : ${similarProducts}" class="product-container-simi">
+						<th:block th:if="${product.stock <= 0}">
+							<div class="sold-out-bubble">Agotado</div>
+						</th:block>
+						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
+								alt="Imagen del producto" class="product-image" />
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
+							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+						</th:block>
+						<div class="product-details-simi">
+							<p th:text="${product.name}">Producto:</p>
+							<p th:text="${product.detail}">Detalle:</p>
+							<p th:text="${product.price}">Precio:</p>
+						</div>
+						<div class="product-actions-simi">
+							<a th:href="@{/product/detail/{productId}(productId=${product.productId})}"
+								class="view-detail">Detalles</a>
+							<form th:action="@{/featured/add}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+							</form>
+						</div>
+						<div class="add-to-cart-section">
+							<form th:action="@{/cart/addProduct}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<input type="number" name="quantity" value="1" />
+								<button type="submit" class="add-to-cart">
+									<span class="glyphicon glyphicon-shopping-cart"></span>
+								</button>
+							</form>
+						</div>
+					</li>
+				</ul>
 
+		</div>
+</div>
 		<footer th:replace="~{fragments/footer}" />
 </body>
 

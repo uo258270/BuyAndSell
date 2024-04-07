@@ -31,5 +31,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>{
 	List<ShoppingCartEntity> getShoppingCartsByUserId(@Param("userId") Long userId);
 
 	
+
+	
 	
 }

@@ -138,6 +138,7 @@ public class ProductsServiceImpl implements ProductService {
 		product.setCategory(editedProduct.getCategory());
 		product.setUpdateDate(new Date());
 		product.setImages(editedProduct.getImages());
+		product.setTags(editedProduct.getTags());
 		ProductEntity updatedProduct = productRepository.save(product);
 		if (updatedProduct != null) {
 			return true;

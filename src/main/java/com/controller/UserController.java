@@ -1,15 +1,18 @@
 package com.controller;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,11 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.entity.ProductEntity;
 import com.entity.UserEntity;
 import com.entity.enums.RoleEnum;
+import com.service.PayPalService;
 import com.service.ProductService;
 import com.service.ShoppingCartService;
 import com.service.UserService;
 import com.validators.SignUpFormValidator;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -41,17 +46,32 @@ public class UserController {
 
 	@Autowired
 	private ProductService productService;
+	
+	@Autowired
+	private PayPalService payPalService;
 
+	@Value("${paypal.client-id}")
+	private String clientId;
+	
+	@Value("${paypal.client-secret}")
+	private String clientSecret;
+	
 	
 
 	public UserController(HttpSession httpSession, UserService usersService, SignUpFormValidator signUpFormValidator,
-			ShoppingCartService cartService, ProductService productService) {
+			ShoppingCartService cartService, ProductService productService, PayPalService payPalService) {
 		super();
 		this.httpSession = httpSession;
 		this.usersService = usersService;
 		this.signUpFormValidator = signUpFormValidator;
 		this.cartService = cartService;
 		this.productService = productService;
+		this.payPalService = payPalService;
+	}
+
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String home(Model model) {
+		return "redirect:/product/allRecommendedProducts";
 	}
 
 	@RequestMapping(value = "/signup", method = RequestMethod.GET)
@@ -86,7 +106,8 @@ public class UserController {
 
 			List<ProductEntity> productList = productService.getProductsExceptOwn(user.getUserId());
 			model.addAttribute("productList", productList);
-			return "user/home";
+			//return "user/home";
+			return "redirect:/product/allRecommendedProducts";
 		} else {
 			return "redirect:/login";
 		}
@@ -120,9 +141,36 @@ public class UserController {
 		return "user/profile";
 	}
 
+	 @PostMapping("/paypal/payment")
+	    public String makePayment(@RequestParam("amount") double amount, Principal principal, HttpServletRequest request) {
+	       
+	        try {
+	            Map<String, Object> order = new HashMap<>();
+	            order.put("intent", "sale");
+	            
+	            Map<String, Object> amountMap = new HashMap<>();
+	            amountMap.put("total", String.format("%.2f", amount));
+	            amountMap.put("currency", "USD");
+	            order.put("amount", amountMap);
+	            
+	            order.put("return_url", request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/paypal/confirm");
+	            order.put("cancel_url", request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/paypal/cancel");
+	            
+	            String orderId = payPalService.createOrder(order);
+	            
+	            return "redirect:" + payPalService.getApprovalUrl(orderId);
+	        } catch (Exception e) {
+	            return "/error";
+	        }
+	    }
+	 
 	@RequestMapping(value = "/user/addMoney", method = RequestMethod.POST)
 	public String addMoney(Double amount, Principal principal, Model model){
 		String email = principal.getName();
+		 if (amount <= 0) {
+		        model.addAttribute("errorMessage", "Por favor, ingresa una cantidad válida.");
+		        return "/error";
+		    }
 		try {
 			usersService.addMoney(email, amount);
 		} catch (Exception e) {
@@ -131,7 +179,7 @@ public class UserController {
 		}
 
 		return "redirect:/profile";
-	}
+	} 
 	
 	
 	@ModelAttribute

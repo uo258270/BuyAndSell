@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -35,12 +36,13 @@ import com.entity.UserEntity;
 import com.entity.enums.CategoryEnum;
 import com.exception.NotFoundException;
 import com.exception.UpdateProductException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.ImageService;
 import com.service.ProductService;
 import com.service.RecommendationSystemService;
 import com.service.ShoppingCartService;
 import com.service.UserService;
-import com.validators.AddOfferValidator;
 
 @Controller
 @RequestMapping("/product")
@@ -56,20 +58,17 @@ public class ProductController {
 	private UserService userService;
 
 	@Autowired
-	private AddOfferValidator addOfferValidator;
-
-	@Autowired
 	private RecommendationSystemService recommendedService;
-	
+
 	@Autowired
 	private ShoppingCartService cartService;
 
 	public ProductController(ProductService productService, UserService userService,
-			AddOfferValidator addOfferValidator, RecommendationSystemService recommendedService, ShoppingCartService cartService) {
+			RecommendationSystemService recommendedService, ShoppingCartService cartService) {
 		super();
 		this.productService = productService;
 		this.userService = userService;
-		this.addOfferValidator = addOfferValidator;
+
 		this.recommendedService = recommendedService;
 		this.cartService = cartService;
 	}
@@ -100,34 +99,41 @@ public class ProductController {
 
 	@GetMapping("/allRecommendedProducts")
 	public String listAllRecommendedProducts(Model model, Principal principal) throws Exception {
-	    if (principal == null) {
-	        return "redirect:/login";
-	    }
 
-	    String email = principal.getName();
-	    UserEntity user = userService.findByEmail(email);
+		List<ProductEntity> recommended;
+		Set<ProductEntity> filteredProducts;
 
-	    List<ProductEntity> recommended = recommendedService.getRecommendedProducts(user.getUserId());
-	    List<ProductEntity> popular = recommendedService.getMostPopularProducts();
-	    List<ProductEntity> topRated = recommendedService.getTopRatedProducts();
+		List<ProductEntity> popular = recommendedService.getMostPopularProducts();
+		List<ProductEntity> topRated = recommendedService.getTopRatedProducts();
 
-	    Set<ProductEntity> allRecommendedProducts = new HashSet<>();
-	    allRecommendedProducts.addAll(recommended);
-	    allRecommendedProducts.addAll(popular);
-	    allRecommendedProducts.addAll(topRated);
+		Set<ProductEntity> allRecommendedProducts = new HashSet<>();
 
-	    Set<ProductEntity> filteredProducts = allRecommendedProducts.stream()
-	            .filter(product -> product.getStock() > 0 && !product.getUser().equals(user))
-	            .collect(Collectors.toSet());
+		allRecommendedProducts.addAll(popular);
+		allRecommendedProducts.addAll(topRated);
 
-	    model.addAttribute("products", filteredProducts);
-	    model.addAttribute("recommended", recommended);
-	    model.addAttribute("popular", popular);
-	    model.addAttribute("rated", topRated);
+		if (principal == null) {
+			recommended = new ArrayList<>();
+			filteredProducts = allRecommendedProducts;
+		} else {
+			String email = principal.getName();
+			UserEntity user = userService.findByEmail(email);
 
-	    return "/product/listProducts";
+			recommended = recommendedService.getRecommendedProducts(user.getUserId());
+
+			filteredProducts = allRecommendedProducts.stream()
+					.filter(product -> product.getStock() > 0 && !product.getUser().equals(user))
+					.collect(Collectors.toSet());
+		}
+
+		allRecommendedProducts.addAll(recommended);
+
+		model.addAttribute("products", filteredProducts);
+		model.addAttribute("recommended", recommended);
+		model.addAttribute("popular", popular);
+		model.addAttribute("rated", topRated);
+
+		return "/product/listProducts";
 	}
-
 
 	@GetMapping("/add")
 	public String getProduct(Model model) {
@@ -139,21 +145,30 @@ public class ProductController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public String setProduct(@Validated ProductEntity product, BindingResult result, Model model, Principal principal,
-			@RequestParam("images") List<MultipartFile> images) throws Exception {
-		addOfferValidator.validate(product, result);
+			@RequestParam("images") List<MultipartFile> images, @RequestParam("tags") String tags) throws Exception {
+
 		if (result.hasErrors()) {
 			model.addAttribute("errors", result.getAllErrors());
 			return "product/add";
 		}
+
+		List<String> tagList = new ArrayList<>();
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode tagsJson = mapper.readTree(tags);
+		for (JsonNode tag : tagsJson) {
+			System.out.println(tag);
+			System.out.println(tag.get("value"));
+			tagList.add(tag.get("value").asText());
+		}
+
+		product.setTags(tagList);
 
 		product.setProductDate(new Date());
 		String email = principal.getName();
 		UserEntity user = userService.findByEmail(email);
 		product.setUser(user);
 		List<String> imageName = imageService.saveImages(images);
-
 		product.setImagePaths(imageName);
-
 		productService.addProduct(product);
 
 		return "redirect:/product/own";
@@ -176,9 +191,11 @@ public class ProductController {
 	@PostMapping("/edit/{id}")
 	public String editProduct(@PathVariable Long id, ProductEntity editedProduct, Model model,
 			@RequestParam(name = "images", required = false) List<MultipartFile> images,
-			@RequestParam(name = "imagesToRemove", required = false) List<String> imagesToRemove) throws Exception {
+			@RequestParam(name = "imagesToRemove", required = false) List<String> imagesToRemove,
+			@RequestParam(name = "tags") String tags) throws Exception {
 		try {
 			ProductEntity product = productService.findById(id);
+
 			List<MultipartFile> nonEmptyImages = images.stream().filter(image -> !image.isEmpty())
 					.collect(Collectors.toList());
 
@@ -189,7 +206,7 @@ public class ProductController {
 			}
 			if (nonEmptyImages != null && !nonEmptyImages.isEmpty()) {
 				List<String> imageNames = imageService.saveImages(images);
-				for(String i : imageNames) {
+				for (String i : imageNames) {
 					editedProduct.addImagePath(i);
 					product.addImagePath(i);
 				}
@@ -199,6 +216,15 @@ public class ProductController {
 				editedProduct.setImagePaths(product.getImagePaths());
 			}
 			editedProduct.setProductId(product.getProductId());
+			List<String> tagList = new ArrayList<>();
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode tagsJson = mapper.readTree(tags);
+			for (JsonNode tag : tagsJson) {
+				System.out.println(tag);
+				System.out.println(tag.get("value"));
+				tagList.add(tag.get("value").asText());
+			}
+			editedProduct.setTags(tagList);
 			productService.updateProduct(product, editedProduct);
 
 		} catch (NotFoundException e) {
@@ -235,6 +261,9 @@ public class ProductController {
 
 			productService.increaseNumOfViews(product);
 
+			List<ProductEntity> similarProducts = recommendedService.findSimilarProductsByTags(productId);
+			model.addAttribute("similarProducts", similarProducts);
+
 			model.addAttribute("product", product);
 			model.addAttribute("principal", principal);
 			model.addAttribute("averageRating", averageRating);
@@ -269,19 +298,18 @@ public class ProductController {
 		model.addAttribute("purchasedProducts", purchasedProducts);
 		return "product/listPurchased";
 	}
-	
+
 	@ModelAttribute
 	public void loadCurrentUser(Model model, Principal p) throws Exception {
 		if (p != null) {
 			model.addAttribute("currentUser", userService.findByEmail(p.getName()));
-		}
-		else {
+		} else {
 			model.addAttribute("currentUser", null);
 		}
 	}
-	
+
 	@ModelAttribute
 	public void loadCart(Model model, Principal p) throws Exception {
-			model.addAttribute("cart", cartService.getCart());
+		model.addAttribute("cart", cartService.getCart());
 	}
 }

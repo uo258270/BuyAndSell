@@ -71,7 +71,7 @@
 
 				<form th:action="@{/product/detail}" method="get">
 					<input type="hidden" name="productId" th:value="${soldProduct.productId}" />
-					<a th:href="@{/product/detail/{productId}(productId=${product.productId})}"
+					<a th:href="@{/product/detail/{productId}(productId=${soldProduct.productId})}"
 								class="view-detail">Detalles</a>
 				</form>
 			</li>

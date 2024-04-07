@@ -1,6 +1,5 @@
 package com.entity;
 
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -21,49 +20,57 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="USER")
-public class UserEntity implements Serializable{
+@Table(name = "USER")
+public class UserEntity implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userId;
-	
+
 	private String name;
-	
+
 	private String lastName;
-	
+
 	@Column(unique = true)
 	private String email;
-	
+
 	@Column(unique = true)
 	private String username;
-	
+
 	private String password;
-	
+
 	private String passwordConfirm;
-	
+
 	private String address;
-	
+
 	@Enumerated(EnumType.STRING)
 	private RoleEnum role;
-	
+
 	private Date registerDate;
-	
+
 	private Double money;
-	
-	
+
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<ShoppingCartEntity> carts;
+
+	@OneToMany(mappedBy = "userEntity")
+	private List<ReviewEntity> reviews;
+
+	@OneToMany(mappedBy = "user1")
+	private List<SimilarUserEntity> similarUsers;
+	
 	
 
-	 @OneToMany(mappedBy = "userEntity")
-	 private List<ReviewEntity> reviews;
-	 
+	public List<SimilarUserEntity> getSimilarUsers() {
+		return similarUsers;
+	}
+
+	public void setSimilarUsers(List<SimilarUserEntity> similarUsers) {
+		this.similarUsers = similarUsers;
+	}
+
 	public List<ReviewEntity> getReviews() {
 		return reviews;
 	}
@@ -83,9 +90,10 @@ public class UserEntity implements Serializable{
 	public void setMoney(Double money) {
 		this.money = money;
 	}
-	
+
 	public void decMoney(double qty) {
-		if (this.money < qty) throw new IllegalArgumentException();
+		if (this.money < qty)
+			throw new IllegalArgumentException();
 		this.money -= qty;
 	}
 
@@ -100,7 +108,7 @@ public class UserEntity implements Serializable{
 	public List<ShoppingCartEntity> getCarts() {
 		return Collections.unmodifiableList(carts);
 	}
-	
+
 	/* package private */ List<ShoppingCartEntity> _getCarts() {
 		return this.carts;
 	}
@@ -120,8 +128,6 @@ public class UserEntity implements Serializable{
 	public void setRegisterDate(Date registerDate) {
 		this.registerDate = registerDate;
 	}
-
-	
 
 	public Long getUserId() {
 		return userId;
@@ -174,7 +180,7 @@ public class UserEntity implements Serializable{
 	public RoleEnum getRole() {
 		return role;
 	}
-	
+
 	public String getRoleName() {
 		return role.name();
 	}
@@ -197,11 +203,7 @@ public class UserEntity implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		UserEntity other = (UserEntity) obj;
-		return  Objects.equals(userId, other.userId);
+		return Objects.equals(userId, other.userId);
 	}
 
-	
-	
-	
-	
 }

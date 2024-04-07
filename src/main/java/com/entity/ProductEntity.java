@@ -1,12 +1,11 @@
 package com.entity;
 
 import java.io.Serializable;
-import jakarta.persistence.Transient;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,10 +22,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "PRODUCT")
@@ -53,23 +52,26 @@ public class ProductEntity implements Serializable {
 
 	private int stock;
 
-	@Enumerated(EnumType.STRING) 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "category")
 	private CategoryEnum category;
 
 	private int numOfViews;
-	
+
 	private boolean sold;
 
 	@Transient
 	private List<MultipartFile> images = new ArrayList<>();
-	
+
 	@ElementCollection(fetch = FetchType.EAGER)
-    private List<String> imagePaths = new ArrayList<>();
+	private List<String> imagePaths = new ArrayList<>();
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> tags;
 
 	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
 	private List<FeaturedProductEntity> featuredProducts;
-	
+
 	// relacion con user
 	@ManyToOne
 	@JoinColumn(name = "userId")
@@ -81,56 +83,58 @@ public class ProductEntity implements Serializable {
 	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<ReviewEntity> reviews;
 
+	@OneToMany(mappedBy = "prod1")
+	private List<SimilarProductEntity> similarProducts;
+	
+	
+
+	public List<SimilarProductEntity> getSimilarProducts() {
+		return similarProducts;
+	}
+
+	public void setSimilarProducts(List<SimilarProductEntity> similarProducts) {
+		this.similarProducts = similarProducts;
+	}
 
 	public List<ReviewEntity> getReviews() {
 		return reviews;
 	}
-	
-	
 
 	public List<FeaturedProductEntity> getFeaturedProducts() {
 		return featuredProducts;
 	}
 
-
-
 	public void setFeaturedProducts(List<FeaturedProductEntity> featuredProducts) {
 		this.featuredProducts = featuredProducts;
 	}
-
-
 
 	public boolean isSold() {
 		return sold;
 	}
 
+	public List<String> getTags() {
+		return tags;
+	}
 
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
 
 	public void setSold(boolean sold) {
 		this.sold = sold;
 	}
 
-
-
 	public void setReviews(List<ReviewEntity> reviews) {
 		this.reviews = reviews;
 	}
-
-
-
-
 
 	public List<ProductCartEntity> getProductCarts() {
 		return productCarts;
 	}
 
-
-
 	public void setProductCarts(List<ProductCartEntity> productCarts) {
 		this.productCarts = productCarts;
 	}
-
-
 
 	public Long getProductId() {
 		return productId;
@@ -180,9 +184,6 @@ public class ProductEntity implements Serializable {
 		this.price = price;
 	}
 
-
-	
-
 	public int getStock() {
 		return stock;
 	}
@@ -199,34 +200,21 @@ public class ProductEntity implements Serializable {
 		this.numOfViews = numOfViews;
 	}
 
-
-
-
-
-
 	public CategoryEnum getCategory() {
 		return category;
 	}
-
-
 
 	public void setCategory(CategoryEnum category) {
 		this.category = category;
 	}
 
-
-
 	public List<MultipartFile> getImages() {
 		return images;
 	}
 
-
-
 	public void setImages(List<MultipartFile> images) {
 		this.images = images;
 	}
-
-
 
 	public UserEntity getUser() {
 		return user;
@@ -237,12 +225,11 @@ public class ProductEntity implements Serializable {
 	}
 
 	public void decStock() {
-		if (stock == 0) throw new IllegalArgumentException();
+		if (stock == 0)
+			throw new IllegalArgumentException();
 		stock--;
-		
+
 	}
-
-
 
 	@Override
 	public int hashCode() {
@@ -261,28 +248,24 @@ public class ProductEntity implements Serializable {
 		return Objects.equals(productId, other.productId);
 	}
 
-
-
 	public List<String> getImagePaths() {
 		return imagePaths;
 	}
 
-
-
 	public void setImagePaths(List<String> imagePaths) {
 		this.imagePaths = imagePaths;
 	}
-	
+
 	public boolean compradoPor(String username) {
-		return productCarts.stream().anyMatch(c -> c.getCart().getUser().getEmail().equals(username));		
+		return productCarts.stream().anyMatch(c -> c.getCart().getUser().getEmail().equals(username));
 	}
 
-	
 	public void addImagePath(String imagePath) {
 		imagePaths.add(imagePath);
 	}
-	
-	
-	
+
+	public String getTagsStr() {
+		return tags.stream().collect(Collectors.joining(","));
+	}
 
 }

@@ -56,44 +56,47 @@
 				</ul>
 
 
-				<p class="list-title">Recomendados para ti</p>
-				<ul class="horizontal-list">
-					<li th:each="product : ${recommended}" class="product-container">
-						<th:block th:if="${product.stock <= 0}">
-							<div class="sold-out-bubble">Agotado</div>
-						</th:block>
-						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
-							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
-								alt="Imagen del producto" class="product-image" />
-						</th:block>
-						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
-							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
-						</th:block>
-						<div class="product-details">
-							<p th:text="${product.name}">Producto:</p>
-							<p th:text="${product.detail}">Detalle:</p>
-							<p th:text="${product.price}">Precio:</p>
-						</div>
-						<div class="product-actions">
-							<a th:href="@{/product/detail/{productId}(productId=${product.productId})}"
-								class="view-detail">Detalles</a>
-							<form th:action="@{/featured/add}" method="post">
-								<input type="hidden" name="productId" th:value="${product.productId}" />
-								<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-							</form>
-						</div>
-						<div class="add-to-cart-section">
-							<form th:action="@{/cart/addProduct}" method="post">
-								<input type="hidden" name="productId" th:value="${product.productId}" />
-								<input type="number" name="quantity" value="1" />
-								<button type="submit" class="add-to-cart">
-									<span class="glyphicon glyphicon-shopping-cart"></span>
-								</button>
-							</form>
-						</div>
-					</li>
-				</ul>
-
+				<th:block th:if="${not #lists.isEmpty(recommended)}">
+					<p class="list-title">Recomendados para ti</p>
+					<ul class="horizontal-list">
+						<li th:each="product : ${recommended}" class="product-container">
+							<th:block th:if="${product.stock <= 0}">
+								<div class="sold-out-bubble">Agotado</div>
+							</th:block>
+							<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+								<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
+									alt="Imagen del producto" class="product-image" />
+							</th:block>
+							<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
+								<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+							</th:block>
+							<div class="product-details">
+								<p th:text="${product.name}">Producto:</p>
+								<p th:text="${product.detail}">Detalle:</p>
+								<p th:text="${product.price}">Precio:</p>
+							</div>
+							<div class="product-actions">
+								<a th:href="@{/product/detail/{productId}(productId=${product.productId})}"
+									class="view-detail">Detalles</a>
+								<form th:action="@{/featured/add}" method="post">
+									<input type="hidden" name="productId" th:value="${product.productId}" />
+									<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+								</form>
+							</div>
+							<div class="add-to-cart-section">
+								<form th:action="@{/cart/addProduct}" method="post">
+									<input type="hidden" name="productId" th:value="${product.productId}" />
+									<input type="number" name="quantity" value="1" />
+									<button type="submit" class="add-to-cart">
+										<span class="glyphicon glyphicon-shopping-cart"></span>
+									</button>
+								</form>
+							</div>
+						</li>
+					</ul>
+				</th:block>
+				
+				
 				<p class="list-title">Productos populares publicados este mes</p>
 				<ul class="horizontal-list">
 					<li th:each="product : ${popular}" class="product-container">
@@ -175,8 +178,8 @@
 
 			</div>
 		</div>
-
-		<footer th:replace="~{fragments/footer}"></footer>
+	</div>
+	<footer th:replace="~{fragments/footer}"></footer>
 
 </body>
 

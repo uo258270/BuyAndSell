@@ -30,11 +30,15 @@
                                 <strong>Dinero en el monedero:</strong> <span th:text="${user.money}"></span>
                             </div>
                             <div class="profile-item">
-                                <form th:action="@{/user/addMoney}" method="post" class="add-money-form">
-                                    <label for="amount">Añadir dinero:</label>
-                                    <input type="text" id="amount" name="amount" pattern="[0-9]+(\.[0-9]+)?"
-                                        title="Ingrese un número válido" />
-                                    <button type="submit" class="btn btn-success">Añadir</button>
+                                <form th:action="@{/user/addMoney}" method="post" id="add-money-form"
+                                    class="add-money-form">
+                                    <div class="form-group">
+                                        <label for="amount">Añadir dinero:</label>
+                                        <input type="text" id="amount" name="amount" class="form-control"
+                                            pattern="[0-9]+(\.[0-9]+)?" title="Ingrese un número válido" />
+                                    </div>
+                                    <!-- Contenedor del botón de PayPal -->
+                                    <div id="paypal-button-container"></div>
                                 </form>
                             </div>
                         </div>
@@ -45,6 +49,37 @@
     </div>
 
     <footer th:replace="fragments/footer"></footer>
+
+    <!-- Script de PayPal -->
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=Afbd5tp_jX9rvoQfO1Fsds9ge9cyXEuw4RnmmTsJMyM7wvQfIitGNv_kDMBg_J9L4SXeHITjckRF-_4S&currency=USD"></script>
+    <script>
+        paypal.Buttons({
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: document.getElementById('amount').value // Obtener el valor del campo de cantidad
+                        }
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details) {
+                    // Manejar el pago aprobado
+                    // Enviar la cantidad al backend
+                    var amount = details.purchase_units[0].amount.value;
+                    var form = document.getElementById('add-money-form');
+                    form.querySelector('#amount').value = amount;
+                    form.submit();
+                });
+            },
+            onError: function (err) {
+                // Manejar errores
+                console.error(err);
+            }
+        }).render('#paypal-button-container');
+    </script>
 </body>
 
 </html>

@@ -391,7 +391,7 @@ public class ProductServiceImplTest {
 
 	@Test
 	void getPurchasedProducts_ValidUserId_ReturnsPurchasedProductList() throws NullDataException {
-
+  
 		Long userId = 1L;
 		List<ProductEntity> mockedProducts = createMockedProductList();
 		Mockito.when(productCartRepository.getPurchasedProductsByUserId(userId)).thenReturn(mockedProducts);

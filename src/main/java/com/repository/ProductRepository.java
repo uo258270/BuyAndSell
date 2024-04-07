@@ -34,6 +34,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 	List<ProductEntity> findByNameContainingIgnoreCase(String searchTerm);
 
 	List<ProductEntity> findByUserUserIdAndSoldTrue(Long userId);
+
+	List<ProductEntity> findByTagsIn(List<String> tags);
 	
 	
 

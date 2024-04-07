@@ -3,7 +3,6 @@
 
 <head th:replace="~{fragments/head}" />
 
-<link rel="stylesheet" type="text/css" href="custom.css" />
 
 <body>
 	<nav th:replace="~{fragments/nav}" />
@@ -12,42 +11,43 @@
 		<h2 class="search-header">Resultados de Búsqueda</h2>
 
 		<div th:if="${searchTerm}">
-			<div class="search-results">
-				<div th:each="result : ${searchResults}" class="search-result">
-					<div class="product-container">
-						<li th:each="image : ${result.imagePaths}">
-							<img th:src="@{/product/image/{name}(name=${image})}" alt="Imagen del producto"
-								class="product-image" />
-						</li>
-						<li th:if="${#lists.isEmpty(result.imagePaths)}">
+			<ul class="horizontal-list-similarprod">
+					<li th:each="product : ${searchResults}" class="product-container-simi">
+						<th:block th:if="${product.stock <= 0}">
+							<div class="sold-out-bubble">Agotado</div>
+						</th:block>
+						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
+								alt="Imagen del producto" class="product-image" />
+						</th:block>
+						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
 							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
-						</li>
-						<div class="product-details">
-							<h3 th:text="${result.name}" class="product-name">Producto:</h3>
-							<p th:text="${result.detail}" class="product-detail">Detalle:</p>
-							<p th:text="'Precio: ' + ${result.price}" class="product-price">Precio:</p>
-							<div class="product-actions">
-								<form th:action="@{/product/detail}" method="get">
-									<input type="hidden" name="productId" th:value="${result.productId}" />
-									<button type="submit" class="view-detail-button">Detalles</button>
-								</form>
-								<form th:action="@{/featured/add}" method="post">
-									<input type="hidden" name="productId" th:value="${result.productId}" />
-									<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-								</form>
-							</div>
-							<div class="add-to-cart-section">
-								<form th:action="@{/cart/addProduct}" method="post">
-									<input type="hidden" name="productId" th:value="${result.productId}" />
-									<input type="number" name="quantity" value="1" />
-									<button type="submit" class="add-to-cart">Añadir al carrito</button>
-								</form>
-							</div>
-
+						</th:block>
+						<div class="product-details-simi">
+							<p th:text="${product.name}">Producto:</p>
+							<p th:text="${product.detail}">Detalle:</p>
+							<p th:text="${product.price}">Precio:</p>
 						</div>
-					</div>
-				</div>
-			</div>
+						<div class="product-actions-simi">
+							<a th:href="@{/product/detail/{productId}(productId=${product.productId})}"
+								class="view-detail">Detalles</a>
+							<form th:action="@{/featured/add}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
+							</form>
+						</div>
+						<div class="add-to-cart-section">
+							<form th:action="@{/cart/addProduct}" method="post">
+								<input type="hidden" name="productId" th:value="${product.productId}" />
+								<input type="number" name="quantity" value="1" />
+								<button type="submit" class="add-to-cart">
+									<span class="glyphicon glyphicon-shopping-cart"></span>
+								</button>
+							</form>
+						</div>
+					</li>
+				</ul>
+			 
 		</div>
 
 		<div th:unless="${searchTerm}">
