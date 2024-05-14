@@ -2,70 +2,57 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head}">
-	<!--	<link rel="stylesheet" type="text/css" href="/css/custom.css" />-->
-
-	<script type="text/javascript" src="../../static/script/customNoti.js"></script>
-	<script type="text/javascript" src="/script/customNoti.js"></script>
-
+    <link rel="stylesheet" type="text/css" href="/css/custom.css" /> 
 </head>
 
 <body>
+	 <div id="content">
+    <nav th:replace="~{fragments/nav}"></nav>
 
-	<nav th:replace="~{fragments/nav}"></nav>
+    <div class="featured-container">
+        <h1 th:text="${#messages.msg('featured.title') + ' ' + user.name}" class="featured-title"></h1>
 
-	<div class="featured-container">
-		<h2 th:text="${#messages.msg('featured.title') + ' ' + user.name}" class="featured-title"></h2>
+        <div th:if="${#lists.isEmpty(featuredList)}" class="no-featured-products">
+            <p th:text="#{featured.noProducts}">No hay productos destacados en este momento.</p>
+        </div>
 
-		<div th:if="${#lists.isEmpty(featuredList)}" class="no-featured-products">
-			<p th:text="#{featured.noProducts}">No hay productos destacados en este momento.</p>
-		</div>
+        <ul th:if="${not #lists.isEmpty(featuredList)}" th:each="featuredProduct : ${featuredList}" class="product-list">
+            <li class="product-info">
+                <div th:if="${featuredProduct.product.stock <= 0}" class="sold-out-bubble">Agotado</div>
+                
+                <img th:src="@{/product/image/{name}(name=${featuredProduct.product.imagePaths[0]})}" alt="Imagen del producto" class="product-image" />
+                
+                <p class="th-label product-name" th:text="${featuredProduct.product.name}">Producto:</p>
+                <p class="product-detail" th:text="${featuredProduct.product.detail}">Detalle:</p>
+                <p class="th-price product-price" th:text="${featuredProduct.product.price}">Precio:</p>
 
-		<ul th:if="${not #lists.isEmpty(featuredList)}" th:each="featuredProduct : ${featuredList}"
-			class="product-list">
-			<li class="product-info">
-				<th:block th:if="${featuredProduct.product.stock <= 0}">
-							<div class="sold-out-bubble">Agotado</div>
-						</th:block>
-				<th:block th:if="${not #lists.isEmpty(featuredProduct.product.imagePaths)}">
-					<img th:src="@{/product/image/{name}(name=${featuredProduct.product.imagePaths[0]})}"
-						alt="Imagen del producto" class="product-image" />
-				</th:block>
-				<th:block th:if="${#lists.isEmpty(featuredProduct.product.imagePaths)}">
-					<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
-				</th:block>
+                <div class="product-actions-featured">
+					<a th:href="@{/product/detail/{productId}(productId=${featuredProduct.product.productId})}"
+								class="view-detail-button">
+								Detalles
+							</a>
 
-				<p class="th-label product-name" th:text=" ${featuredProduct.product.name}">Producto:</p>
-				<p class="product-detail" th:text="${featuredProduct.product.detail}">Detalle:</p>
-				<p class="th-price product-price" th:text="${featuredProduct.product.price}">Precio:</p>
+                    <form th:action="@{/featured/delete}" method="post">
+                        <input type="hidden" name="id" th:value="${featuredProduct.featuredId}" />
+                        <button type="submit" class="delete-product" aria-label="#{product.delete}">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </form>
+                </div>
+                <form th:action="@{/cart/addProduct}" method="post">
+                    <input type="hidden" name="productId" th:value="${featuredProduct.product.productId}" />
+                    <input type="number" name="quantity" value="1" aria-label="#{product.quantity}" />
+                    <button id="addToCart" type="submit" class="add-to-cart" data-message="Item added to cart" th:text="#{product.addToCart}">
+                        Add to Cart
+                    </button>
+                </form>
+            </li>
+        </ul>
 
-				<div class="product-actions-featured">
-					<form th:action="@{/product/detail}" method="get">
-						<input type="hidden" name="productId" th:value="${featuredProduct.product.productId}" />
-						<button type="submit" class="view-detail-button" th:text="#{product.details}"></button>
-					</form>
+    </div>
+	 </div>
 
-					<form th:action="@{/featured/delete}" method="post">
-						<input type="hidden" name="id" th:value="${featuredProduct.featuredId}" />
-						<button type="submit" class="delete-product" aria-label="#{product.delete}">
-							<span class="glyphicon glyphicon-trash"></span>
-						</button>
-					</form>
-				</div>
-				<form th:action="@{/cart/addProduct}" method="post">
-					<input type="hidden" name="productId" th:value="${featuredProduct.product.productId}" />
-					<input type="number" name="quantity" value="1" />
-					<button id="addToCart" type="submit" class="add-to-cart" data-message="Item added to cart" th:text="#{product.addToCart}">
-						Add to Cart
-					</button>
-				</form>
-			</li>
-		</ul>
-
-	</div>
-
-
-
-	<footer th:replace="~{fragments/footer}"></footer>
+    <footer th:replace="~{fragments/footer}"></footer>
 </body>
 
 </html>

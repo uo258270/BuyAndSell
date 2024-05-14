@@ -4,15 +4,17 @@
 <head th:replace="~{fragments/head}" />
 
 <body>
+	<div id="content">
 
-<!--
     <nav th:replace="~{fragments/nav}"></nav>
--->    
+    
     <div class="error-container">
         <h2>Error</h2>
         <p th:text="${errorMessage}"></p>
     </div>
 
+	</div>
+ <footer class="navbar navbar-fixed-bottom" th:replace="~{fragments/footer}" />
 </body>
 
 </html>

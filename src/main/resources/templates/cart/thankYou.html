@@ -4,13 +4,15 @@
 <head th:replace="~{fragments/head}" />
 
 <body>
-
+<div id="content">
 	<nav th:replace="~{fragments/nav}"></nav>
     <div class="thanks-container">
         <h1 class="thanks-title" th:text="#{thanks.title}"></h1>
         <p class="thanks-success" th:text="#{thanks.success}"></p>
         <p class="thanks-return" th:text="#{thanks.return}"></p>
     </div>
+</div>
+ <footer class="navbar navbar-fixed-bottom" th:replace="~{fragments/footer}" />
 </body>
 
 </html>

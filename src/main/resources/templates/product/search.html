@@ -1,28 +1,57 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<link rel="stylesheet" type="text/css" href="custom.css" />
-<head th:replace="~{fragments/head}" />
+<head th:replace="~{fragments/head}">
+    <link rel="stylesheet" type="text/css" href="custom.css" />
 </head>
 
 <body>
+	<div id="content">
     <nav th:replace="~{fragments/nav}"></nav>
 
     <div class="search-container">
-        <h2 class="search-header">Buscar Productos</h2>
+      <h2 class="search-header" style="text-align: left;" th:text="#{find.products}">Buscar Productos</h2>
+
 
         <form th:action="@{/product/search/results}" method="get">
             <div>
-                <label for="searchTerm" class="search-label">Término de búsqueda:</label>
-                <input type="text" id="searchTerm" name="searchTerm" class="search-input" />
+               
+                <input type="text" id="searchTerm" name="searchTerm" class="search-input" title="Buscar"/>
             </div>
 
             <div>
-                <button type="submit" class="search-button">Buscar</button>
+                <button type="submit" class="search-button" th:text="#{search}">Buscar</button>
             </div>
         </form>
     </div>
+    
+      <div class="categories-container">
+            <h2 class="categories-header" th:text="#{category.header}">Buscar por Categorías</h2>
+            <ul class="categories-list">
+						<li class="list-item-categories"><a th:href="@{/product/category/tecnologia}" class="category-button"
+								th:text="#{category.electronics}">Electronica</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/ropa}" class="category-button"
+								th:text="#{category.clothing}">Ropa</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/libros}" class="category-button"
+								th:text="#{category.books}">Libros</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/belleza}" class="category-button"
+								th:text="#{category.beauty}">Belleza</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/juguetes}" class="category-button"
+								th:text="#{category.toys}">Juguetes</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/electrodomesticos}" class="category-button"
+								th:text="#{category.appliances}">Electrodomesticos</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/zapatos}" class="category-button"
+								th:text="#{category.shoes}">Zapatos</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/deporte}" class="category-button"
+								th:text="#{category.sports}">Deporte</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/accesorios}" class="category-button"
+								th:text="#{category.accessories}">Accesorios</a></li>
+						<li class="list-item-categories"><a th:href="@{/product/category/otros}" class="category-button"
+								th:text="#{category.others}">Otros</a></li>
 
+					</ul>
+        </div>
+	</div>
     <footer th:replace="~{fragments/footer}"></footer>
 </body>
 

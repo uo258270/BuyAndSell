@@ -5,6 +5,7 @@
 </head>
 
 <body>
+	<div id="content">
 	<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
 	<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
@@ -16,26 +17,34 @@
             <h2 th:text="#{edit.product}">Editar Producto</h2>
 
             <form th:action="@{'/product/edit/' + ${product.productId}}" method="post" th:object="${product}"
-                enctype="multipart/form-data">
-                <div class="form-group">
-                    <label th:text="#{product.name}">Título del producto:</label>
-                    <input type="text" id="name" th:field="*{name}" class="form-control" />
-                </div>
+                enctype="multipart/form-data" onsubmit="return validateForm()">
+                 <div class="form-group">
+                        <label th:text="#{product.name}">Título del producto:</label>
+                        <input type="text" id="name" th:field="*{name}" class="form-control" />
+                        <span id="nameError" style="color: red; display: none;"
+                            th:text="#{validation.required}">Este campo no puede estar vacío.</span>
+                    </div>
 
-                <div class="form-group">
-                    <label th:text="#{product.details}">Detalles:</label>
-                    <input type="text" id="detail" th:field="*{detail}" class="form-control" />
-                </div>
+                    <div class="form-group">
+                        <label th:text="#{product.details}">Detalles:</label>
+                        <input type="text" id="detail" th:field="*{detail}" class="form-control" />
+                        <span id="detailError" style="color: red; display: none;"
+                            th:text="#{validation.required}">Este campo no puede estar vacío.</span>
+                    </div>
 
-                <div class="form-group">
-                    <label th:text="#{product.price}">Precio:</label>
-                    <input type="text" id="price" th:field="*{price}" class="form-control" />
-                </div>
+                    <div class="form-group">
+                        <label th:text="#{product.price}">Precio:</label>
+                        <input type="text" id="price" th:field="*{price}" class="form-control" />
+                        <span id="priceError" style="color: red; display: none;"
+                            th:text="#{validation.required}">Este campo no puede estar vacío.</span>
+                    </div>
 
-                <div class="form-group">
-                    <label th:text="#{product.stock}">Stock:</label>
-                    <input type="text" id="stock" th:field="*{stock}" class="form-control" />
-                </div>
+                    <div class="form-group">
+                        <label th:text="#{product.stock}">Stock:</label>
+                        <input type="text" id="stock" th:field="*{stock}" class="form-control" />
+                        <span id="stockError" style="color: red; display: none;"
+                            th:text="#{validation.required}">Este campo no puede estar vacío.</span>
+                    </div>
 
                 <div class="form-group">
                     <label for="category" th:text="#{product.category}">Categoría:</label>
@@ -70,7 +79,7 @@
             </form>
         </div>
     </div>
-
+	</div>
     <footer th:replace="~{fragments/footer}"></footer>
     
    <script>
@@ -78,7 +87,27 @@
 		var t = new Tagify(input);
 		console.log(t);
 	</script>
+<script>
+		function validateForm() {
+			var fields = ['name', 'detail', 'price', 'stock'];
+			var isValid = true;
 
+			fields.forEach(function (field) {
+				var input = document.getElementById(field);
+				var error = document.getElementById(field + 'Error');
+
+				if (input.value.trim() === '') {
+					error.innerText = 'Este campo no puede estar vacío';
+					error.style.display = 'inline';
+					isValid = false;
+				} else {
+					error.style.display = 'none';
+				}
+			});
+
+			return isValid;
+		}
+	</script>
 </body>
 
 </html>

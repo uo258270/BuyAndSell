@@ -16,9 +16,14 @@ body {
     margin-bottom: 20px;
 }
 
+h1{
+	 color: #333;
+    text-align: center;
+}
+
 h2 {
     color: #333;
-    text-align: center;
+    text-align: left;
 }
 
 .all-products {
@@ -119,20 +124,18 @@ input[type="number"] {
     text-align: center;
 }
 
-.view-detail,
-.add-to-favorites {
-    background-color: #4caf50;
-    color: #fff;
+.view-detail {
+    background-color: rgb(143, 231, 148);
+    color: rgb(64, 0, 64);
     padding: 7px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     margin-top: 5px;
 }
-
-.view-detail:hover,
-.add-to-favorites:hover {
-    background-color: #45a049;
+.view-detail:hover {
+    background-color: rgb(24, 114, 29) !important;
+    color: white;
 }
 
 .footer {

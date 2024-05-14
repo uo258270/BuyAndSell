@@ -3,27 +3,31 @@
 
 <head th:replace="~{fragments/head}" />
 
-
 <body>
 	<nav th:replace="~{fragments/nav}"></nav>
+
 	<div class="container product-details-container-detail">
-		<h2>Detalle del producto - <span th:text="${product.name}">Nombre del producto</span></h2>
+		<h1><span th:text="#{product.detail}">Detalle del producto - </span><span th:text="${product.name}">Nombre del
+				producto</span></h1>
 
 
 		<div class="product-info-detail">
 			<div class="box-border-productinfo">
 				<h2 th:text="${product.name}">Nombre del producto</h2>
 				<div class="product-description">
-					<p th:text="${'Detalle del producto: '+product.detail}">Detalle del producto</p>
+					<p><strong th:text="#{product.detail}">Detalle del producto:</strong> <span
+							th:text="${product.detail}">Detalle del producto</span></p>
 				</div>
-				<p th:text="${'Precio: ' + product.price}">Precio:</p>
-				<p th:text="${'Stock: ' + product.stock}">Stock:</p>
-				<p th:text="${'Categoría: ' + product.category}">Categoría:</p>
-				<p th:text="${'Número de visitas: ' + product.numOfViews}">Número de visitas:</p>
-
+				<p><strong th:text="#{product.price}">Precio:</strong> <span th:text="${product.price}">Precio:</span>
+				</p>
+				<p><strong th:text="#{product.stock}">Stock:</strong> <span th:text="${product.stock}">Stock:</span></p>
+				<p><strong th:text="#{product.category}">Categoría:</strong> <span
+						th:text="${product.category}">Categoría:</span></p>
+				<p><strong th:text="#{product.numOfViews}">Número de visitas:</strong> <span
+						th:text="${product.numOfViews}">Número de visitas:</span></p>
 
 				<div class="product-images-details">
-					<h3 class="image-heading">Imágenes</h3>
+					<h2 class="image-heading" th:text="#{product.images}">Imágenes</h2>
 					<ul class="image-list-detail-product" th:if="${not #lists.isEmpty(product.imagePaths)}">
 						<li th:each="image : ${product.imagePaths}">
 							<img th:src="@{/product/image/{name}(name=${image})}" alt="Imagen del producto"
@@ -37,7 +41,7 @@
 				</div>
 
 				<div th:if="${averageRating > 0}" class="average-rating">
-					<h3>Valoración media del producto</h3>
+					<h2 th:text="#{product.rating}">Valoración media del producto</h2>
 					<p>
 						<span class="star-rating">
 							<i class="fa fa-star" th:each="star : ${#numbers.sequence(1, averageRating)}"></i>
@@ -46,9 +50,33 @@
 					</p>
 				</div>
 			</div>
+			<div class="product-actions">
+
+				<form th:unless="${product.perteneceAUsuario(#authentication.name)}" th:action="@{/featured/add}"
+					method="post">
+					<input type="hidden" name="productId" th:value="${product.productId}" />
+					<button type="submit" class="add-to-favorites">
+						<i class="fas fa-heart" style="font-size: 24px; color: rgb(64, 0, 64);"></i>
+						<span th:text="#{product.addToFavorites}">Añadir a favoritos</span>
+					</button>
+				</form>
+
+				<!-- Botón "Añadir al carrito" -->
+				<form th:unless="${product.perteneceAUsuario(#authentication.name)}" th:action="@{/cart/addProduct}"
+					method="post">
+					<input type="hidden" name="productId" th:value="${product.productId}" />
+					<input type="number" name="quantity" value="1" class="quantity-input" title="quantity" />
+					<button type="submit" class="add-to-cart" aria-label="Comprar">
+						<span class="glyphicon glyphicon-shopping-cart"></span>
+					</button>
+				</form>
+
+
+
+			</div>
 
 			<div th:if="${not #lists.isEmpty(product.reviews)}" class="product-reviews">
-				<h3>Reseñas de los productos</h3>
+				<h2 th:text="#{product.reviews}">Reseñas de los productos</h2>
 				<ul class="review-list" th:each="review : ${product.reviews}">
 					<li class="review-item">
 						<p>
@@ -58,32 +86,28 @@
 							<span th:text="${'Valoración: ' + review.rating}"></span>
 						</p>
 						<p th:text="${'Comentario: ' + review.comment}"></p>
-						<form
-							th:if="${#authorization.expression('isAuthenticated() and principal != null and principal.username != #vars.product?.user?.username')}"
+						<form th:if="${review.perteneceAUsuario(principal?.name)}"
 							th:action="@{/reviews/delete/{id}(id=${review.ratingId})}" method="post">
 							<input type="hidden" name="productId" th:value="${product.productId}" />
 							<input type="hidden" name="_method" value="post" />
-							<button type="submit" class="delete-review">Eliminar</button>
+							<button type="submit" class="delete-review" th:text="#{review.delete}">Eliminar</button>
 						</form>
 
 					</li>
 				</ul>
 				<div th:unless="${product.reviews}" class="no-reviews">
-					<p>No hay reseñas para este producto</p>
+					<p th:text="#{product.noReviews}">No hay reseñas para este producto</p>
 				</div>
 			</div>
-
-
-			<div th:if="${product.compradoPor(#authentication.name) }"
-				class="add-review-block">
-
-				<h3>Añadir una reseña</h3>
-				<form th:action="@{/reviews/add}" method="post" th:object="${review}" id="addReviewForm">
+			<div th:if="${product.compradoPor(#authentication.name)}" class="add-review-block">
+				<h2 th:text="#{product.addReview}">Añadir una reseña</h2>
+				<form th:action="@{/reviews/add}" method="post" th:object="${review}" id="addReviewForm"
+					onsubmit="return validateReviewForm()">
 					<input type="hidden" name="productId" th:value="${product.productId}" />
 					<input type="hidden" name="user.id" th:value="${principal?.name}" />
 
 					<div class="form-group">
-						<label for="rating">Valoración:</label>
+						<label for="rating" th:text="#{product.ratingLabel}">Valoración:</label>
 						<input type="hidden" name="rating" id="rating">
 						<div class="star-rating" id="starRating">
 							<div class="star" onclick="fillStars(1)"><i class="fa fa-star"></i></div>
@@ -95,113 +119,103 @@
 					</div>
 
 					<div class="form-group">
-						<label for="comment">Comentario:</label>
+						<label for="comment" th:text="#{product.commentLabel}">Comentario:</label>
 						<textarea id="comment" name="comment" class="form-control" required></textarea>
 					</div>
 
-					<button type="submit" class="btn btn-primary">Añadir Reseña</button>
+					<button type="submit" class="btn btn-primary" th:text="#{product.addReviewButton}">Añadir
+						Reseña</button>
 				</form>
 			</div>
 
-			<script th:inline="javascript">
-				function fillStars(rating) {
-					document.getElementById('rating').value = rating;
-
-					var stars = document.getElementById('starRating').children;
-
-					for (var i = 0; i < stars.length; i++) {
-						if (i < rating) {
-							stars[i].classList.add('selected');
-						} else {
-							stars[i].classList.remove('selected');
-						}
-					}
-				}
-
-				document.addEventListener('DOMContentLoaded', function () {
-					var reviewForm = document.getElementById('addReviewForm');
-				});
-			</script>
-
-
-
-
-			<th:block th:unless="${product.sold}" class="no-purchase-warning">
-				<p>Debes comprar este producto para añadir reseñas.</p>
-			</th:block>
+			<div th:unless="${product.sold}" class="no-purchase-warning">
+				<p th:text="#{product.noPurchaseWarning}">Debes comprar este producto para añadir reseñas.</p>
+			</div>
 
 			<div th:if="${warningMessage}" class="alert alert-warning">
 				<p th:text="${warningMessage}"></p>
 			</div>
 
-			<div class="product-actions">
-				<form th:action="@{/featured/add}" method="post">
-					<input type="hidden" name="productId" th:value="${product.productId}" />
-					<button type="submit" class="add-to-favorites-details">
-						<i class="fas fa-heart" style="font-size: 24px; color: red;"></i>
-					</button>
-				</form>
-
-				<form th:action="@{/cart/addProduct}" method="post">
-					<input type="hidden" name="productId" th:value="${product.productId}" />
-					<input type="number" name="quantity" value="1" class="quantity-input" />
-					<button type="submit" class="add-to-cart">Añadir al carrito</button>
-				</form>
 
 
-				<th:block
-					th:if="${#authorization.expression('isAuthenticated() and principal != null and principal.username == #vars.product?.user?.username')}">
-					<form th:action="@{/product/edit/{id}(id=${product.productId})}" method="get"
-						class="edit-product-form">
-						<button type="submit" class="edit-product">Editar</button>
-					</form>
-				</th:block>
+			<a th:href="@{/product/allRecommendedProducts}" class="back-button" th:text="#{product.backButton}">Volver a
+				la lista de productos</a>
 
-			</div>
-
-			<a th:href="@{/product/allRecommendedProducts}" class="back-button">Volver a la lista de productos</a>
-			
-				<h2 class="list-title">Productos similares</h2>
-				<ul class="horizontal-list-similarprod">
-					<li th:each="product : ${similarProducts}" class="product-container-simi">
-						<th:block th:if="${product.stock <= 0}">
-							<div class="sold-out-bubble">Agotado</div>
-						</th:block>
-						<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
-							<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}"
-								alt="Imagen del producto" class="product-image" />
-						</th:block>
-						<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
-							<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
-						</th:block>
-						<div class="product-details-simi">
-							<p th:text="${product.name}">Producto:</p>
-							<p th:text="${product.detail}">Detalle:</p>
-							<p th:text="${product.price}">Precio:</p>
-						</div>
-						<div class="product-actions-simi">
-							<a th:href="@{/product/detail/{productId}(productId=${product.productId})}"
-								class="view-detail">Detalles</a>
-							<form th:action="@{/featured/add}" method="post">
-								<input type="hidden" name="productId" th:value="${product.productId}" />
-								<button type="submit" class="add-to-favorites">Añadir a favoritos</button>
-							</form>
-						</div>
-						<div class="add-to-cart-section">
-							<form th:action="@{/cart/addProduct}" method="post">
-								<input type="hidden" name="productId" th:value="${product.productId}" />
-								<input type="number" name="quantity" value="1" />
-								<button type="submit" class="add-to-cart">
-									<span class="glyphicon glyphicon-shopping-cart"></span>
-								</button>
-							</form>
-						</div>
-					</li>
-				</ul>
-
+			<h2 class="list-title" th:text="#{product.similarProducts}">Productos que podrían interesarte</h2>
+			<ul class="horizontal-list-similarprod">
+				<li th:each="product : ${similarProducts}" class="product-container-simi">
+					<th:block th:if="${product.stock <= 0}">
+						<div class="sold-out-bubble" th:text="#{product.soldOut}">Agotado</div>
+					</th:block>
+					<th:block th:if="${not #lists.isEmpty(product.imagePaths)}">
+						<img th:src="@{/product/image/{name}(name=${product.imagePaths[0]})}" alt="Imagen del producto"
+							class="product-image" />
+					</th:block>
+					<th:block th:if="${#lists.isEmpty(product.imagePaths)}">
+						<img src="/img/defaultImage.jpg" alt="Imagen por defecto" class="product-image" />
+					</th:block>
+					<div class="product-details-simi">
+						<p><span th:text="${product.name}">Producto:</span></p>
+						<p><span th:text="${product.detail}">Detalle:</span></p>
+						<p> <span th:text="${product.price}">Precio:</span></p>
+					</div>
+					<div class="product-actions-simi">
+						<a th:href="@{/product/detail/{productId}(productId=${product.productId})}" class="view-detail"
+							th:text="#{product.details}">Detalles</a>
+						<form th:action="@{/featured/add}" method="post">
+							<input type="hidden" name="productId" th:value="${product.productId}" />
+							<button type="submit" class="add-to-favorites" th:text="#{product.addToFavorites}">Añadir a
+								favoritos</button>
+						</form>
+					</div>
+					<div class="add-to-cart-section">
+						<form th:action="@{/cart/addProduct}" method="post">
+							<input type="hidden" name="productId" th:value="${product.productId}" />
+							<input type="number" id="quantity" name="quantity" value="1" title="Cantidad" />
+							<button type="submit" class="add-to-cart" aria-label="Comprar">
+								<span class="glyphicon glyphicon-shopping-cart"></span>
+							</button>
+						</form>
+					</div>
+				</li>
+			</ul>
 		</div>
-</div>
-		<footer th:replace="~{fragments/footer}" />
+	</div>
+
+	<footer th:replace="~{fragments/footer}" />
+	<script th:inline="javascript">
+		function fillStars(rating) {
+			document.getElementById('rating').value = rating;
+
+			var stars = document.getElementById('starRating').children;
+
+			for (var i = 0; i < stars.length; i++) {
+				if (i < rating) {
+					stars[i].classList.add('selected');
+				} else {
+					stars[i].classList.remove('selected');
+				}
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var reviewForm = document.getElementById('addReviewForm');
+		});
+	</script>
+
+	<script th:inline="javascript">
+		function validateReviewForm() {
+			var rating = document.getElementById('rating').value;
+			var comment = document.getElementById('comment').value;
+
+			if (rating <= 0 || comment.trim() === '') {
+				alert('Por favor, completa la valoración y el comentario.');
+				return false;
+			}
+
+			return true;
+		}
+	</script>
 </body>
 
 </html>

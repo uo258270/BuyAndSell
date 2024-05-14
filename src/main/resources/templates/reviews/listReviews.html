@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head}" />
+<body>
+	<div id="content">
+    <nav th:replace="~{fragments/nav}" />
+    <div class="container">
+        <h2 th:text="#{reviews.management.header}"></h2>
+        <p th:text="#{reviews.management.list}"></p>
+        <div class="table-responsive">
+            <form id="deleteForm" action="/reviews/delete" method="post">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th th:text="#{reviews.management.product}">Producto</th>
+                            <th th:text="#{reviews.management.userEntity}">Usuario</th>
+                            <th th:text="#{reviews.management.rating}">Valoración</th>
+                            <th th:text="#{reviews.management.comment}">Comentario</th>
+                            <th th:text="#{reviews.management.action}">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="review : ${reviews}">
+                            <td th:text="${review.product.name}"></td>
+                            <td th:text="${review.userEntity.name}"></td>
+                            <td>
+                                <span th:each="i : ${#numbers.sequence(1, review.rating)}">
+                                    <i class="fa fa-star"></i>
+                                </span>
+                            </td>
+                            <td th:text="${review.comment}"></td>
+                            <td>
+                                <input type="checkbox" th:id="${'checkbox-' + review.ratingId}" name="selectedReviews" th:value="${review.ratingId}" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" onclick="submitForm()" class="btn btn-danger" th:text="#{reviews.management.delete}">Eliminar Reseñas Seleccionadas</button>
+            </form>
+        </div>
+    </div>
+	</div>
+     <footer class="navbar navbar-fixed-bottom" th:replace="~{fragments/footer}" />
+    <script>
+        function submitForm() {
+            var form = document.getElementById("deleteForm");
+            var selectedReviews = [];
+            var checkboxes = document.querySelectorAll('input[name="selectedReviews"]:checked');
+            for (var i = 0; i < checkboxes.length; i++) {
+                selectedReviews.push(checkboxes[i].value);
+            }
+            document.getElementById("deleteForm").selectedReviews.value = selectedReviews.join(",");
+            form.submit();
+        }
+    </script>
+</body>
+</html>

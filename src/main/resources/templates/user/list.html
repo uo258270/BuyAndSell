@@ -3,6 +3,7 @@
 <head th:replace="~{fragments/head}" />
 
 <body>
+	<div id="content">
     <nav th:replace="~{fragments/nav}" />
 
     <div class="container">
@@ -33,8 +34,8 @@
             </form>
         </div>
     </div>
-
+	</div>
     
-    <footer th:replace="~{fragments/footer}" />
+    <footer class="navbar navbar-fixed-bottom" th:replace="~{fragments/footer}" />
 </body>
 </html>
