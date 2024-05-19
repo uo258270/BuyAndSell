@@ -85,16 +85,40 @@ public class RecommendationSystemServiceImplTest {
 
 		Assertions.assertEquals(mockedProducts, result);
 	}
+	
+	 @Test
+	    void getMostPopularProducts_OK2() throws Exception {
+	        List<ProductEntity> mockedProducts = createMockedProductList();
+	        Mockito.when(productRepository.findMostPopularProductsThisMonthLimited(any())).thenReturn(mockedProducts);
 
-	@Test
-	void getMostPopularProducts_NoProducts_Exception() {
+	        for (ProductEntity product : mockedProducts) {
+	            Mockito.when(productCartRepository.countProductOrdersThisMonth(product.getProductId())).thenReturn(10);
+	        }
 
-		Mockito.when(productRepository.findMostPopularProductsThisMonthLimited(any())).thenReturn(null);
+	        List<ProductEntity> result = recService.getMostPopularProducts();
 
-		NullDataException result = assertThrows(NullDataException.class, () -> recService.getMostPopularProducts());
-		Assertions.assertEquals("There are no popular products", result.getMessage());
+	        Assertions.assertNotNull(result);
+	        Assertions.assertEquals(5, result.size());
+	        for (ProductEntity product : result) {
+	            Assertions.assertEquals(10, product.getNumOfPurchases());
+	        }
+	    }
 
-	}
+	    @Test
+	    void getMostPopularProducts_NoProducts_Exception() {
+	        Mockito.when(productRepository.findMostPopularProductsThisMonthLimited(any())).thenReturn(null);
+
+	        NullDataException result = assertThrows(NullDataException.class, () -> recService.getMostPopularProducts());
+	        Assertions.assertEquals("There are no popular products", result.getMessage());
+	    }
+
+	    @Test
+	    void getMostPopularProducts_EmptyList_Exception() {
+	        Mockito.when(productRepository.findMostPopularProductsThisMonthLimited(any())).thenReturn(new ArrayList<>());
+
+	        NullDataException result = assertThrows(NullDataException.class, () -> recService.getMostPopularProducts());
+	        Assertions.assertEquals("There are no popular products", result.getMessage());
+	    }
 
 	@Test
 	void getTopRatedProducts_OK() throws Exception {
@@ -114,7 +138,7 @@ public class RecommendationSystemServiceImplTest {
 		Mockito.when(productRepository.findAllByOrderByAverageRatingDesc()).thenReturn(null);
 
 		NullDataException result = assertThrows(NullDataException.class, () -> recService.getTopRatedProducts());
-		Assertions.assertEquals("there are the best rated products", result.getMessage());
+		Assertions.assertEquals("there are not best rated products", result.getMessage());
 
 	}
 

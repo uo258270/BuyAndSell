@@ -25,6 +25,8 @@ import com.tfg.exception.NullDataException;
 import com.tfg.repository.UserRepository;
 import com.tfg.service.UserService;
 
+import jakarta.transaction.Transactional;
+
 @Service("UserServiceImpl")
 public class UserServiceImpl implements UserService {
 
@@ -99,6 +101,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteUser(Long userId) throws Exception {
 		if (userId != null) {
 			userRepository.deleteById(userId);

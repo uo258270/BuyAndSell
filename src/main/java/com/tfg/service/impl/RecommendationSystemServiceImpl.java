@@ -70,6 +70,9 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 	public List<ProductEntity> getMostPopularProducts() throws NullDataException {
 		Pageable pageable = PageRequest.of(0, 5);
 		List<ProductEntity> prods = productRepository.findMostPopularProductsThisMonthLimited(pageable);
+		if (prods == null || prods.isEmpty()) {
+	        throw new NullDataException("There are no popular products");
+	    }
 		List<ProductEntity> popularProducts = new ArrayList<>();
 		for (ProductEntity product : prods) {
 			Integer numOfPurchases = productCartRepository.countProductOrdersThisMonth(product.getProductId());
@@ -80,11 +83,8 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 		}
 		popularProducts.sort(Comparator.comparingInt(ProductEntity::getNumOfPurchases).reversed());
 
-		if (prods != null) {
-			return prods;
-		} else {
-			throw new NullDataException("There are no popular products");
-		}
+		return prods;
+		
 
 	}
 
@@ -237,7 +237,7 @@ public class RecommendationSystemServiceImpl implements RecommendationSystemServ
 		if (prods != null) {
 			return prods;
 		} else {
-			throw new NullDataException("there are the best rated products");
+			throw new NullDataException("there are not best rated products");
 		}
 
 	}

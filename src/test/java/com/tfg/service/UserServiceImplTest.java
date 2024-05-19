@@ -151,12 +151,23 @@ public class UserServiceImplTest {
 
     @Test
     void deleteUser_ValidUserId_DeletesUserEntity() throws Exception {
-        Long userId = 1L;
+    	 Long userId = 1L;
+         UserEntity mockedUser = createMockedUser();
+         
+         Mockito.when(userRepo.findByUserId(any())).thenReturn(mockedUser);
 
-        userService.deleteUser(userId);
+         UserEntity result = userService.findById(mockedUser.getUserId());
+         Assertions.assertNotNull(result);
+         Assertions.assertEquals(userId, result.getUserId());
 
-        Mockito.verify(userRepo, Mockito.times(1)).deleteUser(userId);
-    }
+         Mockito.doNothing().when(userRepo).deleteById(mockedUser.getUserId());
+
+         userService.deleteUser(mockedUser.getUserId());
+
+         Mockito.verify(userRepo).deleteById(mockedUser.getUserId());
+
+      
+     }
 
     @Test
     void deleteUser_NullUserId_ThrowsException() {
