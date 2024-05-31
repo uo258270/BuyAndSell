@@ -870,9 +870,9 @@ form[name="editProductForm"] button[name="editProductButton"]:hover {
 
 
 .add-to-cart {
-    background-color: rgb(132, 193, 255); /* Cambiar el color de fondo del botón */
-    color: rgb(64, 0, 64); /* Cambiar el color del texto a blanco */
-    padding: 10px 10px; /* Ajustar el padding horizontal */
+    background-color: rgb(132, 193, 255); 
+    color: rgb(64, 0, 64);
+    padding: 10px 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;

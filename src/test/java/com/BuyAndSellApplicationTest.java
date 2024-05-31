@@ -36,7 +36,6 @@ public class BuyAndSellApplicationTest {
 	@BeforeAll
 	public static void setUp() {
 		driver = new FirefoxDriver();
-	//	js= (JavascriptExecutor) driver;
 	}
 	
 	
@@ -56,7 +55,7 @@ public class BuyAndSellApplicationTest {
 	}
 
 	@Test
-	public void testLoginMal() {
+	public void testLoginErrors() {
 		driver.get("http://localhost:" + port + "/login");
 		driver.manage().window().setSize(new Dimension(1686, 954));
 		driver.findElement(By.id("username")).click();
@@ -67,7 +66,7 @@ public class BuyAndSellApplicationTest {
 	}
 
 	@Test
-	public void testLoginVacio() {
+	public void testLoginEmpty() {
 		driver.get("http://localhost:" + port + "/login");
 		driver.manage().window().setSize(new Dimension(1686, 954));
 		driver.findElement(By.cssSelector("#loginForm > .form-group:nth-child(1)")).click();
@@ -79,7 +78,7 @@ public class BuyAndSellApplicationTest {
 
 	
 	@Test
-	public void registroMalCampoVacio1() {
+	public void testSignUpWrongEmptyField1() {
 		driver.get("http://localhost:" + port + "/login");
 
 		driver.manage().window().setSize(new Dimension(1174, 1118));
@@ -99,7 +98,7 @@ public class BuyAndSellApplicationTest {
 	}
 
 	@Test
-	public void registroYaExiste() {
+	public void testSignUpAlreadyExists() {
 		driver.get("http://localhost:" + port + "/login");
 		driver.manage().window().setSize(new Dimension(1174, 1118));
 		driver.findElement(By.cssSelector(".search-button > span")).click();
@@ -118,7 +117,7 @@ public class BuyAndSellApplicationTest {
 	}
 
 	@Test
-	public void carritoVer() {
+	public void testShowCart() {
 		driver.get("http://localhost:" + port + "/login");
 		driver.manage().window().setSize(new Dimension(1174, 1118));
 		driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -129,7 +128,7 @@ public class BuyAndSellApplicationTest {
 	}
 	
 	 @Test
-	  public void aadirCarritoyDisminuir() {
+	  public void testAddToCartAndRemoveFromCart() {
 			driver.get("http://localhost:" + port + "/login");
 
 	    driver.manage().window().setSize(new Dimension(1174, 1118));
@@ -143,7 +142,7 @@ public class BuyAndSellApplicationTest {
 	  }
 
 	@Test
-	  public void aadirProductoYEditarlo() {
+	  public void testAddProductAndEditProduct() {
 		driver.get("http://localhost:" + port + "/login");
 
 	    driver.manage().window().setSize(new Dimension(1174, 1118));
@@ -193,7 +192,7 @@ public class BuyAndSellApplicationTest {
 	  }
 
 	@Test
-	public void carritoAadirCantNohaySuficienteStock() {
+	public void testCartAddQuantityNotEnoughStock() {
 		driver.get("http://localhost:" + port + "/login");
 		driver.manage().window().setSize(new Dimension(1174, 1118));
 	    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -206,7 +205,7 @@ public class BuyAndSellApplicationTest {
 	}
 	
 	@Test
-	  public void buscarunproducto() {
+	  public void testFindProduct() {
 		driver.get("http://localhost:" + port + "/login");
 	    driver.manage().window().setSize(new Dimension(1174, 1118));
 	    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -220,7 +219,7 @@ public class BuyAndSellApplicationTest {
 	  }
 
 	 @Test
-	  public void buscarPorCategoria() {
+	  public void testFindByCategory() {
 			driver.get("http://localhost:" + port + "/login");
 	    driver.manage().window().setSize(new Dimension(1174, 1118));
 	    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -233,7 +232,7 @@ public class BuyAndSellApplicationTest {
 	  }
 	 
 	 @Test
-	  public void verFavoritos() {
+	  public void testShowFavourites() {
 			driver.get("http://localhost:" + port + "/login");
 		    driver.manage().window().setSize(new Dimension(1174, 1118));
 		    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -244,7 +243,7 @@ public class BuyAndSellApplicationTest {
 	  }
 	
 	  @Test
-	  public void aadirFavoritoYBorrarFavortio() {
+	  public void testAddFavouriteAndRemoveFav() {
 			driver.get("http://localhost:" + port + "/login");
 		    driver.manage().window().setSize(new Dimension(1174, 1118));
 		    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -257,7 +256,7 @@ public class BuyAndSellApplicationTest {
 	  }
 	  
 	  @Test
-	  public void aadirReseaProductoYEliminarResea() {
+	  public void testAddReviewAndRemoveReview() {
 			driver.get("http://localhost:" + port + "/login");
 		    driver.manage().window().setSize(new Dimension(1174, 1118));
 		    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -275,7 +274,7 @@ public class BuyAndSellApplicationTest {
 	
 	
 	  @Test
-	  public void borrarProducto() {
+	  public void testRemoveProduct() {
 			driver.get("http://localhost:" + port + "/login");
 		    driver.manage().window().setSize(new Dimension(1174, 1118));
 		    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -302,7 +301,7 @@ public class BuyAndSellApplicationTest {
 	  }
 	  
 	  @Test
-	  public void carritoVacioVer() {
+	  public void testCartEmptyShow() {
 		  driver.get("http://localhost:" + port + "/login");
 		    driver.manage().window().setSize(new Dimension(1174, 1118));
 		    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -312,7 +311,7 @@ public class BuyAndSellApplicationTest {
 	  }
 	  
 	  @Test
-	  public void compraSinStock() {
+	  public void testBuyNotEnoughStock() {
 		  driver.get("http://localhost:" + port + "/login");
 		    driver.manage().window().setSize(new Dimension(1174, 1118));
 		    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -353,7 +352,7 @@ public class BuyAndSellApplicationTest {
 	  }
 	  
 	  @Test
-	  public void comprarUnProducto() {
+	  public void testBuyProduct() {
 		  driver.get("http://localhost:" + port + "/login");
 		    driver.manage().window().setSize(new Dimension(1174, 1118));
 		    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
@@ -364,73 +363,5 @@ public class BuyAndSellApplicationTest {
 	    driver.findElement(By.cssSelector(".pay-button")).click();
 	  }
 	  
-//	  public String waitForWindow(int timeout) {
-//		    try {
-//		      Thread.sleep(timeout);
-//		    } catch (InterruptedException e) {
-//		      e.printStackTrace();
-//		    }
-//		    Set<String> whNow = driver.getWindowHandles();
-//		    Set<String> whThen = (Set<String>) vars.get("window_handles");
-//		    if (whNow.size() > whThen.size()) {
-//		      whNow.removeAll(whThen);
-//		    }
-//		    return whNow.iterator().next();
-//		  }
-//		  @Test
-//		  public void recargaPaypalBien() {
-//			  driver.get("http://localhost:" + port + "/login");
-//			    driver.manage().window().setSize(new Dimension(1174, 1118));
-//			    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
-//				driver.findElement(By.id("password")).sendKeys("nuria1234");
-//			    driver.findElement(By.cssSelector(".btn-primary")).click();
-//		    driver.findElement(By.linkText("Usuario")).click();
-//		    driver.findElement(By.cssSelector(".show > li:nth-child(1) > a")).click();
-//		    driver.findElement(By.id("amount")).sendKeys("10");
-//		    driver.switchTo().frame(0);
-//		    vars.put("window_handles", driver.getWindowHandles());
-//		    driver.findElement(By.cssSelector(".paypal-button-number-0 > .paypal-button-label-container")).click();
-//		    vars.put("win4254", waitForWindow(2000));
-//		    vars.put("root", driver.getWindowHandle());
-//		    driver.switchTo().window(vars.get("win4254").toString());
-//		    driver.findElement(By.id("email")).click();
-//		    driver.findElement(By.id("email")).sendKeys("sb-rbh47g29898417@personal.example.com");
-//		    driver.findElement(By.id("password")).sendKeys("R_h.D>5t");
-//		    driver.findElement(By.id("btnNext")).click();
-//		    driver.findElement(By.id("btnLogin")).click();
-//		    driver.findElement(By.id("payment-submit-btn")).click();
-//		    {
-//		      WebElement element = driver.findElement(By.id("payment-submit-btn"));
-//		      Actions builder = new Actions(driver);
-//		      builder.moveToElement(element).perform();
-//		    }
-//		    {
-//		      WebElement element = driver.findElement(By.tagName("body"));
-//		      Actions builder = new Actions(driver);
-//		      builder.moveToElement(element, 0, 0).perform();
-//		    }
-//		    driver.close();
-//		    driver.switchTo().window(vars.get("root").toString());
-//		  }
-		  
-//		  @Test
-//		  public void paypalError() {
-//			  driver.get("http://localhost:" + port + "/login");
-//			    driver.manage().window().setSize(new Dimension(1174, 1118));
-//			    driver.findElement(By.id("username")).sendKeys("nuria.sane.r@gmail.com");
-//				driver.findElement(By.id("password")).sendKeys("nuria1234");
-//			    driver.findElement(By.cssSelector(".btn-primary")).click();
-//		    driver.findElement(By.linkText("Usuario")).click();
-//		    driver.findElement(By.cssSelector(".show > li:nth-child(1) > a")).click();
-//		    driver.findElement(By.id("amount")).click();
-//		    driver.findElement(By.id("amount")).sendKeys("-2");
-//		    driver.switchTo().frame(0);
-//		    vars.put("window_handles", driver.getWindowHandles());
-//		    driver.findElement(By.cssSelector(".paypal-button-number-0:nth-child(1)")).click();
-//		    vars.put("win6774", waitForWindow(2000));
-//		    vars.put("root", driver.getWindowHandle());
-//		    driver.switchTo().window(vars.get("win6774").toString());
-//		    driver.close();
-//		    driver.switchTo().window(vars.get("root").toString());
-//		  }
+
 }
